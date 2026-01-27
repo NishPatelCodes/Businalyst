@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
       const userData = await authService.getCurrentUser()
       setUser(userData)
     } catch (error) {
+      // Silently fail if backend is unavailable - user is just not logged in
       setUser(null)
       // Clear any stale tokens
       localStorage.removeItem('access_token')
