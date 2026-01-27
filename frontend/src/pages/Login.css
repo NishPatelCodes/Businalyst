@@ -6,24 +6,22 @@
 
 .login-container {
   display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: #000000;
+  padding: 20px;
 }
 
-/* Left Column - Login Form */
-.login-left {
-  flex: 0 0 40%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  padding: 40px;
-}
-
-.login-content {
+/* Centered Login Card */
+.login-card {
   width: 100%;
   max-width: 420px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .login-header {
@@ -223,172 +221,10 @@
   color: #333333;
 }
 
-/* Right Column - Analytics Showcase */
-.login-right {
-  flex: 0 0 60%;
-  background: #000000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60px;
-  position: relative;
-  overflow: hidden;
-}
-
-.analytics-showcase {
-  width: 100%;
-  max-width: 600px;
-  z-index: 1;
-}
-
-.stats-container {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 60px;
-  gap: 40px;
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 48px;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 8px;
-  line-height: 1;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #cccccc;
-  font-weight: 500;
-}
-
-.analytics-graphic {
-  margin-bottom: 60px;
-  background: #1a1a1a;
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  border: 1px solid #333333;
-}
-
-.chart-container {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  height: 200px;
-  gap: 12px;
-}
-
-.chart-bar {
-  flex: 1;
-  background: #ffffff;
-  border-radius: 8px 8px 0 0;
-  animation: growUp 1s ease-out forwards;
-  opacity: 0;
-  max-width: 60px;
-}
-
-@keyframes growUp {
-  from {
-    height: 0;
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.cta-section {
-  text-align: center;
-}
-
-.cta-title {
-  font-size: 36px;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 16px;
-  line-height: 1.2;
-}
-
-.cta-description {
-  font-size: 18px;
-  color: #cccccc;
-  margin-bottom: 32px;
-  line-height: 1.6;
-}
-
-.cta-button {
-  padding: 16px 32px;
-  background: #ffffff;
-  color: #000000;
-  border: 2px solid #ffffff;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-}
-
-.cta-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
-  background: #f5f5f5;
-}
-
-.cta-button:active {
-  transform: translateY(0);
-  background: #ffffff;
-}
-
 /* Responsive Design */
-@media (max-width: 1024px) {
-  .login-container {
-    flex-direction: column;
-  }
-
-  .login-left,
-  .login-right {
-    flex: 1;
-  }
-
-  .login-right {
-    padding: 40px;
-  }
-
-  .stats-container {
-    margin-bottom: 40px;
-  }
-}
-
 @media (max-width: 768px) {
-  .login-left {
+  .login-card {
     padding: 24px;
-  }
-
-  .login-right {
-    padding: 24px;
-  }
-
-  .stats-container {
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .stat-number {
-    font-size: 36px;
-  }
-
-  .cta-title {
-    font-size: 28px;
-  }
-
-  .cta-description {
-    font-size: 16px;
   }
 }
 
