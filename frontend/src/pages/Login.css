@@ -52,12 +52,16 @@
   color: #000000 !important;
   margin-bottom: 32px;
   text-align: center;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  letter-spacing: -0.02em;
+  -webkit-font-smoothing: subpixel-antialiased !important;
+  -moz-osx-font-smoothing: auto !important;
+  text-rendering: optimizeSpeed !important;
+  letter-spacing: 0;
   line-height: 1.2;
-  opacity: 1;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+  will-change: auto;
+  transform: translateZ(0);
 }
 
 .email-form {
