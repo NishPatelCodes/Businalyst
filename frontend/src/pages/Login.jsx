@@ -56,7 +56,6 @@ function Login() {
       <div className="login-card">
         <div className="login-header">
           <div className="logo">
-            <span className="logo-icon">📊</span>
             <span className="logo-text">Businalyst</span>
           </div>
         </div>

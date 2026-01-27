@@ -31,14 +31,9 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
-}
-
-.logo-icon {
-  font-size: 28px;
 }
 
 .logo-text {
