@@ -2,10 +2,10 @@
   width: 100%;
   padding: 12px 16px;
   margin-bottom: 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #000000;
   border-radius: 8px;
   background: white;
-  color: #333;
+  color: #000000;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -14,17 +14,19 @@
   justify-content: center;
   gap: 12px;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .oauth-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-color: #d0d0d0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-color: #000000;
+  background: #f5f5f5;
 }
 
 .oauth-button:active {
   transform: translateY(0);
+  background: #ffffff;
 }
 
 .oauth-icon {
@@ -34,31 +36,35 @@
 }
 
 .oauth-button-google {
-  border-color: #dadce0;
+  border-color: #000000;
+  background: white;
+  color: #000000;
 }
 
 .oauth-button-google:hover {
-  border-color: #4285f4;
-  background: #f8f9fa;
+  border-color: #000000;
+  background: #f5f5f5;
 }
 
 .oauth-button-github {
-  border-color: #d0d0d0;
+  border-color: #000000;
+  background: white;
+  color: #000000;
 }
 
 .oauth-button-github:hover {
-  border-color: #24292e;
-  background: #f6f8fa;
+  border-color: #000000;
+  background: #f5f5f5;
 }
 
 .oauth-button-apple {
-  border-color: #d0d0d0;
-  background: #000;
+  border-color: #000000;
+  background: #000000;
   color: white;
 }
 
 .oauth-button-apple:hover {
   background: #1a1a1a;
-  border-color: #000;
+  border-color: #000000;
 }
 
