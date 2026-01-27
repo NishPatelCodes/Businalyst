@@ -11,8 +11,9 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login, register, user, checkAuth } = useAuth()
+  const { login, register, user } = useAuth()
   const navigate = useNavigate()
+  const [showEmailForm, setShowEmailForm] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
 
   // Check if user is already logged in (but only if not loading)
@@ -22,6 +23,11 @@ function Login() {
     }
   }, [user, loading, navigate])
 
+  const handleEmailLogin = () => {
+    setShowEmailForm(true)
+    setError('')
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -29,8 +35,7 @@ function Login() {
 
     try {
       if (isSignUp) {
-        await register(email, password)
-        // After registration, login
+        await register(email, password, email.split('@')[0]) // Using email prefix as name
         await login(email, password)
       } else {
         await login(email, password)
@@ -41,6 +46,14 @@ function Login() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleBack = () => {
+    setShowEmailForm(false)
+    setIsSignUp(false)
+    setEmail('')
+    setPassword('')
+    setError('')
   }
 
   const handleOAuth = async (provider) => {
@@ -62,114 +75,123 @@ function Login() {
 
         <div className="login-body">
           <h1 className="login-title">Welcome!</h1>
-          <p className="login-subtitle">
-            {isSignUp 
-              ? 'Create your account to get started' 
-              : 'Log in to Businalyst to continue'}
-          </p>
 
-          <div className="oauth-buttons">
-            <OAuthButton
-              provider="google"
-              icon="G"
-              label="Log in with Google"
-              onClick={() => handleOAuth('google')}
-            />
-            <OAuthButton
-              provider="github"
-              icon="⚫"
-              label="Log in with GitHub"
-              onClick={() => handleOAuth('github')}
-            />
-            <OAuthButton
-              provider="apple"
-              icon="🍎"
-              label="Log in with Apple"
-              onClick={() => handleOAuth('apple')}
-            />
-          </div>
-
-          <div className="divider">
-            <span>OR</span>
-          </div>
-
-          <form onSubmit={handleSubmit} className="login-form">
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="Your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <div className="form-group-header">
-                <label htmlFor="password">Password</label>
-                {!isSignUp && (
-                  <a href="#" className="forgot-password">
-                    Forgot password?
-                  </a>
-                )}
-              </div>
-              <div className="password-input-wrapper">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+          {!showEmailForm ? (
+            <>
+              <div className="login-options">
                 <button
                   type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
+                  className="option-button"
+                  onClick={handleEmailLogin}
                 >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                  Login with Email
                 </button>
-              </div>
-            </div>
-
-            {error && <div className="error-message">{error}</div>}
-
-            <button
-              type="submit"
-              className="login-button"
-              disabled={loading}
-            >
-              {loading ? 'Loading...' : isSignUp ? 'Sign up' : 'Log in'}
-            </button>
-          </form>
-
-          <div className="signup-prompt">
-            {isSignUp ? (
-              <>
-                Already have an account?{' '}
                 <button
                   type="button"
-                  className="link-button"
-                  onClick={() => setIsSignUp(false)}
+                  className="option-button"
+                  onClick={() => handleOAuth('google')}
                 >
-                  Log in
+                  Login with Google
                 </button>
-              </>
-            ) : (
-              <>
+                <button
+                  type="button"
+                  className="option-button"
+                  onClick={() => handleOAuth('apple')}
+                >
+                  Login with Apple
+                </button>
+              </div>
+
+              <div className="signup-prompt">
                 Don't have an account?{' '}
                 <button
                   type="button"
                   className="link-button"
-                  onClick={() => setIsSignUp(true)}
+                  onClick={() => {
+                    setIsSignUp(true)
+                    setShowEmailForm(true)
+                  }}
                 >
                   Sign up
                 </button>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="back-button"
+                onClick={handleBack}
+              >
+                ← Back
+              </button>
+
+              <form onSubmit={handleSubmit} className="login-form">
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="Your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <div className="form-group-header">
+                    <label htmlFor="password">Password</label>
+                    {!isSignUp && (
+                      <a href="#" className="forgot-password">
+                        Forgot password?
+                      </a>
+                    )}
+                  </div>
+                  <div className="password-input-wrapper">
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? '👁️' : '👁️‍🗨️'}
+                    </button>
+                  </div>
+                </div>
+
+                {error && <div className="error-message">{error}</div>}
+
+                <button
+                  type="submit"
+                  className="login-button"
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : isSignUp ? 'Sign up' : 'Log in'}
+                </button>
+              </form>
+
+              {!isSignUp && (
+                <div className="signup-prompt">
+                  Don't have an account?{' '}
+                  <button
+                    type="button"
+                    className="link-button"
+                    onClick={() => setIsSignUp(true)}
+                  >
+                    Sign up
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

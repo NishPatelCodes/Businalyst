@@ -17,15 +17,16 @@
 /* Centered Login Card */
 .login-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   background: #ffffff;
   border-radius: 12px;
-  padding: 40px;
+  padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .login-header {
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+  text-align: center;
 }
 
 .logo {
@@ -46,40 +47,58 @@
 }
 
 .login-title {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 8px;
-}
-
-.login-subtitle {
-  font-size: 16px;
-  color: #666666;
   margin-bottom: 32px;
+  text-align: center;
 }
 
-.oauth-buttons {
+.login-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 24px;
 }
 
-.divider {
-  display: flex;
-  align-items: center;
+.option-button {
+  width: 100%;
+  padding: 14px 24px;
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
   text-align: center;
-  margin: 24px 0;
-  color: #999999;
+}
+
+.option-button:hover {
+  background: #000000;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.option-button:active {
+  transform: translateY(0);
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #666666;
   font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 24px;
+  transition: color 0.2s;
 }
 
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.divider span {
-  padding: 0 16px;
+.back-button:hover {
+  color: #000000;
 }
 
 .login-form {
