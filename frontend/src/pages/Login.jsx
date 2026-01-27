@@ -12,7 +12,7 @@ function Login() {
   const [loading, setLoading] = useState(false)
   const { login, register, user } = useAuth()
   const navigate = useNavigate()
-  const [showEmailForm, setShowEmailForm] = useState(false)
+  const [showPasswordCard, setShowPasswordCard] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
 
   // Check if user is already logged in (but only if not loading)
@@ -22,9 +22,14 @@ function Login() {
     }
   }, [user, loading, navigate])
 
-  const handleEmailLogin = () => {
-    setShowEmailForm(true)
-    setError('')
+  const handleEmailSubmit = (e) => {
+    e.preventDefault()
+    if (email && email.includes('@')) {
+      setShowPasswordCard(true)
+      setError('')
+    } else {
+      setError('Please enter a valid email address')
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -48,9 +53,8 @@ function Login() {
   }
 
   const handleBack = () => {
-    setShowEmailForm(false)
+    setShowPasswordCard(false)
     setIsSignUp(false)
-    setEmail('')
     setPassword('')
     setError('')
   }
@@ -75,16 +79,35 @@ function Login() {
         <div className="login-body">
           <h1 className="login-title">Welcome!</h1>
 
-          {!showEmailForm ? (
+          {!showPasswordCard ? (
             <>
-              <div className="login-options">
+              <form onSubmit={handleEmailSubmit} className="email-form">
+                <div className="form-group">
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoFocus
+                  />
+                </div>
+                {error && <div className="error-message">{error}</div>}
                 <button
-                  type="button"
-                  className="option-button"
-                  onClick={handleEmailLogin}
+                  type="submit"
+                  className="continue-button"
+                  disabled={!email || !email.includes('@')}
                 >
-                  Login with Email
+                  Continue
                 </button>
+              </form>
+
+              <div className="oauth-divider">
+                <span>OR</span>
+              </div>
+
+              <div className="login-options">
                 <button
                   type="button"
                   className="option-button"
@@ -108,7 +131,7 @@ function Login() {
                   className="link-button"
                   onClick={() => {
                     setIsSignUp(true)
-                    setShowEmailForm(true)
+                    setShowPasswordCard(true)
                   }}
                 >
                   Sign up
@@ -125,19 +148,11 @@ function Login() {
                 ← Back
               </button>
 
-              <form onSubmit={handleSubmit} className="login-form">
-                <div className="form-group">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="Your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
+              <div className="email-display">
+                <span className="email-text">{email}</span>
+              </div>
 
+              <form onSubmit={handleSubmit} className="login-form">
                 <div className="form-group">
                   <div className="form-group-header">
                     <label htmlFor="password">Password</label>
@@ -151,10 +166,11 @@ function Login() {
                     <input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Your password"
+                      placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      autoFocus
                     />
                     <button
                       type="button"
