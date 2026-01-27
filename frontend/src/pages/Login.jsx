@@ -16,24 +16,12 @@ function Login() {
   const [isSignUp, setIsSignUp] = useState(false)
   const statsAnimated = useRef(false)
 
-  // Check if user is already logged in
+  // Check if user is already logged in (but only if not loading)
   useEffect(() => {
-    if (user) {
+    if (user && !loading) {
       navigate('/')
     }
-  }, [user, navigate])
-
-  // After OAuth redirect, check auth state
-  useEffect(() => {
-    // If we're on the login page after an OAuth redirect, check auth
-    if (window.location.pathname === '/login') {
-      // Small delay to ensure cookie is set
-      const timer = setTimeout(() => {
-        checkAuth()
-      }, 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [checkAuth])
+  }, [user, loading, navigate])
 
   // Animate stats numbers
   useEffect(() => {

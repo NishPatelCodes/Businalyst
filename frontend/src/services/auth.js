@@ -55,14 +55,30 @@ export const authService = {
   },
 
   async logout() {
+    // Clear localStorage first
+    localStorage.removeItem('access_token')
+    
     if (isApiConfigured) {
       try {
         await api.post('/api/auth/logout')
       } catch (error) {
-        // Ignore logout errors
+        // Ignore logout errors - we've already cleared local storage
+        console.error('Logout API error:', error)
       }
     }
-    localStorage.removeItem('access_token')
+    
+    // Clear any cookies by making a request to logout endpoint
+    // This ensures HTTP-only cookies are cleared
+    try {
+      // Force clear cookies by setting them to expire
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+    } catch (error) {
+      // Ignore cookie clearing errors
+    }
   },
 
   async getCurrentUser() {
@@ -93,4 +109,5 @@ export const authService = {
     window.location.href = response.data.authorization_url
   },
 }
+
 
