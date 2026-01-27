@@ -77,7 +77,22 @@ function Login() {
         </div>
 
         <div className="login-body">
-          <div className="login-title">Welcome to Businalyst</div>
+          <div 
+            className="login-title"
+            style={{
+              color: '#000000',
+              WebkitFontSmoothing: 'subpixel-antialiased',
+              MozOsxFontSmoothing: 'auto',
+              textRendering: 'geometricPrecision',
+              opacity: 1,
+              filter: 'none',
+              background: 'none',
+              WebkitTextFillColor: '#000000',
+              WebkitBackgroundClip: 'unset'
+            }}
+          >
+            Welcome to Businalyst
+          </div>
 
           {!showPasswordCard ? (
             <>

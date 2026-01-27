@@ -49,22 +49,25 @@
 .login-title {
   font-size: 28px;
   font-weight: 700;
-  color: #000000;
+  color: #000000 !important;
   margin-bottom: 32px;
   text-align: center;
   letter-spacing: 0;
   line-height: 1.2;
-  text-shadow: none;
-  background: none;
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: #000000;
-  background-clip: unset;
-  animation: none;
-  opacity: 1;
-  filter: none;
-  -webkit-font-smoothing: subpixel-antialiased;
-  -moz-osx-font-smoothing: auto;
-  text-rendering: optimizeSpeed;
+  text-shadow: none !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: #000000 !important;
+  background-clip: unset !important;
+  animation: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  -webkit-font-smoothing: subpixel-antialiased !important;
+  -moz-osx-font-smoothing: auto !important;
+  text-rendering: geometricPrecision !important;
+  will-change: auto;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .email-form {
