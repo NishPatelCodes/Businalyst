@@ -47,26 +47,24 @@
 }
 
 .login-title {
-  font-size: 28px !important;
-  font-weight: 700 !important;
-  color: #000000 !important;
-  margin-bottom: 32px !important;
-  text-align: center !important;
-  letter-spacing: 0 !important;
-  line-height: 1.2 !important;
-  text-shadow: none !important;
-  background: none !important;
-  -webkit-background-clip: unset !important;
-  -webkit-text-fill-color: #000000 !important;
-  background-clip: unset !important;
-  animation: none !important;
-  opacity: 1 !important;
-  filter: none !important;
-  will-change: auto;
-  transform: translateZ(0);
-  -webkit-font-smoothing: subpixel-antialiased !important;
-  -moz-osx-font-smoothing: auto !important;
-  text-rendering: optimizeSpeed !important;
+  font-size: 28px;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-shadow: none;
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: #000000;
+  background-clip: unset;
+  animation: none;
+  opacity: 1;
+  filter: none;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: optimizeSpeed;
 }
 
 .email-form {
