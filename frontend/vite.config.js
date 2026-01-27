@@ -13,6 +13,17 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'auth-vendor': ['axios']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
   }
 })
 
