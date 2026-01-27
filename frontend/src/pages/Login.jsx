@@ -77,7 +77,7 @@ function Login() {
         </div>
 
         <div className="login-body">
-          <h1 className="login-title">Welcome!</h1>
+          <h1 className="login-title">Welcome to Businalyst</h1>
 
           {!showPasswordCard ? (
             <>
