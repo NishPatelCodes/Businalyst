@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData)
     } catch (error) {
       // Silently fail if backend is unavailable - user is just not logged in
+      // This is expected if backend is not configured
       setUser(null)
       // Clear any stale tokens
       localStorage.removeItem('access_token')

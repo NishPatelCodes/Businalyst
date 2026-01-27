@@ -12,7 +12,8 @@ export const ProtectedRoute = ({ children }) => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        fontSize: '18px'
+        fontSize: '18px',
+        backgroundColor: '#f5f5f5'
       }}>
         Loading...
       </div>
