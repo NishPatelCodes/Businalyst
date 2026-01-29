@@ -1,0 +1,11 @@
+{
+  "name": "businalyst-frontend",
+  "version": "1.0.0",
+  "description": "Businalyst frontend - static HTML pages",
+  "scripts": {
+    "build": "echo 'No build step needed for static HTML'",
+    "start": "echo 'Static HTML files - no server needed'"
+  },
+  "private": true
+}
+
