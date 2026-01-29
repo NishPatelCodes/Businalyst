@@ -1,0 +1,328 @@
+.phone-container {
+  perspective: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.phone-container * {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.phone-frame {
+  width: 240px;
+  height: 480px;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border-radius: 32px;
+  padding: 6px;
+  box-shadow: 
+    0 30px 80px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 100px rgba(255, 255, 255, 0.1) inset;
+  position: relative;
+  transform: rotateY(-18deg) rotateX(6deg) rotateZ(-1deg);
+  transition: transform 0.3s ease;
+  overflow: visible;
+}
+
+/* iPhone shine/reflection effect - prominent side shine matching image */
+.phone-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.2) 45%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.45) 55%,
+    rgba(255, 255, 255, 0.35) 60%,
+    rgba(255, 255, 255, 0.2) 65%,
+    transparent 75%,
+    transparent 100%
+  );
+  border-radius: 32px;
+  pointer-events: none;
+  z-index: 3;
+  mix-blend-mode: overlay;
+}
+
+/* Additional prominent shine on the right edge (iPhone glossy side) */
+.phone-frame::after {
+  content: '';
+  position: absolute;
+  top: 5%;
+  right: -2px;
+  width: 25%;
+  height: 90%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 15%,
+    rgba(255, 255, 255, 0.6) 40%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0.6) 60%,
+    rgba(255, 255, 255, 0.4) 85%,
+    transparent 100%
+  );
+  border-radius: 0 32px 32px 0;
+  pointer-events: none;
+  z-index: 3;
+  mix-blend-mode: overlay;
+  filter: blur(1px);
+}
+
+.phone-frame:hover {
+  transform: rotateY(-16deg) rotateX(5deg) rotateZ(-1deg);
+}
+
+/* Volume Buttons */
+.volume-button {
+  position: absolute;
+  left: -3px;
+  width: 4px;
+  background: #111827;
+  border-radius: 2px;
+  z-index: 5;
+}
+
+.volume-up {
+  top: 80px;
+  height: 32px;
+}
+
+.volume-down {
+  top: 120px;
+  height: 32px;
+}
+
+/* Power Button */
+.power-button {
+  position: absolute;
+  right: -3px;
+  top: 100px;
+  width: 4px;
+  height: 48px;
+  background: #111827;
+  border-radius: 2px;
+  z-index: 5;
+}
+
+/* Dynamic Island */
+.dynamic-island {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 28px;
+  background: #000000;
+  border-radius: 16px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Phone Screen */
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 26px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 36px 16px 16px;
+  position: relative;
+  z-index: 2;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Header */
+.phone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.phone-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.hamburger-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.hamburger-line {
+  width: 20px;
+  height: 2px;
+  background: #6b7280;
+  border-radius: 1px;
+}
+
+/* Timeframe Selector */
+.timeframe-selector {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.timeframe-btn {
+  padding: 4px 10px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.timeframe-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.timeframe-btn:hover:not(.active) {
+  background: #f3f4f6;
+}
+
+.filter-btn {
+  padding: 4px 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: #f3f4f6;
+}
+
+/* Main Metric */
+.main-metric {
+  margin-bottom: 16px;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 3px;
+  line-height: 1;
+}
+
+.metric-change {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.metric-change.positive {
+  color: #059669;
+}
+
+/* Chart */
+.chart-container {
+  margin-bottom: 16px;
+}
+
+.chart {
+  height: 60px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.chart-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #9ca3af;
+  padding: 0 2px;
+}
+
+/* Key Metrics */
+.key-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-card {
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 10px;
+}
+
+.metric-card-label {
+  font-size: 10px;
+  color: #6b7280;
+  margin-bottom: 3px;
+  font-weight: 500;
+}
+
+.metric-card-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.metric-card-change {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.metric-card-change.positive {
+  color: #059669;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .phone-frame {
+    width: 200px;
+    height: 400px;
+    transform: rotateY(0) rotateX(0) rotateZ(0);
+  }
+
+  .phone-screen {
+    padding: 30px 12px 12px;
+  }
+
+  .metric-value {
+    font-size: 24px;
+  }
+}
+
