@@ -1,9 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import './ComingSoon.css'
 
 const ComingSoon = () => {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [theme, setTheme] = useState('light') // 'light' or 'dark'
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -14,8 +17,27 @@ const ComingSoon = () => {
     setTimeout(() => setSubmitted(false), 3000)
   }
 
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme)
+    setDropdownOpen(false)
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
-    <div className="coming-soon-page">
+    <div className={`coming-soon-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
       {/* Header */}
       <header className="page-header">
         <div className="header-left">
@@ -26,11 +48,32 @@ const ComingSoon = () => {
           </div>
         </div>
         <div className="header-right">
-          <div className="theme-selector">
-            <span>Desktop Light</span>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+          <div className="theme-selector-wrapper" ref={dropdownRef}>
+            <div 
+              className="theme-selector"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <span>{theme === 'light' ? 'Desktop Light' : 'Desktop Dark'}</span>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            {dropdownOpen && (
+              <div className="theme-dropdown">
+                <div 
+                  className={`theme-option ${theme === 'light' ? 'active' : ''}`}
+                  onClick={() => handleThemeChange('light')}
+                >
+                  Desktop Light
+                </div>
+                <div 
+                  className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
+                  onClick={() => handleThemeChange('dark')}
+                >
+                  Desktop Dark
+                </div>
+              </div>
+            )}
           </div>
           <button className="buy-button">Buy $5</button>
         </div>
