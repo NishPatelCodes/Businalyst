@@ -109,13 +109,13 @@
 }
 
 .theme-option.active {
-  background: #eff6ff;
-  color: #3b82f6;
+  background: #f3f4f6;
+  color: #111827;
   font-weight: 500;
 }
 
 .buy-button {
-  background: #3b82f6;
+  background: #111827;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -128,7 +128,7 @@
 }
 
 .buy-button:hover {
-  background: #2563eb;
+  background: #000000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
@@ -167,7 +167,7 @@
 .coming-soon-badge {
   display: inline-block;
   background: #ffffff;
-  color: #1e40af;
+  color: #111827;
   padding: 4px 10px;
   border-radius: 16px;
   font-size: 10px;
@@ -176,6 +176,7 @@
   width: fit-content;
   text-transform: uppercase;
   margin: 0 auto;
+  border: 1px solid #e5e7eb;
 }
 
 .main-headline {
@@ -217,8 +218,8 @@
 }
 
 .email-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #111827;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
 }
 
 .email-input::placeholder {
@@ -228,7 +229,7 @@
 .submit-button {
   width: 42px;
   height: 42px;
-  background: #3b82f6;
+  background: #111827;
   border: none;
   border-radius: 50%;
   display: flex;
@@ -237,18 +238,18 @@
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 2px 4px rgba(17, 24, 39, 0.2);
 }
 
 .submit-button:hover {
-  background: #2563eb;
+  background: #000000;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 8px rgba(17, 24, 39, 0.3);
 }
 
 .submit-button:active {
   transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.2);
 }
 
 .success-message {
@@ -288,7 +289,7 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #111827;
   border: 2px solid white;
   margin-left: -6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -299,11 +300,11 @@
 }
 
 .avatar:nth-child(2) {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: #4b5563;
 }
 
 .avatar:nth-child(3) {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: #6b7280;
 }
 
 .signup-count {
@@ -400,13 +401,13 @@
 }
 
 .coming-soon-page.dark-theme .theme-option.active {
-  background: #1e3a8a;
-  color: #60a5fa;
+  background: #252525;
+  color: #ffffff;
 }
 
 .coming-soon-page.dark-theme .coming-soon-badge {
   background: #151515;
-  color: #60a5fa;
+  color: #ffffff;
   border: 1px solid #252525;
 }
 
@@ -425,8 +426,8 @@
 }
 
 .coming-soon-page.dark-theme .email-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 .coming-soon-page.dark-theme .email-input::placeholder {
@@ -439,6 +440,7 @@
 
 .coming-soon-page.dark-theme .phone-image {
   box-shadow: 0 0 35px 5px rgb(10, 10, 10);
+  box-shadow: 0 0 35px 5px rgb(0, 0, 0);
   filter: drop-shadow(0 20px 60px rgba(0, 0, 0, 0.6));
 }
 
@@ -452,12 +454,12 @@
 }
 
 .coming-soon-page.dark-theme .buy-button {
-  background: #3b82f6;
-  color: white;
+  background: #ffffff;
+  color: #000000;
 }
 
 .coming-soon-page.dark-theme .buy-button:hover {
-  background: #2563eb;
+  background: #e5e7eb;
 }
 
 /* Responsive Design */

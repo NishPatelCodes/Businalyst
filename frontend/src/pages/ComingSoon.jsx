@@ -126,7 +126,7 @@ const ComingSoon = () => {
           <div className="phone-image-section">
             <div className="phone-image-wrapper">
               <img 
-                src="/images/phone-dashboard.png" 
+                src={theme === 'dark' ? '/images/phone-dashboard-dark.png' : '/images/phone-dashboard.png'} 
                 alt="Businalyst Dashboard" 
                 className="phone-image"
                 onError={(e) => {
