@@ -4,22 +4,43 @@ import './ComingSoon.css'
 const ComingSoon = () => {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  const [theme, setTheme] = useState('light') // 'light' or 'dark'
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [theme, setTheme] = useState(() => {
+    // Load theme from localStorage on initial render
+    const savedTheme = localStorage.getItem('theme')
+    return savedTheme || 'light'
+  })
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // TODO: Connect to backend API for email collection
-    console.log('Email submitted:', email)
-    setSubmitted(true)
-    setEmail('')
-    setTimeout(() => setSubmitted(false), 3000)
+    setError('')
+    setLoading(true)
+    
+    try {
+      // TODO: Connect to backend API for email collection
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      console.log('Email submitted:', email)
+      setSubmitted(true)
+      setEmail('')
+      setTimeout(() => setSubmitted(false), 3000)
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
+      console.error('Submission error:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme)
     setDropdownOpen(false)
+    // Add localStorage persistence
+    localStorage.setItem('theme', newTheme)
   }
 
   // Close dropdown when clicking outside
@@ -97,16 +118,28 @@ const ComingSoon = () => {
                 type="email"
                 placeholder="jane@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setError('') // Clear error when user types
+                }}
                 required
                 className="email-input"
+                disabled={loading}
               />
-              <button type="submit" className="submit-button">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4 10L16 10M16 10L11 5M16 10L11 15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+              <button type="submit" className="submit-button" disabled={loading}>
+                {loading ? (
+                  <div className="spinner"></div>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 10L16 10M16 10L11 5M16 10L11 15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
               </button>
             </form>
+
+            {error && (
+              <div className="error-message">{error}</div>
+            )}
 
             {submitted && (
               <div className="success-message">Thanks! We'll notify you soon.</div>
