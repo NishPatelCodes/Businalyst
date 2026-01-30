@@ -1,0 +1,184 @@
+import React, { useState, useRef, useEffect } from 'react'
+import './ComingSoon.css'
+
+const ComingSoon = () => {
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [theme, setTheme] = useState(() => {
+    // Load theme from localStorage on initial render
+    const savedTheme = localStorage.getItem('theme')
+    return savedTheme || 'light'
+  })
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    
+    try {
+      // TODO: Connect to backend API for email collection
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      console.log('Email submitted:', email)
+      setSubmitted(true)
+      setEmail('')
+      setTimeout(() => setSubmitted(false), 3000)
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
+      console.error('Submission error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme)
+    setDropdownOpen(false)
+    // Add localStorage persistence
+    localStorage.setItem('theme', newTheme)
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  return (
+    <div className={`coming-soon-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
+      {/* Header */}
+      <header className="page-header">
+        <div className="header-left">
+          <div className="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+        <div className="header-right">
+          <div className="theme-selector-wrapper" ref={dropdownRef}>
+            <div 
+              className="theme-selector"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <span>{theme === 'light' ? 'Desktop Light' : 'Desktop Dark'}</span>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            {dropdownOpen && (
+              <div className="theme-dropdown">
+                <div 
+                  className={`theme-option ${theme === 'light' ? 'active' : ''}`}
+                  onClick={() => handleThemeChange('light')}
+                >
+                  Desktop Light
+                </div>
+                <div 
+                  className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
+                  onClick={() => handleThemeChange('dark')}
+                >
+                  Desktop Dark
+                </div>
+              </div>
+            )}
+          </div>
+          <button className="buy-button">Buy $5</button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="main-content">
+        <div className="content-wrapper">
+          {/* Center: Text and Form */}
+          <div className="text-section">
+            <div className="coming-soon-badge">COMING SOON</div>
+            <h1 className="main-headline">
+              Understand your business metrics in minutes, not hours
+            </h1>
+            <p className="description">
+              We help founders and teams track key business metrics, spot trends, and make data-driven decisions without complex dashboards or manual reports.
+            </p>
+            
+            <form className="email-form" onSubmit={handleSubmit}>
+              <input
+                type="email"
+                placeholder="jane@example.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setError('') // Clear error when user types
+                }}
+                required
+                className="email-input"
+                disabled={loading}
+              />
+              <button type="submit" className="submit-button" disabled={loading}>
+                {loading ? (
+                  <div className="spinner"></div>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 10L16 10M16 10L11 5M16 10L11 15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </button>
+            </form>
+
+            {error && (
+              <div className="error-message">{error}</div>
+            )}
+
+            {submitted && (
+              <div className="success-message">Thanks! We'll notify you soon.</div>
+            )}
+
+            <div className="social-proof">
+              <div className="avatars">
+                <div className="avatar"></div>
+                <div className="avatar"></div>
+                <div className="avatar"></div>
+              </div>
+              <span className="signup-count">4.5k people signed up</span>
+            </div>
+          </div>
+
+          {/* Bottom Center: Phone Image */}
+          <div className="phone-image-section">
+            <div className="phone-image-wrapper">
+              <img 
+                src={theme === 'dark' ? '/images/phone-dashboard-dark.png' : '/images/phone-dashboard.png'} 
+                alt="Businalyst Dashboard" 
+                className="phone-image"
+                onError={(e) => {
+                  // Fallback if image doesn't exist - user will need to add the image
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'block';
+                }}
+              />
+              <div className="phone-image-placeholder" style={{display: 'none'}}>
+                <p>Please add phone-dashboard.png to /frontend/public/images/</p>
+              </div>
+              <div className="phone-reflection"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+export default ComingSoon
+

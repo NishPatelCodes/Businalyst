@@ -1,6 +1,6 @@
 {
-  "buildCommand": "echo 'No build needed'",
-  "outputDirectory": ".",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",
@@ -18,7 +18,7 @@
       ]
     },
     {
-      "source": "/static/(.*)",
+      "source": "/assets/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
