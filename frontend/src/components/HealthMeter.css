@@ -1,26 +1,25 @@
 .health-meter {
   background: #ffffff;
-  border-radius: 12px;
-  padding: 16px 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f3f4f6;
-  transition: all 0.3s ease;
-  min-height: 220px;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  border: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+  height: 240px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
 .health-meter:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
 }
 
 .health-meter-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 20px;
   line-height: 1.4;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
@@ -58,12 +57,12 @@
 }
 
 .gauge-value {
-  font-size: 32px;
+  font-size: 42px;
   font-weight: 600;
-  color: #111827;
-  line-height: 1.2;
-  margin-bottom: 4px;
-  letter-spacing: -0.02em;
+  color: #1a1a1a;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  letter-spacing: -0.03em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -71,8 +70,8 @@
 }
 
 .gauge-status {
-  font-size: 11px;
-  color: #9CA3AF;
+  font-size: 12px;
+  color: #9ca3af;
   font-weight: 400;
   line-height: 1.4;
   letter-spacing: -0.01em;

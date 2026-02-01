@@ -28,13 +28,13 @@ const HealthMeter = ({
   
   // Calculate color for gradient (lighter on left → darker on right)
   const getSegmentColor = (index, isFilled) => {
-    if (!isFilled) return '#e5e7eb' // Light gray for unfilled
+    if (!isFilled) return '#e8e8e8' // Light gray for unfilled
     
     const progress = index / (totalSegments - 1)
-    // Green gradient: light green (left) → medium green (middle) → vibrant green (right)
-    if (progress < 0.33) return '#86efac' // Light green
-    if (progress < 0.66) return '#4ade80' // Medium green
-    return '#22c55e' // Vibrant green
+    // Soft green gradient: very light green (left) → medium green (middle) → soft green (right)
+    if (progress < 0.33) return '#a8e6cf' // Very light green
+    if (progress < 0.66) return '#6dd5a8' // Medium green
+    return '#34c759' // Apple green
   }
   
   // Calculate transform for each segment using polar coordinates
@@ -50,7 +50,7 @@ const HealthMeter = ({
 
   return (
     <div className="health-meter">
-      <h3 className="health-meter-title">Repeat Customer Rate</h3>
+      <div className="health-meter-title">Repeat Customer Rate</div>
       
       {/* SVG Gauge */}
       <div className="health-meter-gauge">
