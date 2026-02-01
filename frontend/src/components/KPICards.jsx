@@ -4,57 +4,44 @@ import './KPICards.css'
 const KPICards = () => {
   const kpis = [
     {
-      title: 'Page Views',
-      value: '16.431',
-      change: '+15.5%',
+      title: 'Profit',
+      value: '$24,580',
+      change: '+12.3%',
       changeType: 'positive',
-      comparison: 'vs. 14,653 last period',
+      comparison: 'vs. $21,890 last period',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M3 3L10.07 19.97L12.58 12.58L19.97 10.07L3 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M12.58 12.58L19.97 10.07" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       )
     },
     {
-      title: 'Visitors',
-      value: '6.225',
-      change: '+8.4%',
+      title: 'Revenue',
+      value: '$186,420',
+      change: '+7.9%',
       changeType: 'positive',
-      comparison: 'vs. 5,732 last period',
+      comparison: 'vs. $172,700 last period',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="9" cy="7" r="3" stroke="currentColor" strokeWidth="1.5"/>
-          <circle cx="15" cy="7" r="3" stroke="currentColor" strokeWidth="1.5"/>
-          <path d="M3 19C3 15.5 5.5 13 9 13C12.5 13 15 15.5 15 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          <path d="M9 19C9 16.5 11.5 14 15 14C18.5 14 21 16.5 21 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      )
-    },
-    {
-      title: 'Click',
-      value: '2.832',
-      change: '-10.5%',
-      changeType: 'negative',
-      comparison: 'vs. 3,294 last period',
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 9L15 15M15 9L9 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5"/>
+          <rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M3 10H21" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M7 14H7.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M11 14H11.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
       )
     },
     {
       title: 'Orders',
-      value: '1.224',
+      value: '1,224',
       change: '+4.4%',
       changeType: 'positive',
       comparison: 'vs. 1,188 last period',
       icon: (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 7L12 12L21 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M3 17L12 22L21 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M3 12L12 17L21 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M6 2L3 6V20C3 20.5304 3.21071 21.0391 3.58579 21.4142C3.96086 21.7893 4.46957 22 5 22H19C19.5304 22 20.0391 21.7893 20.4142 21.4142C20.7893 21.0391 21 20.5304 21 20V6L18 2H6Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M3 6H21" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M16 10C16 11.1046 15.1046 12 14 12C12.8954 12 12 11.1046 12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
       )
     }

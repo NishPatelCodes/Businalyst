@@ -1,10 +1,14 @@
 .health-meter {
   background: #ffffff;
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid #f3f4f6;
   transition: all 0.3s ease;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .health-meter:hover {
@@ -16,7 +20,7 @@
   font-size: 14px;
   font-weight: 600;
   color: #111827;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   line-height: 1.4;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
@@ -28,14 +32,16 @@
 .health-meter-gauge {
   position: relative;
   width: 100%;
-  height: 150px;
-  margin-bottom: 16px;
+  height: 110px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
+  flex: 1;
 }
 
-.gauge-bars-wrapper {
+.gauge-svg {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -44,23 +50,19 @@
   z-index: 1;
 }
 
-.gauge-bar-item {
-  position: absolute;
-}
-
-.gauge-center {
+.gauge-center-content {
   position: relative;
   z-index: 10;
   text-align: center;
-  margin-top: 40px;
+  margin-top: 12px;
 }
 
 .gauge-value {
-  font-size: 40px;
+  font-size: 32px;
   font-weight: 600;
   color: #111827;
   line-height: 1.2;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   letter-spacing: -0.02em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -82,7 +84,7 @@
 
 .health-meter-button {
   width: 100%;
-  padding: 8px 14px;
+  padding: 6px 14px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
