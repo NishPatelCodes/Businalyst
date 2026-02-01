@@ -5,21 +5,28 @@ import './KPICards.css'
 const generateSparklineData = (trend, points = 20) => {
   const data = []
   const baseValue = 50
-  const variance = 15
+  const variance = 25 // Increased variance for more fluctuation
+  const randomFactor = 8 // Additional random fluctuation
   
   for (let i = 0; i < points; i++) {
     const progress = i / (points - 1)
     let value = baseValue
     
+    // Multiple sine waves for complex fluctuation
+    const wave1 = Math.sin(progress * Math.PI * 3) * variance
+    const wave2 = Math.sin(progress * Math.PI * 5) * (variance * 0.6)
+    const wave3 = Math.sin(progress * Math.PI * 7) * (variance * 0.4)
+    const random = (Math.random() - 0.5) * randomFactor
+    
     if (trend === 'positive') {
-      // Upward trend
-      value = baseValue + (progress * 30) + (Math.sin(progress * Math.PI * 2) * variance)
+      // Upward trend with heavy fluctuation
+      value = baseValue + (progress * 30) + wave1 + wave2 + wave3 + random
     } else if (trend === 'negative') {
-      // Downward trend
-      value = baseValue + ((1 - progress) * 30) + (Math.sin(progress * Math.PI * 2) * variance)
+      // Downward trend with heavy fluctuation
+      value = baseValue + ((1 - progress) * 30) + wave1 + wave2 + wave3 + random
     } else {
-      // Neutral/flat trend
-      value = baseValue + (Math.sin(progress * Math.PI * 2) * variance)
+      // Neutral/flat trend with heavy fluctuation
+      value = baseValue + wave1 + wave2 + wave3 + random
     }
     
     data.push(Math.max(10, Math.min(90, value)))
@@ -88,6 +95,7 @@ const KPICards = () => {
       value: '$24,580',
       change: '+12.3%',
       changeType: 'positive',
+      graphTrend: 'positive', // Strong upward trend
       comparison: 'vs. $21,890 last period',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -101,6 +109,7 @@ const KPICards = () => {
       value: '$186,420',
       change: '+7.9%',
       changeType: 'positive',
+      graphTrend: 'negative', // Downward trend (recent decline)
       comparison: 'vs. $172,700 last period',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -116,6 +125,7 @@ const KPICards = () => {
       value: '1,224',
       change: '+4.4%',
       changeType: 'positive',
+      graphTrend: 'neutral', // Flat/neutral trend
       comparison: 'vs. 1,188 last period',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -130,7 +140,7 @@ const KPICards = () => {
   return (
     <div className="kpi-cards">
       {kpis.map((kpi, index) => {
-        const sparklineData = generateSparklineData(kpi.changeType)
+        const sparklineData = generateSparklineData(kpi.graphTrend || kpi.changeType)
         
         return (
           <div key={index} className="kpi-card">
@@ -155,7 +165,7 @@ const KPICards = () => {
             </div>
             
             <div className="kpi-sparkline">
-              <Sparkline data={sparklineData} trend={kpi.changeType} index={index} />
+              <Sparkline data={sparklineData} trend={kpi.graphTrend || kpi.changeType} index={index} />
             </div>
           </div>
         )
