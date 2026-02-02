@@ -3,6 +3,8 @@ import Sidebar from '../components/Sidebar'
 import TopNavigation from '../components/TopNavigation'
 import HealthMeter from '../components/HealthMeter'
 import KPICards from '../components/KPICards'
+import LeadsChart from '../components/LeadsChart'
+import ExpenseSources from '../components/ExpenseSources'
 import './Dashboard.css'
 
 const Dashboard = () => {
@@ -57,6 +59,15 @@ const Dashboard = () => {
           <div className="dashboard-metrics">
             <HealthMeter />
             <KPICards />
+          </div>
+
+          <div className="charts-row">
+            <div className="chart-left">
+              <LeadsChart />
+            </div>
+            <div className="chart-right">
+              <ExpenseSources />
+            </div>
           </div>
         </div>
       </div>

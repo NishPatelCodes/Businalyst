@@ -1,0 +1,324 @@
+.leads-chart {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  border: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.leads-chart:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.leads-chart-header {
+  margin-bottom: 24px;
+}
+
+.leads-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.leads-chart-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+}
+
+.timeframe-selectors {
+  display: flex;
+  gap: 8px;
+  background: #f9fafb;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.timeframe-btn {
+  padding: 6px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+}
+
+.timeframe-btn:hover {
+  background: #ffffff;
+  color: #111827;
+}
+
+.timeframe-btn.active {
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+.leads-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.lead-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lead-metric-value {
+  font-size: 32px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+}
+
+.lead-metric-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  text-transform: lowercase;
+}
+
+.lead-metric-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  margin-top: 4px;
+}
+
+.lead-metric-change.positive {
+  color: #34c759;
+}
+
+.lead-metric-change svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.leads-chart-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: visible;
+  flex: 1;
+}
+
+.leads-chart-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.grid-lines line {
+  stroke-dasharray: none;
+}
+
+.axis-label {
+  font-size: 12px;
+  fill: #6b7280;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+}
+
+.chart-area.revenue {
+  fill: url(#revenueGradient);
+}
+
+.chart-line.revenue {
+  stroke: #007AFF;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.chart-line.ad-spend {
+  stroke: #ff3b30;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.data-point-hit {
+  cursor: pointer;
+}
+
+.data-point.revenue {
+  fill: #007AFF;
+  stroke: #ffffff;
+  stroke-width: 2;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.data-point.ad-spend {
+  fill: #ff3b30;
+  stroke: #ffffff;
+  stroke-width: 2;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.chart-tooltip {
+  position: fixed;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 1000;
+  transform: translateX(-50%);
+  min-width: 180px;
+}
+
+.tooltip-date {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+}
+
+.tooltip-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tooltip-metric {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tooltip-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.tooltip-indicator.revenue {
+  background: #007AFF;
+}
+
+.tooltip-indicator.ad-spend {
+  background: #ff3b30;
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tooltip-label {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+}
+
+.tooltip-value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+}
+
+@media (max-width: 1024px) {
+  .leads-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .timeframe-selectors {
+    width: 100%;
+  }
+
+  .leads-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .leads-chart-container {
+    height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .leads-chart {
+    padding: 20px;
+  }
+
+  .leads-chart-title {
+    font-size: 18px;
+  }
+
+  .lead-metric-value {
+    font-size: 28px;
+  }
+
+  .leads-chart-container {
+    height: 200px;
+  }
+}

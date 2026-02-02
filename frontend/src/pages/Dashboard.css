@@ -245,3 +245,42 @@
   }
 }
 
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-top: 24px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.chart-left {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.chart-left .leads-chart {
+  width: 100%;
+  min-width: 0;
+}
+
+.chart-right {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.chart-right .expense-sources {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
