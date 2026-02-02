@@ -50,7 +50,7 @@ const HealthMeter = ({
 
   return (
     <div className="health-meter">
-      <div className="health-meter-title">Repeat Customer Rate</div>
+      <div className="health-meter-title">Business Health</div>
       
       {/* SVG Gauge */}
       <div className="health-meter-gauge">
@@ -85,7 +85,7 @@ const HealthMeter = ({
         {/* Center content: Percentage and status */}
         <div className="gauge-center-content">
           <div className="gauge-value">{value}%</div>
-          <div className="gauge-status">On track for {target}% target</div>
+          <div className="gauge-status">On track for {target}%</div>
         </div>
       </div>
     </div>

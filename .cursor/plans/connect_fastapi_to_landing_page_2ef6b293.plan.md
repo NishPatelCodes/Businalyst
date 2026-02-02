@@ -1,4 +1,40 @@
-# Connect FastAPI Backend to Landing Page
+---
+name: Connect FastAPI to Landing Page
+overview: Connect the FastAPI backend to the React landing page to handle email submissions from the ComingSoon form. The plan includes setting up CORS, creating an email collection endpoint, storing emails in a JSON file, and connecting the frontend form to the backend API.
+todos:
+  - id: add-cors
+    content: Add CORS middleware to FastAPI backend to allow frontend requests
+    status: pending
+  - id: create-endpoint
+    content: Create POST /api/subscribe endpoint with email validation and JSON file storage
+    status: pending
+    dependencies:
+      - add-cors
+  - id: add-error-handling
+    content: Add proper error handling with appropriate HTTP status codes
+    status: pending
+    dependencies:
+      - create-endpoint
+  - id: create-api-service
+    content: Create frontend API service module with subscribeEmail function
+    status: pending
+  - id: connect-form
+    content: Update ComingSoon form to call backend API with loading and error states
+    status: pending
+    dependencies:
+      - create-api-service
+      - create-endpoint
+  - id: update-requirements
+    content: Update requirements.txt with pydantic email validation if needed
+    status: pending
+  - id: create-storage-file
+    content: Create initial emails.json file for storing subscriptions
+    status: pending
+---
+
+# Connect FastAPI Ba
+
+ckend to Landing Page
 
 ## Overview
 
@@ -22,88 +58,72 @@ sequenceDiagram
     Frontend->>User: Show success message
 ```
 
+
+
 ## Implementation Steps
 
 ### 1. Backend: Add CORS Middleware
 
-**File**: [`backend/app.py`](backend/app.py)
+**File**: [`backend/app.py`](backend/app.py)**Why CORS?** When your frontend (running on `http://localhost:3000`) tries to call your backend (running on `http://localhost:8000`), browsers block these "cross-origin" requests by default. CORS (Cross-Origin Resource Sharing) middleware tells the browser to allow these requests.**Changes**:
 
-**Why CORS?** When your frontend (running on `http://localhost:3000`) tries to call your backend (running on `http://localhost:8000`), browsers block these "cross-origin" requests by default. CORS (Cross-Origin Resource Sharing) middleware tells the browser to allow these requests.
-
-**Changes**:
 - Import `CORSMiddleware` from `fastapi.middleware.cors`
 - Add CORS middleware to allow requests from the frontend origin
 - Configure allowed origins, methods, and headers
 
 ### 2. Backend: Create Email Subscription Endpoint
 
-**File**: [`backend/app.py`](backend/app.py)
+**File**: [`backend/app.py`](backend/app.py)**What we're building**: A POST endpoint that receives email addresses, validates them, and stores them in a JSON file.**Changes**:
 
-**What we're building**: A POST endpoint that receives email addresses, validates them, and stores them in a JSON file.
-
-**Changes**:
 - Import Pydantic models for request validation (`BaseModel` from `pydantic`)
 - Import JSON and file handling utilities
 - Create a `SubscribeRequest` model with email validation
 - Create `POST /api/subscribe` endpoint that:
-  - Validates the email format
-  - Reads existing emails from `emails.json` (create file if it doesn't exist)
-  - Checks for duplicates
-  - Appends new email with timestamp
-  - Returns success/error response
+- Validates the email format
+- Reads existing emails from `emails.json` (create file if it doesn't exist)
+- Checks for duplicates
+- Appends new email with timestamp
+- Returns success/error response
 
 ### 3. Backend: Add Error Handling
 
-**File**: [`backend/app.py`](backend/app.py)
+**File**: [`backend/app.py`](backend/app.py)**Why?** Proper error handling ensures the API returns meaningful messages when something goes wrong (invalid email, file errors, etc.).**Changes**:
 
-**Why?** Proper error handling ensures the API returns meaningful messages when something goes wrong (invalid email, file errors, etc.).
-
-**Changes**:
 - Add try-except blocks around file operations
 - Return appropriate HTTP status codes (200 for success, 400 for bad requests, 500 for server errors)
 - Include descriptive error messages
 
 ### 4. Frontend: Create API Service Module
 
-**File**: [`frontend/src/services/api.js`](frontend/src/services/api.js) (new file)
+**File**: [`frontend/src/services/api.js`](frontend/src/services/api.js) (new file)**Why a separate service file?** This keeps API logic organized and reusable. It's a common pattern in React apps.**What to create**:
 
-**Why a separate service file?** This keeps API logic organized and reusable. It's a common pattern in React apps.
-
-**What to create**:
 - A function `subscribeEmail(email)` that:
-  - Makes a POST request to `http://localhost:8000/api/subscribe`
-  - Handles the response
-  - Returns a promise with success/error information
+- Makes a POST request to `http://localhost:8000/api/subscribe`
+- Handles the response
+- Returns a promise with success/error information
 
 **Note**: We'll use the browser's built-in `fetch` API (no extra dependencies needed).
 
 ### 5. Frontend: Connect Form to Backend
 
-**File**: [`frontend/src/pages/ComingSoon.jsx`](frontend/src/pages/ComingSoon.jsx)
+**File**: [`frontend/src/pages/ComingSoon.jsx`](frontend/src/pages/ComingSoon.jsx)**Changes**:
 
-**Changes**:
 - Import the `subscribeEmail` function from the API service
 - Update `handleSubmit` to:
-  - Call the API function
-  - Show loading state while waiting for response
-  - Display success message on success
-  - Display error message on failure
-  - Handle network errors gracefully
+- Call the API function
+- Show loading state while waiting for response
+- Display success message on success
+- Display error message on failure
+- Handle network errors gracefully
 
 ### 6. Backend: Update Requirements
 
-**File**: [`backend/requirements.txt`](backend/requirements.txt)
+**File**: [`backend/requirements.txt`](backend/requirements.txt)**Changes**:
 
-**Changes**:
 - Add `pydantic[email]` for email validation (if not already included with FastAPI)
 
 ### 7. Create Data Storage File
 
-**File**: [`backend/emails.json`](backend/emails.json) (new file, initially empty array)
-
-**Purpose**: This JSON file will store all collected email addresses with timestamps.
-
-**Initial content**: `[]`
+**File**: [`backend/emails.json`](backend/emails.json) (new file, initially empty array)**Purpose**: This JSON file will store all collected email addresses with timestamps.**Initial content**: `[]`
 
 ## Key Concepts Explained (For Learning)
 
@@ -144,15 +164,3 @@ After implementation:
 ## Next Steps (Future Enhancements)
 
 - Add email validation on backend (check format, check if domain exists)
-- Add rate limiting (prevent spam)
-- Move to a real database (PostgreSQL, MongoDB)
-- Add email confirmation (send verification email)
-- Add analytics endpoint (count total subscriptions)
-
-
-
-
-
-
-
-

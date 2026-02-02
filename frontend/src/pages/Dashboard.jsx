@@ -44,6 +44,7 @@ const Dashboard = () => {
                 <span>Add widget</span>
               </button>
               
+              
               <button className="action-button primary">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8 2V14M2 8H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -54,12 +55,8 @@ const Dashboard = () => {
           </div>
           
           <div className="dashboard-metrics">
-            <div className="metrics-left">
-              <HealthMeter />
-            </div>
-            <div className="metrics-right">
-              <KPICards />
-            </div>
+            <HealthMeter />
+            <KPICards />
           </div>
         </div>
       </div>

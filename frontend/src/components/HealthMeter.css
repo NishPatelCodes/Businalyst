@@ -1,11 +1,11 @@
 .health-meter {
   background: #ffffff;
   border-radius: 16px;
-  padding: 28px;
+  padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   border: 1px solid #f0f0f0;
   transition: all 0.2s ease;
-  height: 240px;
+  height: 180px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -19,7 +19,8 @@
   font-size: 13px;
   font-weight: 500;
   color: #6b7280;
-  margin-bottom: 20px;
+  margin: 0;
+  margin-bottom: 8px;
   line-height: 1.4;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
@@ -31,8 +32,8 @@
 .health-meter-gauge {
   position: relative;
   width: 100%;
-  height: 110px;
-  margin-bottom: 8px;
+  height: 100%;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,18 +51,26 @@
 }
 
 .gauge-center-content {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -35%);
   z-index: 10;
   text-align: center;
-  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .gauge-value {
-  font-size: 42px;
+  font-size: 30px;
   font-weight: 600;
   color: #1a1a1a;
-  line-height: 1.1;
-  margin-bottom: 6px;
+  line-height: 1;
+  margin: 10px;
+  margin-bottom: 2px;
   letter-spacing: -0.03em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -70,10 +79,11 @@
 }
 
 .gauge-status {
-  font-size: 12px;
+  font-size: 10px;
   color: #9ca3af;
   font-weight: 400;
   line-height: 1.4;
+  margin: 0;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -82,14 +92,15 @@
 }
 
 .health-meter-button {
-  width: 100%;
-  padding: 6px 14px;
+  width: 70%;
+  padding: 5px 12px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   color: #111827;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
+  margin-top: auto;
   line-height: 1.4;
   letter-spacing: -0.01em;
   cursor: pointer;
