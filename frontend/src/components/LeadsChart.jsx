@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react'
 import './LeadsChart.css'
 
 const LeadsChart = () => {
-  const [timeframe, setTimeframe] = useState('6 months')
   const [hoveredPoint, setHoveredPoint] = useState(null)
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
   const chartRef = useRef(null)
@@ -17,10 +16,10 @@ const LeadsChart = () => {
     { date: 'Dec', revenue: 452264, adSpend: 19570 }
   ]
 
-  // Chart dimensions
-  const chartWidth = 800
-  const chartHeight = 300
-  const padding = { top: 10, right: 40, bottom: 20, left: 70 }
+  // Chart dimensions - responsive to container (wider aspect ratio)
+  const chartWidth = 1200
+  const chartHeight = 350
+  const padding = { top: 20, right: 40, bottom: 30, left: 70 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom
 
@@ -119,43 +118,7 @@ const LeadsChart = () => {
   return (
     <div className="leads-chart">
       <div className="leads-chart-header">
-        <div className="leads-title-row">
-          <h2 className="leads-chart-title">Leads won vs leads lost</h2>
-          <div className="timeframe-selectors">
-            {['6 months', '30 days', '7 days'].map((period) => (
-              <button
-                key={period}
-                className={`timeframe-btn ${timeframe === period ? 'active' : ''}`}
-                onClick={() => setTimeframe(period)}
-              >
-                {period}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="leads-metrics">
-          <div className="lead-metric">
-            <div className="lead-metric-value">680</div>
-            <div className="lead-metric-label">total closed</div>
-            <div className="lead-metric-change positive">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="currentColor"/>
-              </svg>
-              <span>+42%</span>
-            </div>
-          </div>
-          <div className="lead-metric">
-            <div className="lead-metric-value">70</div>
-            <div className="lead-metric-label">total lost</div>
-            <div className="lead-metric-change positive">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="currentColor"/>
-              </svg>
-              <span>+17%</span>
-            </div>
-          </div>
-        </div>
+        <h2 className="leads-chart-title">Leads won vs leads lost</h2>
       </div>
 
       <div className="leads-chart-container">

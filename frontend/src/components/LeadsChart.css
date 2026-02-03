@@ -7,7 +7,7 @@
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 60%;
   width: 100%;
   box-sizing: border-box;
 }
@@ -17,20 +17,11 @@
 }
 
 .leads-chart-header {
-  margin-bottom: 24px;
-}
-
-.leads-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 16px;
 }
 
 .leads-chart-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #111827;
   margin: 0;
@@ -42,119 +33,22 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
 }
 
-.timeframe-selectors {
-  display: flex;
-  gap: 8px;
-  background: #f9fafb;
-  padding: 4px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-}
-
-.timeframe-btn {
-  padding: 6px 14px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
-}
-
-.timeframe-btn:hover {
-  background: #ffffff;
-  color: #111827;
-}
-
-.timeframe-btn.active {
-  background: #ffffff;
-  color: #111827;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  font-weight: 600;
-}
-
-.leads-metrics {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-}
-
-.lead-metric {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.lead-metric-value {
-  font-size: 32px;
-  font-weight: 600;
-  color: #111827;
-  line-height: 1.2;
-  letter-spacing: -0.03em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
-}
-
-.lead-metric-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
-  text-transform: lowercase;
-}
-
-.lead-metric-change {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
-  margin-top: 4px;
-}
-
-.lead-metric-change.positive {
-  color: #34c759;
-}
-
-.lead-metric-change svg {
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-}
-
 .leads-chart-container {
   position: relative;
   width: 100%;
-  height: 300px;
-  overflow: visible;
   flex: 1;
+  min-height: 350px;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
 }
 
 .leads-chart-svg {
   width: 100%;
   height: 100%;
-  overflow: visible;
+  display: block;
+  min-width: 100%;
 }
 
 .grid-lines line {
@@ -287,21 +181,8 @@
 }
 
 @media (max-width: 1024px) {
-  .leads-title-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .timeframe-selectors {
-    width: 100%;
-  }
-
-  .leads-metrics {
-    grid-template-columns: 1fr;
-  }
-
   .leads-chart-container {
-    height: 250px;
+    min-height: 300px;
   }
 }
 
@@ -311,14 +192,10 @@
   }
 
   .leads-chart-title {
-    font-size: 18px;
-  }
-
-  .lead-metric-value {
-    font-size: 28px;
+    font-size: 16px;
   }
 
   .leads-chart-container {
-    height: 200px;
+    min-height: 250px;
   }
 }
