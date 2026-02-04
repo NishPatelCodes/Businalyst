@@ -98,15 +98,7 @@ const ExpenseSources = () => {
         </svg>
       </div>
 
-      <div className="expense-legend">
-        {expenseData.map((item, index) => (
-          <div key={index} className="expense-legend-item">
-            <div className="legend-color" style={{ backgroundColor: item.color }}></div>
-            <span className="legend-name">{item.name}</span>
-            <span className="legend-percentage">{item.percentage}%</span>
-          </div>
-        ))}
-      </div>
+      
     </div>
   )
 }
