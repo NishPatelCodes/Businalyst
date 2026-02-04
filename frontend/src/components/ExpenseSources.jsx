@@ -5,11 +5,11 @@ const ExpenseSources = () => {
   // Data matching the image exactly
   const expenseData = [
     { name: 'Online purchase', percentage: 42, color: '#FF9500' },
-    { name: 'In-store shopping', percentage: 21, color: '#E5E7EB' },
-    { name: 'Subscription', percentage: 15, color: '#E5E7EB' },
-    { name: 'Transportation', percentage: 12, color: '#E5E7EB' },
-    { name: 'Food & Dining', percentage: 7, color: '#E5E7EB' },
-    { name: 'Other', percentage: 3, color: '#E5E7EB' }
+    { name: 'In-store shopping', percentage: 21, color: '#e5e7eb' },
+    { name: 'Subscription', percentage: 15, color: '#e5e7eb' },
+    { name: 'Transportation', percentage: 12, color: '#e5e7eb' },
+    { name: 'Food & Dining', percentage: 7, color: '#e5e7eb' },
+    { name: 'Other', percentage: 3, color: '#e5e7eb' }
   ]
 
   const total = expenseData.length

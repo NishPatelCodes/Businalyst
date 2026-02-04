@@ -1,39 +1,40 @@
+/* ============================================
+   HEALTH METER - COMPACT DESIGN
+   ============================================ */
+
 .health-meter {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  border: 1px solid #f0f0f0;
-  transition: all 0.2s ease;
-  height: 180px;
+  background: var(--bg-primary);
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--card-shadow);
+  border: var(--card-border);
+  transition: all var(--transition-base);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100%;
+  min-height: 0;
 }
 
 .health-meter:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .health-meter-title {
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  margin: 0;
-  margin-bottom: 8px;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-1) 0;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 .health-meter-gauge {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 0;
+  min-height: 100px;
+  max-height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,60 +66,30 @@
 }
 
 .gauge-value {
-  font-size: 30px;
-  font-weight: 600;
-  color: #1a1a1a;
-  line-height: 1;
-  margin: 10px;
-  margin-bottom: 2px;
-  letter-spacing: -0.03em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+  margin: var(--spacing-1) 0;
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .gauge-status {
-  font-size: 10px;
-  color: #9ca3af;
-  font-weight: 400;
-  line-height: 1.4;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
   margin: 0;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  letter-spacing: var(--letter-spacing-normal);
 }
 
-.health-meter-button {
-  width: 70%;
-  padding: 5px 12px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  color: #111827;
-  font-size: 11px;
-  font-weight: 500;
-  margin-top: auto;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+/* Responsive */
+@media (max-width: 1024px) {
+  .health-meter-gauge {
+    min-height: 100px;
+  }
+  
+  .gauge-value {
+    font-size: var(--font-size-xl);
+  }
 }
-
-.health-meter-button:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.health-meter-button:active {
-  transform: translateY(0);
-}
-

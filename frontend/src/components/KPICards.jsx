@@ -44,7 +44,8 @@ const KPICards = () => {
           <path d="M16 10C16 11.1046 15.1046 12 14 12C12.8954 12 12 11.1046 12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
       )
-    },{
+    },
+    {
       title: 'Orders',
       value: '1,224',
       change: '+4.4%',

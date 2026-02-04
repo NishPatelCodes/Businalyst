@@ -16,10 +16,10 @@ const LeadsChart = () => {
     { date: 'Dec', revenue: 452264, adSpend: 19570 }
   ]
 
-  // Chart dimensions - responsive to container (wider aspect ratio)
+  // Chart dimensions - compact
   const chartWidth = 1200
-  const chartHeight = 350
-  const padding = { top: 20, right: 40, bottom: 30, left: 70 }
+  const chartHeight = 250
+  const padding = { top: 15, right: 30, bottom: 25, left: 60 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom
 
@@ -133,8 +133,8 @@ const LeadsChart = () => {
           {/* Gradient definition */}
           <defs>
             <linearGradient id="revenueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#007AFF" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#007AFF" stopOpacity="0.05" />
+              <stop offset="0%" stopColor="#2563eb" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#2563eb" stopOpacity="0.05" />
             </linearGradient>
           </defs>
 

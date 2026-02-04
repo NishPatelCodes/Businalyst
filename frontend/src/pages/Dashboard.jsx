@@ -5,6 +5,9 @@ import HealthMeter from '../components/HealthMeter'
 import KPICards from '../components/KPICards'
 import LeadsChart from '../components/LeadsChart'
 import ExpenseSources from '../components/ExpenseSources'
+import SubscriptionAnalytics from '../components/SubscriptionAnalytics'
+import OrdersList from '../components/OrdersList'
+import MapView from '../components/MapView'
 import './Dashboard.css'
 
 const Dashboard = () => {
@@ -67,6 +70,18 @@ const Dashboard = () => {
             </div>
             <div className="chart-right">
               <ExpenseSources />
+            </div>
+          </div>
+          
+          <div className="analytics-map-row">
+            <div className="analytics-left">
+              <SubscriptionAnalytics />
+            </div>
+            <div className="orders-middle">
+              <OrdersList />
+            </div>
+            <div className="map-right">
+              <MapView />
             </div>
           </div>
         </div>

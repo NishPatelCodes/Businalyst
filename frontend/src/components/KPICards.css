@@ -1,96 +1,125 @@
-.kpi-cards {
-  display: contents;
-}
+/* ============================================
+   KPI CARDS - COMPACT DESIGN
+   ============================================ */
 
 .kpi-card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  border: 1px solid #f0f0f0;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-  height: 180px;
+  background: var(--bg-primary);
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--card-shadow);
+  border: var(--card-border);
+  transition: all var(--transition-base);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100%;
+  min-height: 0;
 }
 
 .kpi-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* First KPI Card - Dominant Styling */
+.kpi-card:first-of-type {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  color: #ffffff;
+  border-color: var(--color-primary);
+}
+
+.kpi-card:first-of-type .kpi-title,
+.kpi-card:first-of-type .kpi-value,
+.kpi-card:first-of-type .kpi-comparison {
+  color: #ffffff;
+}
+
+.kpi-card:first-of-type .kpi-change {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.kpi-card:first-of-type .kpi-change svg {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .kpi-title {
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  margin: 0 0 8px 0;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-1) 0;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 .kpi-value {
-  font-size: 32px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin: 0 0 0px 0;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: var(--spacing-1) 0 var(--spacing-2) 0;
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+}
+
+/* First card larger value */
+.kpi-card:first-of-type .kpi-value {
+  font-size: var(--font-size-2xl);
 }
 
 .kpi-footer {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--spacing-1);
+  margin-top: auto;
 }
 
 .kpi-change {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  gap: var(--spacing-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 .kpi-change.positive {
-  color: #34c759;
+  color: var(--color-success);
 }
 
 .kpi-change.negative {
-  color: #ff3b30;
+  color: var(--color-danger);
 }
 
 .kpi-change svg {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   flex-shrink: 0;
 }
 
 .kpi-comparison {
-  font-size: 12px;
-  color: #9ca3af;
-  font-weight: 400;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
 }
 
+/* Responsive */
+@media (max-width: 1280px) {
+  .kpi-value {
+    font-size: var(--font-size-lg);
+  }
+  
+  .kpi-card:first-of-type .kpi-value {
+    font-size: var(--font-size-xl);
+  }
+}
 
+@media (max-width: 1024px) {
+  .kpi-value {
+    font-size: var(--font-size-md);
+  }
+  
+  .kpi-card:first-of-type .kpi-value {
+    font-size: var(--font-size-lg);
+  }
+}

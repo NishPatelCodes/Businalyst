@@ -1,43 +1,42 @@
+/* ============================================
+   LEADS CHART - COMPACT DESIGN
+   ============================================ */
+
 .leads-chart {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-  border: 1px solid #f0f0f0;
-  transition: all 0.2s ease;
+  background: var(--bg-primary);
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--card-shadow);
+  border: var(--card-border);
+  transition: all var(--transition-base);
   display: flex;
   flex-direction: column;
-  height: 78%;
-  width: 100%;
-  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
 }
 
 .leads-chart:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .leads-chart-header {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-2);
 }
 
 .leads-chart-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
   margin: 0;
-  line-height: 1.4;
-  letter-spacing: -0.02em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 .leads-chart-container {
   position: relative;
   width: 100%;
   flex: 1;
-  min-height: 350px;
+  min-height: 200px;
   overflow: hidden;
   display: flex;
   align-items: stretch;
@@ -53,16 +52,13 @@
 
 .grid-lines line {
   stroke-dasharray: none;
+  stroke: var(--color-neutral-100);
 }
 
 .axis-label {
-  font-size: 12px;
-  fill: #6b7280;
-  font-weight: 500;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  font-size: var(--font-size-xs);
+  fill: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
 .chart-area.revenue {
@@ -70,13 +66,13 @@
 }
 
 .chart-line.revenue {
-  stroke: #007AFF;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  stroke: var(--color-primary);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .chart-line.ad-spend {
-  stroke: #ff3b30;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  stroke: var(--color-danger);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .data-point-hit {
@@ -84,118 +80,108 @@
 }
 
 .data-point.revenue {
-  fill: #007AFF;
+  fill: var(--color-primary);
   stroke: #ffffff;
   stroke-width: 2;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
 }
 
 .data-point.ad-spend {
-  fill: #ff3b30;
+  fill: var(--color-danger);
   stroke: #ffffff;
   stroke-width: 2;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
 }
 
 .chart-tooltip {
   position: fixed;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--bg-primary);
+  border: var(--card-border);
+  border-radius: var(--card-border-radius);
+  padding: var(--spacing-2) var(--spacing-3);
+  box-shadow: var(--card-shadow-hover);
   pointer-events: none;
   z-index: 1000;
   transform: translateX(-50%);
-  min-width: 180px;
+  min-width: 160px;
 }
 
 .tooltip-date {
-  font-size: 12px;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 8px;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-1);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 .tooltip-metrics {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--spacing-1);
 }
 
 .tooltip-metric {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-2);
 }
 
 .tooltip-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
   flex-shrink: 0;
 }
 
 .tooltip-indicator.revenue {
-  background: #007AFF;
+  background: var(--color-primary);
 }
 
 .tooltip-indicator.ad-spend {
-  background: #ff3b30;
+  background: var(--color-danger);
 }
 
 .tooltip-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .tooltip-label {
-  font-size: 11px;
-  color: #6b7280;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
 }
 
 .tooltip-value {
-  font-size: 14px;
-  color: #111827;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
 }
 
+/* Responsive */
 @media (max-width: 1024px) {
   .leads-chart-container {
-    min-height: 300px;
+    min-height: 180px;
   }
 }
 
 @media (max-width: 768px) {
   .leads-chart {
-    padding: 20px;
+    padding: var(--card-padding-sm);
+    min-height: 0;
   }
 
   .leads-chart-title {
-    font-size: 16px;
+    font-size: var(--font-size-sm);
   }
 
   .leads-chart-container {
-    min-height: 250px;
+    min-height: 150px;
   }
 }
