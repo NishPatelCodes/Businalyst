@@ -1,124 +1,152 @@
 import React, { useState, useRef } from 'react'
 import './LeadsChart.css'
 
+const TIME_RANGES = ['1H', '24H', '1W', '1M', '3M', '1Y', '5Y']
+
 const LeadsChart = () => {
   const [hoveredPoint, setHoveredPoint] = useState(null)
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
+  const [selectedRange, setSelectedRange] = useState('24H')
   const chartRef = useRef(null)
 
-  // Sample data matching the image
-  const revenueData = [
-    { date: 'Jul', revenue: 550000, adSpend: 19570 },
-    { date: 'Aug', revenue: 320000, adSpend: 19570 },
-    { date: 'Sep', revenue: 480000, adSpend: 19570 },
-    { date: 'Oct', revenue: 560000, adSpend: 19570 },
-    { date: 'Nov', revenue: 520000, adSpend: 19570 },
-    { date: 'Dec', revenue: 452264, adSpend: 19570 }
+  const chartData = [
+    { date: 'Jul', value: 550000 },
+    { date: 'Aug', value: 320000 },
+    { date: 'Sep', value: 480000 },
+    { date: 'Oct', value: 560000 },
+    { date: 'Nov', value: 520000 },
+    { date: 'Dec', value: 452264 }
   ]
 
-  // Chart dimensions - compact
   const chartWidth = 1200
-  const chartHeight = 250
-  const padding = { top: 15, right: 30, bottom: 25, left: 60 }
+  const chartHeight = 260
+  const padding = { top: 20, right: 24, bottom: 40, left: 56 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom
 
-  // Y-axis labels
-  const yAxisLabels = [100000, 200000, 300000, 400000, 500000, 600000]
-  const yAxisMin = 0
-  const yAxisMax = 600000
+  const values = chartData.map((d) => d.value)
+  const yMin = Math.min(...values)
+  const yMax = Math.max(...values)
+  const yPadding = (yMax - yMin) * 0.1 || 1
+  const yAxisMin = yMin - yPadding
+  const yAxisMax = yMax + yPadding
 
-  // Convert value to Y coordinate
-  const valueToY = (value) => {
-    return padding.top + graphHeight - ((value - yAxisMin) / (yAxisMax - yAxisMin)) * graphHeight
-  }
+  const valueToY = (value) =>
+    padding.top + graphHeight - ((value - yAxisMin) / (yAxisMax - yAxisMin)) * graphHeight
 
-  // Convert index to X coordinate
-  const indexToX = (index) => {
-    return padding.left + (index / (revenueData.length - 1)) * graphWidth
-  }
+  const indexToX = (index) =>
+    padding.left + (index / Math.max(chartData.length - 1, 1)) * graphWidth
 
-  // Generate path for revenue line
-  const generateRevenuePath = () => {
-    let path = ''
-    revenueData.forEach((point, index) => {
-      const x = indexToX(index)
-      const y = valueToY(point.revenue)
-      if (index === 0) {
-        path += `M ${x} ${y} `
-      } else {
-        path += `L ${x} ${y} `
-      }
-    })
-    return path
-  }
+  const points = chartData.map((d, i) => ({
+    x: indexToX(i),
+    y: valueToY(d.value),
+    ...d
+  }))
 
-  // Generate path for ad spend line
-  const generateAdSpendPath = () => {
-    let path = ''
-    revenueData.forEach((point, index) => {
-      const x = indexToX(index)
-      const y = valueToY(point.adSpend)
-      if (index === 0) {
-        path += `M ${x} ${y} `
-      } else {
-        path += `L ${x} ${y} `
-      }
-    })
-    return path
-  }
-
-  // Generate path for revenue area
-  const generateRevenueAreaPath = () => {
-    const linePath = generateRevenuePath()
-    const firstX = indexToX(0)
-    const lastX = indexToX(revenueData.length - 1)
-    const bottomY = padding.top + graphHeight
-    return `${linePath} L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`
-  }
-
-  // Format currency
-  const formatCurrency = (value) => {
-    if (value >= 1000000) {
-      return `$${(value / 1000000).toFixed(1)}M`
-    } else if (value >= 1000) {
-      return `$${(value / 1000).toFixed(0)}k`
+  // Y-axis tick values (6-7 ticks for better readability)
+  const getYAxisTicks = () => {
+    const range = yAxisMax - yAxisMin
+    const roughStep = range / 6  // Targeting 6-7 ticks
+    const mag = Math.pow(10, Math.floor(Math.log10(roughStep)))
+    const step = Math.ceil(roughStep / mag) * mag
+    const first = Math.floor(yAxisMin / step) * step
+    const ticks = []
+    for (let v = first; v <= yAxisMax + step * 0.5; v += step) {
+      if (v >= yAxisMin - step * 0.5) ticks.push(v)
     }
+    return ticks.length ? ticks : [yAxisMin, yAxisMax]
+  }
+  const yAxisTicks = getYAxisTicks()
+
+  // Sharp line (straight segments, no curve)
+  const getSharpPath = () => {
+    if (points.length < 2) return ''
+    let path = `M ${points[0].x} ${points[0].y} `
+    for (let i = 1; i < points.length; i++) {
+      path += `L ${points[i].x} ${points[i].y} `
+    }
+    return path
+  }
+
+  const linePath = getSharpPath()
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${padding.top + graphHeight} L ${points[0].x} ${padding.top + graphHeight} Z`
+  const lastPoint = points[points.length - 1]
+  const baselineY = padding.top + graphHeight
+
+  const formatCurrency = (value) => {
+    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
+    if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`
     return `$${value.toFixed(0)}`
   }
 
-  // Handle mouse move on chart
   const handleMouseMove = (e) => {
     if (!chartRef.current) return
-    
     const rect = chartRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-
-    // Find closest data point
+    const x = (e.clientX - rect.left) * (chartWidth / rect.width)
     let closestIndex = 0
     let minDistance = Infinity
-
-    revenueData.forEach((point, index) => {
-      const pointX = indexToX(index)
-      const distance = Math.abs(x - pointX)
+    points.forEach((pt, index) => {
+      const distance = Math.abs(x - pt.x)
       if (distance < minDistance) {
         minDistance = distance
         closestIndex = index
       }
     })
-
     setHoveredPoint(closestIndex)
-    setTooltipPosition({ x: e.clientX, y: e.clientY })
+    
+    // Constrain tooltip position to viewport
+    const tooltipWidth = 176
+    const tooltipHeight = 80
+    let left = e.clientX
+    let top = e.clientY - 48
+    
+    // Clamp horizontal
+    if (left - tooltipWidth / 2 < 0) {
+      left = tooltipWidth / 2
+    } else if (left + tooltipWidth / 2 > window.innerWidth) {
+      left = window.innerWidth - tooltipWidth / 2
+    }
+    
+    // Clamp vertical
+    if (top < 0) {
+      top = e.clientY + 20
+    }
+    
+    setTooltipPosition({ x: left, y: top })
   }
 
-  const handleMouseLeave = () => {
-    setHoveredPoint(null)
+  const handleMouseLeave = () => setHoveredPoint(null)
+  
+  // Get current value for callout
+  const currentValue = chartData[chartData.length - 1].value
+  
+  // Calculate delta for tooltip
+  const getDelta = (index) => {
+    if (index <= 0) return null
+    const current = chartData[index].value
+    const previous = chartData[index - 1].value
+    const delta = current - previous
+    const isPositive = delta >= 0
+    const formatted = formatCurrency(Math.abs(delta))
+    return {
+      value: delta,
+      formatted,
+      isPositive,
+      text: `${isPositive ? '+' : '-'}${formatted} from ${chartData[index - 1].date}`
+    }
   }
 
   return (
-    <div className="leads-chart">
+    <div className="leads-chart leads-chart--wealthsimple">
       <div className="leads-chart-header">
-        <h2 className="leads-chart-title">Leads won vs leads lost</h2>
+        <div className="chart-header-left">
+          <h2 className="leads-chart-title">Leads won vs leads lost</h2>
+          <div className="chart-subtitle">Last 6 months</div>
+        </div>
+        <div className="chart-current-value">
+          <div className="current-value-label">Current</div>
+          <div className="current-value-amount">{formatCurrency(currentValue)}</div>
+        </div>
       </div>
 
       <div className="leads-chart-container">
@@ -130,43 +158,24 @@ const LeadsChart = () => {
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
-          {/* Gradient definition */}
           <defs>
-            <linearGradient id="revenueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#2563eb" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#2563eb" stopOpacity="0.05" />
+            <linearGradient id="wealthsimpleGreenGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#34c759" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#34c759" stopOpacity="0.02" />
             </linearGradient>
           </defs>
 
-          {/* Grid lines */}
-          <g className="grid-lines">
-            {yAxisLabels.map((value, index) => {
-              const y = valueToY(value)
-              return (
-                <line
-                  key={index}
-                  x1={padding.left}
-                  y1={y}
-                  x2={padding.left + graphWidth}
-                  y2={y}
-                  stroke="#f3f4f6"
-                  strokeWidth="1"
-                />
-              )
-            })}
-          </g>
-
-          {/* Y-axis labels */}
-          <g className="y-axis-labels">
-            {yAxisLabels.map((value, index) => {
+          {/* Y-axis labels (left side) */}
+          <g className="chart-y-axis" aria-hidden="true">
+            {yAxisTicks.map((value) => {
               const y = valueToY(value)
               return (
                 <text
-                  key={index}
+                  key={value}
                   x={padding.left - 10}
                   y={y + 4}
                   textAnchor="end"
-                  className="axis-label"
+                  className="chart-axis-label"
                 >
                   {formatCurrency(value)}
                 </text>
@@ -174,106 +183,119 @@ const LeadsChart = () => {
             })}
           </g>
 
-          {/* Revenue area fill */}
-          <path
-            d={generateRevenueAreaPath()}
-            className="chart-area revenue"
-            fill="url(#revenueGradient)"
+          {/* Dashed baseline */}
+          <line
+            x1={padding.left}
+            y1={baselineY}
+            x2={padding.left + graphWidth}
+            y2={baselineY}
+            className="chart-baseline"
+            strokeWidth="1"
+          />
+          
+          {/* Light reference line at first value */}
+          <line
+            x1={padding.left}
+            y1={valueToY(chartData[0].value)}
+            x2={padding.left + graphWidth}
+            y2={valueToY(chartData[0].value)}
+            className="chart-reference-line"
+            strokeWidth="1"
           />
 
-          {/* Revenue line */}
+          {/* Area fill under line */}
+          <path d={areaPath} className="chart-area-wealthsimple" fill="url(#wealthsimpleGreenGradient)" />
+
+          {/* Main green line (sharp) */}
           <path
-            d={generateRevenuePath()}
-            className="chart-line revenue"
+            d={linePath}
+            className="chart-line-wealthsimple"
             fill="none"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
 
-          {/* Ad Spend line (dashed) */}
-          <path
-            d={generateAdSpendPath()}
-            className="chart-line ad-spend"
-            fill="none"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeDasharray="6 4"
+          {/* Single dot on last point only */}
+          <circle
+            cx={lastPoint.x}
+            cy={lastPoint.y}
+            r="5"
+            className="chart-last-point"
           />
 
-          {/* Data points */}
-          {revenueData.map((point, index) => {
-            const revenueX = indexToX(index)
-            const revenueY = valueToY(point.revenue)
-            const adSpendY = valueToY(point.adSpend)
-            const isHovered = hoveredPoint === index
-
-            return (
-              <g key={index}>
-                {/* Invisible hit area */}
-                <circle
-                  cx={revenueX}
-                  cy={revenueY}
-                  r="12"
-                  fill="transparent"
-                  className="data-point-hit"
-                />
-                {/* Revenue point - always visible, larger when hovered */}
-                <circle
-                  cx={revenueX}
-                  cy={revenueY}
-                  r={isHovered ? "6" : "4"}
-                  className="data-point revenue"
-                  opacity={isHovered ? "1" : "0.8"}
-                />
-                {/* Ad Spend point - always visible, larger when hovered */}
-                <circle
-                  cx={revenueX}
-                  cy={adSpendY}
-                  r={isHovered ? "6" : "4"}
-                  className="data-point ad-spend"
-                  opacity={isHovered ? "1" : "0.8"}
-                />
-              </g>
-            )
-          })}
+          {/* X-axis labels (minimal - first, middle points, and last) */}
+          <g className="chart-x-axis" aria-hidden="true">
+            {chartData.map((d, index) => {
+              // Show first, last, and every other point
+              if (index === 0 || index === chartData.length - 1 || index % 2 === 0) {
+                return (
+                  <text
+                    key={index}
+                    x={indexToX(index)}
+                    y={baselineY + 20}
+                    textAnchor="middle"
+                    className="chart-axis-label"
+                  >
+                    {d.date}
+                  </text>
+                )
+              }
+              return null
+            })}
+          </g>
+          
+          {/* Invisible hit areas for tooltip */}
+          {points.map((pt, index) => (
+            <circle
+              key={index}
+              cx={pt.x}
+              cy={pt.y}
+              r="14"
+              fill="transparent"
+              className="data-point-hit"
+            />
+          ))}
         </svg>
 
-        {/* Tooltip */}
         {hoveredPoint !== null && (
           <div
-            className="chart-tooltip"
+            className="chart-tooltip chart-tooltip--wealthsimple"
             style={{
               left: `${tooltipPosition.x}px`,
-              top: `${tooltipPosition.y - 100}px`,
+              top: `${tooltipPosition.y}px`
             }}
           >
-            <div className="tooltip-date">
-              {revenueData[hoveredPoint].date} 30
-            </div>
-            <div className="tooltip-metrics">
-              <div className="tooltip-metric">
-                <div className="tooltip-indicator revenue"></div>
-                <div className="tooltip-content">
-                  <span className="tooltip-label">Revenue:</span>
-                  <span className="tooltip-value">
-                    {formatCurrency(revenueData[hoveredPoint].revenue)}
-                  </span>
-                </div>
+            <div className="tooltip-date">{chartData[hoveredPoint].date}</div>
+            <div className="tooltip-value">{formatCurrency(chartData[hoveredPoint].value)}</div>
+            {getDelta(hoveredPoint) && (
+              <div className={`tooltip-delta ${getDelta(hoveredPoint).isPositive ? 'tooltip-delta--positive' : 'tooltip-delta--negative'}`}>
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {getDelta(hoveredPoint).isPositive ? (
+                    <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="currentColor"/>
+                  ) : (
+                    <path d="M6 10L2 6H5V2H7V6H10L6 10Z" fill="currentColor"/>
+                  )}
+                </svg>
+                <span>{getDelta(hoveredPoint).text}</span>
               </div>
-              <div className="tooltip-metric">
-                <div className="tooltip-indicator ad-spend"></div>
-                <div className="tooltip-content">
-                  <span className="tooltip-label">Ad Spend:</span>
-                  <span className="tooltip-value">
-                    {formatCurrency(revenueData[hoveredPoint].adSpend)}
-                  </span>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         )}
+      </div>
+
+      {/* Time range selector (Wealthsimple-style pills) */}
+      <div className="chart-time-ranges">
+        {TIME_RANGES.map((range) => (
+          <button
+            key={range}
+            type="button"
+            className={`chart-time-range-pill ${selectedRange === range ? 'chart-time-range-pill--active' : ''}`}
+            onClick={() => setSelectedRange(range)}
+          >
+            {range}
+          </button>
+        ))}
       </div>
     </div>
   )

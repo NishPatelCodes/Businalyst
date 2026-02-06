@@ -32,32 +32,39 @@
   --text-tertiary: #9ca3af;
   --text-muted: #9ca3af;
   
-  /* Spacing Scale - Compact */
+  /* Spacing Scale - Compact (scaled 1.1× for 100% zoom = former 110% look) */
   --spacing-1: 4px;
-  --spacing-2: 8px;
-  --spacing-3: 12px;
-  --spacing-4: 16px;
-  --spacing-5: 20px;
-  --spacing-6: 24px;
-  --spacing-8: 32px;
-  --spacing-12: 48px;
+  --spacing-2: 9px;
+  --spacing-3: 13px;
+  --spacing-4: 18px;
+  --spacing-5: 22px;
+  --spacing-6: 26px;
+  --spacing-8: 35px;
+  --spacing-12: 53px;
   
   /* Grid System - Compact */
   --grid-columns: 12;
-  --grid-gap: 16px;
+  --grid-gap: 18px;
   
-  /* Typography Scale */
+  /* Layout - shell dimensions (scaled 1.1×) */
+  --layout-sidebar-width: 198px;
+  --layout-topnav-height: 61px;
+  --layout-topnav-offset-left: 209px;
+  --layout-content-margin-top: 62px;
+  --layout-metrics-min-height: 176px;
+  
+  /* Typography Scale (scaled 1.1×) */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
   
-  --font-size-xs: 10px;
-  --font-size-sm: 12px;
-  --font-size-base: 13px;
-  --font-size-md: 14px;
-  --font-size-lg: 16px;
-  --font-size-xl: 18px;
-  --font-size-2xl: 20px;
-  --font-size-3xl: 24px;
-  --font-size-4xl: 28px;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 22px;
+  --font-size-3xl: 26px;
+  --font-size-4xl: 31px;
   
   --font-weight-normal: 400;
   --font-weight-medium: 500;
@@ -71,13 +78,15 @@
   --letter-spacing-normal: -0.01em;
   --letter-spacing-wide: -0.02em;
   
-  /* Card System - Compact */
-  --card-border-radius: 10px;
-  --card-padding: 16px;
-  --card-padding-sm: 12px;
-  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 1px rgba(0, 0, 0, 0.02);
-  --card-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
-  --card-border: 1px solid var(--color-neutral-200);
+  /* Card System - Apple-style: hairline border + white glow + soft shadow */
+  --card-border-radius: 11px;
+  --card-padding: 18px;
+  --card-padding-sm: 13px;
+  --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 0 0 1px rgba(255, 255, 255, 0.6), 0 2px 4px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --card-border: 1px solid rgba(0, 0, 0, 0.05);
+  --card-bg: var(--color-neutral-100);
+  --card-backdrop-blur: 12px;
   
   /* Transitions */
   --transition-fast: 0.15s ease;
@@ -130,7 +139,9 @@ h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, label 
    ============================================ */
 
 .dashboard-card {
-  background: var(--bg-primary);
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(var(--card-backdrop-blur));
+  backdrop-filter: blur(var(--card-backdrop-blur));
   border-radius: var(--card-border-radius);
   padding: var(--card-padding);
   box-shadow: var(--card-shadow);
@@ -162,7 +173,9 @@ h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, label 
 
 /* Compact Card Utility */
 .card {
-  background: var(--bg-primary);
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(var(--card-backdrop-blur));
+  backdrop-filter: blur(var(--card-backdrop-blur));
   border-radius: var(--card-border-radius);
   padding: var(--card-padding);
   box-shadow: var(--card-shadow);

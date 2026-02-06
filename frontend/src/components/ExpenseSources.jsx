@@ -2,17 +2,19 @@ import React from 'react'
 import './ExpenseSources.css'
 
 const ExpenseSources = () => {
-  // Data matching the image exactly
+  // Black/gray/white palette - emphasized segment in black, rest in grays
+  const grayPalette = ['#000000', '#e5e5e5', '#d8d8d8', '#d0d0d0', '#c0c0c0', '#b0b0b0']
+  
   const expenseData = [
-    { name: 'Online purchase', percentage: 42, color: '#FF9500' },
-    { name: 'In-store shopping', percentage: 21, color: '#e5e7eb' },
-    { name: 'Subscription', percentage: 15, color: '#e5e7eb' },
-    { name: 'Transportation', percentage: 12, color: '#e5e7eb' },
-    { name: 'Food & Dining', percentage: 7, color: '#e5e7eb' },
-    { name: 'Other', percentage: 3, color: '#e5e7eb' }
+    { name: 'Online purchase', percentage: 42, color: grayPalette[0] },
+    { name: 'In-store shopping', percentage: 21, color: grayPalette[1] },
+    { name: 'Subscription', percentage: 15, color: grayPalette[2] },
+    { name: 'Transportation', percentage: 12, color: grayPalette[3] },
+    { name: 'Food & Dining', percentage: 7, color: grayPalette[4] },
+    { name: 'Other', percentage: 3, color: grayPalette[5] }
   ]
 
-  const total = expenseData.length
+  const total = expenseData.reduce((sum, item) => sum + item.percentage, 0)
 
   // Calculate angles for donut chart
   let currentAngle = -90 // Start at top
@@ -47,17 +49,6 @@ const ExpenseSources = () => {
 
   return (
     <div className="expense-sources">
-      <div className="expense-sources-header">
-        <h2 className="expense-sources-title">Expense Sources</h2>
-        <button className="expense-menu-btn">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="8" cy="4" r="1.5" fill="currentColor"/>
-            <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
-            <circle cx="8" cy="12" r="1.5" fill="currentColor"/>
-          </svg>
-        </button>
-      </div>
-      
       <div className="expense-chart-container">
         <svg
           className="expense-donut-chart"
@@ -73,31 +64,25 @@ const ExpenseSources = () => {
                 key={index}
                 d={path}
                 fill={item.color}
+                stroke="rgba(255, 255, 255, 0.5)"
+                strokeWidth="1"
                 className="donut-segment"
               />
             )
           })}
-          
-          {/* Center text */}
-          <text
-            x={centerX}
-            y={centerY - 8}
-            textAnchor="middle"
-            className="donut-total-label"
-          >
-            Total
-          </text>
-          <text
-            x={centerX}
-            y={centerY + 12}
-            textAnchor="middle"
-            className="donut-total-value"
-          >
-            {total}
-          </text>
         </svg>
+        
+        {/* Apple-style glassmorphic legend card */}
+        <div className="expense-legend-card">
+          {expenseData.map((item, index) => (
+            <div key={index} className="legend-item">
+              <div className="legend-dot" style={{ backgroundColor: item.color }}></div>
+              <span className="legend-name">{item.name}</span>
+              <span className="legend-percent">{item.percentage}%</span>
+            </div>
+          ))}
+        </div>
       </div>
-
       
     </div>
   )
