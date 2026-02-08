@@ -5,28 +5,63 @@
 
 .kpi-card {
   background: #ffffff;
-  border-radius: var(--card-border-radius);
+  border-radius: 16px;
   padding: var(--card-padding);
-  box-shadow: var(--card-shadow);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: all var(--transition-base);
+  /* Premium layered shadows for depth */
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.04),           /* Hairline border */
+    0 1px 2px rgba(0, 0, 0, 0.03),           /* Tight subtle shadow */
+    0 2px 4px rgba(0, 0, 0, 0.04),           /* Close diffuse shadow */
+    0 4px 8px rgba(0, 0, 0, 0.05),           /* Medium depth */
+    0 8px 16px rgba(0, 0, 0, 0.06);          /* Ambient depth */
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
   height: 100%;
   min-height: 0;
   min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle inner glow for premium feel */
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 20%,
+    rgba(255, 255, 255, 0.6) 80%,
+    transparent 100%
+  );
+  opacity: 0.8;
 }
 
 .kpi-card:hover {
-  box-shadow: var(--card-shadow-hover);
-  transform: translateY(-1px);
+  /* Enhanced shadow on hover */
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 4px 8px rgba(0, 0, 0, 0.06),
+    0 8px 16px rgba(0, 0, 0, 0.08),
+    0 16px 32px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .kpi-header {
   display: flex;
   align-items: center;
   gap: var(--spacing-1);
+  position: relative;
+  z-index: 1;
 }
 
 .kpi-icon {
@@ -56,6 +91,8 @@
   letter-spacing: var(--letter-spacing-tight);
   line-height: var(--line-height-tight);
   font-variant-numeric: tabular-nums;
+  position: relative;
+  z-index: 1;
 }
 
 /* Progress bar with solid black fill */
@@ -63,6 +100,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-1);
+  position: relative;
+  z-index: 1;
 }
 
 .kpi-progress-bar {
@@ -92,6 +131,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-1);
+  position: relative;
+  z-index: 1;
 }
 
 .kpi-change {
@@ -126,29 +167,34 @@
   letter-spacing: var(--letter-spacing-normal);
 }
 
-/* Solid black button - premium interaction element */
+/* Premium gray button - Apple UI style, compact corner placement */
 .kpi-details-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-1);
-  width: 100%;
-  padding: var(--spacing-2) var(--spacing-3);
-  background: #000000;
+  gap: 4px;
+  width: auto;
+  padding: 6px 12px;
+  background: #5a5a5a;
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  font-size: var(--font-size-xs);
+  font-size: 11px;
   font-weight: var(--font-weight-medium);
   font-family: inherit;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  margin-top: var(--spacing-1);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  position: absolute;
+  top: var(--card-padding);
+  right: var(--card-padding);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  z-index: 3;
 }
 
 .kpi-details-button:hover {
-  background: #1a1a1a;
-  transform: scale(1.01);
+  background: #6e6e73;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .kpi-details-button:active {
@@ -156,8 +202,8 @@
 }
 
 .kpi-details-button svg {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   flex-shrink: 0;
 }
 

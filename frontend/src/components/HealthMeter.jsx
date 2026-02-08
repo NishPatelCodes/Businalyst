@@ -5,21 +5,21 @@ const HealthMeter = ({
   value = 68, 
   target = 80 
 }) => {
-  // Total segments for the gauge (40-50 range)
-  const totalSegments = 45
+  // Total segments for the gauge (35-40 range for thicker appearance)
+  const totalSegments = 38
   // Calculate filled segments based on value percentage
   const filledSegments = Math.round((value / 100) * totalSegments)
   
   // SVG dimensions
   const svgWidth = 300
-  const svgHeight = 180
+  const svgHeight = 170
   const centerX = 150
-  const centerY = 150
-  const radius = 120
+  const centerY = 145
+  const radius = 115
   
-  // Segment dimensions: width 6-8px, height 16-20px
-  const segmentWidth = 7
-  const segmentHeight = 18
+  // Segment dimensions: width 8-10px, height 24-28px for thicker appearance
+  const segmentWidth = 9
+  const segmentHeight = 26
   
   // Arc parameters: -90° to +90° (exactly 180 degrees)
   const startAngle = -90
@@ -50,16 +50,13 @@ const HealthMeter = ({
 
   return (
     <div className="health-meter">
-      <div className="health-meter-title">Business Health</div>
-      
       {/* SVG Gauge */}
       <div className="health-meter-gauge">
         <svg 
           width="100%" 
           height="100%" 
-          viewBox="0 0 300 180"
-          preserveAspectRatio="xMidYMax meet"
-          overflow="visible"
+          viewBox="0 0 300 170"
+          preserveAspectRatio="xMidYMid meet"
           className="gauge-svg"
         >
           {/* Render each segment */}
@@ -84,7 +81,9 @@ const HealthMeter = ({
         
         {/* Center content: Percentage and status */}
         <div className="gauge-center-content">
-          <div className="gauge-value">{value}%</div>
+          <div className="gauge-value">
+            {value}<span className="gauge-percent-sign">%</span>
+          </div>
           <div className="gauge-status">On track for {target}%</div>
         </div>
       </div>

@@ -7,21 +7,21 @@ const SubscriptionAnalytics = () => {
       label: 'Rating Point',
       value: 1228,
       total: 1928,
-      color: '#dc2626',
-      lightColor: '#fee2e2'
+      color: '#ff3b30',      // Apple red - vibrant and premium
+      lightColor: '#ffebeb'  // Soft red tint
     },
     {
       label: 'Low Stock',
       value: 600,
       total: 1928,
-      color: '#2563eb',
-      lightColor: '#dbeafe'
+      color: '#007aff',      // Apple blue - professional and clean
+      lightColor: '#e5f2ff'  // Soft blue tint
     }
   ]
 
   const renderSegmentedBar = (metric) => {
     const percentage = (metric.value / metric.total) * 100
-    const numSegments = 50 // Number of segments in the bar
+    const numSegments = 45 // Optimal number for premium look
     const filledSegments = Math.round((percentage / 100) * numSegments)
     
     return (

@@ -192,6 +192,8 @@
 .orders-middle {
   grid-column: span 1;
   min-width: 0;
+  background: var(--bg-secondary);
+  border-radius: var(--card-border-radius);
 }
 
 .map-right {

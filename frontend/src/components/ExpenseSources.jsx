@@ -2,16 +2,23 @@ import React from 'react'
 import './ExpenseSources.css'
 
 const ExpenseSources = () => {
-  // Black/gray/white palette - emphasized segment in black, rest in grays
-  const grayPalette = ['#000000', '#e5e5e5', '#d8d8d8', '#d0d0d0', '#c0c0c0', '#b0b0b0']
+  // Premium jewel-tone gradient - sophisticated blues & teals contrasting with black/white
+  const premiumColors = [
+    '#1d3557',  // Deep Navy - rich, authoritative
+    '#457b9d',  // Steel Blue - elegant mid-tone
+    '#2a9d8f',  // Teal - vibrant yet refined
+    '#48cae4',  // Bright Cyan - fresh accent
+    '#90e0ef',  // Sky Blue - light & airy
+    '#caf0f8'   // Soft Blue - delicate finish
+  ]
   
   const expenseData = [
-    { name: 'Online purchase', percentage: 42, color: grayPalette[0] },
-    { name: 'In-store shopping', percentage: 21, color: grayPalette[1] },
-    { name: 'Subscription', percentage: 15, color: grayPalette[2] },
-    { name: 'Transportation', percentage: 12, color: grayPalette[3] },
-    { name: 'Food & Dining', percentage: 7, color: grayPalette[4] },
-    { name: 'Other', percentage: 3, color: grayPalette[5] }
+    { name: 'Online purchase', percentage: 42, color: premiumColors[0] },
+    { name: 'In-store shopping', percentage: 21, color: premiumColors[1] },
+    { name: 'Subscription', percentage: 15, color: premiumColors[2] },
+    { name: 'Transportation', percentage: 12, color: premiumColors[3] },
+    { name: 'Food & Dining', percentage: 7, color: premiumColors[4] },
+    { name: 'Other', percentage: 3, color: premiumColors[5] }
   ]
 
   const total = expenseData.reduce((sum, item) => sum + item.percentage, 0)
@@ -64,8 +71,8 @@ const ExpenseSources = () => {
                 key={index}
                 d={path}
                 fill={item.color}
-                stroke="rgba(255, 255, 255, 0.5)"
-                strokeWidth="1"
+                stroke="rgba(255, 255, 255, 0.9)"
+                strokeWidth="2.5"
                 className="donut-segment"
               />
             )

@@ -39,7 +39,7 @@
 }
 
 .sidebar-brand {
-  font-size: var(--font-size-sm);
+  font-size: 15px;
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   flex: 1;
@@ -92,7 +92,7 @@
   border-radius: 7px;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: var(--font-size-xs);
+  font-size: 13px;
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-normal);
@@ -140,7 +140,7 @@
 .nav-badge {
   background: var(--color-success);
   color: #ffffff;
-  font-size: var(--font-size-xs);
+  font-size: 13px;
   font-weight: var(--font-weight-semibold);
   padding: 1px var(--spacing-1);
   border-radius: 4px;
@@ -179,7 +179,7 @@
   padding: var(--spacing-1) var(--spacing-2);
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: var(--font-size-xs);
+  font-size: 13px;
   font-weight: var(--font-weight-normal);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-normal);
@@ -224,7 +224,7 @@
 }
 
 .premium-title {
-  font-size: var(--font-size-xs);
+  font-size: 13px;
   font-weight: var(--font-weight-semibold);
   color: #ffffff;
   margin-bottom: 2px;
@@ -235,7 +235,7 @@
 }
 
 .premium-description {
-  font-size: var(--font-size-xs);
+  font-size: 13px;
   color: rgba(255, 255, 255, 0.9);
   margin-bottom: var(--spacing-1);
   line-height: var(--line-height-tight);
@@ -251,7 +251,7 @@
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 7px;
-  font-size: var(--font-size-xs);
+  font-size: 13px;
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-normal);

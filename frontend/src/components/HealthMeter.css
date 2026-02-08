@@ -4,11 +4,17 @@
 
 .health-meter {
   background: #ffffff;
-  border-radius: var(--card-border-radius);
+  border-radius: 16px;
   padding: var(--card-padding);
-  box-shadow: var(--card-shadow);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: all var(--transition-base);
+  /* Premium layered shadows for depth - matching KPI cards */
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.04),           /* Hairline border */
+    0 1px 2px rgba(0, 0, 0, 0.03),           /* Tight subtle shadow */
+    0 2px 4px rgba(0, 0, 0, 0.04),           /* Close diffuse shadow */
+    0 4px 8px rgba(0, 0, 0, 0.05),           /* Medium depth */
+    0 8px 16px rgba(0, 0, 0, 0.06);          /* Ambient depth */
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -18,6 +24,7 @@
   overflow: hidden;
 }
 
+/* Subtle inner glow for premium feel - matching KPI cards */
 .health-meter::before {
   content: '';
   position: absolute;
@@ -25,74 +32,55 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 255, 255, 0.8) 20%, 
-    rgba(255, 255, 255, 0.8) 80%, 
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 20%,
+    rgba(255, 255, 255, 0.6) 80%,
     transparent 100%
   );
-  z-index: 1;
-  pointer-events: none;
-}
-
-.health-meter::after {
-  content: '';
-  position: absolute;
-  top: 1px;
-  left: 1px;
-  right: 1px;
-  bottom: 1px;
-  border-radius: calc(var(--card-border-radius) - 1px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  pointer-events: none;
-  z-index: 1;
+  opacity: 0.8;
 }
 
 .health-meter:hover {
-  box-shadow: var(--card-shadow-hover);
-  transform: translateY(-1px);
-}
-
-.health-meter-title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  margin: 0 0 var(--spacing-1) 0;
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-normal);
-  position: relative;
-  z-index: 2;
+  /* Enhanced shadow on hover - matching KPI cards */
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 4px 8px rgba(0, 0, 0, 0.06),
+    0 8px 16px rgba(0, 0, 0, 0.08),
+    0 16px 32px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .health-meter-gauge {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 110px;
-  max-height: 154px;
+  min-height: 140px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   overflow: visible;
   flex: 1;
   z-index: 2;
-  padding-top: 0;
 }
 
 .gauge-svg {
   position: absolute;
   width: 100%;
   height: 100%;
-  top: -10%;
+  top: 0;
   left: 0;
   z-index: 1;
 }
 
 .gauge-center-content {
   position: absolute;
-  top: 55%;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -20%);
+  transform: translate(-45%, -30%);
   z-index: 10;
   text-align: center;
   display: flex;
@@ -100,7 +88,7 @@
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  gap: 2px;
+  gap: 4px;
 }
 
 .gauge-label {
@@ -114,13 +102,32 @@
 }
 
 .gauge-value {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
+  font-size: 42px;
+  font-weight: 700;
   color: #000000;
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.gauge-percent-sign {
+  font-size: 24px;
+  font-weight: 600;
+  color: #000000;
+  margin-left: 2px;
+}
+
+.gauge-status {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
   line-height: var(--line-height-tight);
   margin: 0;
-  letter-spacing: var(--letter-spacing-tight);
-  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .gauge-target-chip {
