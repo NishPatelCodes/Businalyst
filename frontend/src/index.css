@@ -1,0 +1,188 @@
+/* ============================================
+   DESIGN SYSTEM - CSS VARIABLES
+   ============================================ */
+
+:root {
+  /* Color System */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  
+  /* Neutral Grayscale */
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+  
+  /* Background Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  
+  /* Text Colors */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-muted: #9ca3af;
+  
+  /* Spacing Scale - Compact (scaled 1.1× for 100% zoom = former 110% look) */
+  --spacing-1: 4px;
+  --spacing-2: 9px;
+  --spacing-3: 13px;
+  --spacing-4: 18px;
+  --spacing-5: 22px;
+  --spacing-6: 26px;
+  --spacing-8: 35px;
+  --spacing-12: 53px;
+  
+  /* Grid System - Compact */
+  --grid-columns: 12;
+  --grid-gap: 18px;
+  
+  /* Layout - shell dimensions (scaled 1.1×) */
+  --layout-sidebar-width: 198px;
+  --layout-topnav-height: 61px;
+  --layout-topnav-offset-left: 209px;
+  --layout-content-margin-top: 62px;
+  --layout-metrics-min-height: 176px;
+  
+  /* Typography Scale (scaled 1.1×) */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 22px;
+  --font-size-3xl: 26px;
+  --font-size-4xl: 31px;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  
+  --line-height-tight: 1.1;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.6;
+  
+  --letter-spacing-tight: -0.03em;
+  --letter-spacing-normal: -0.01em;
+  --letter-spacing-wide: -0.02em;
+  
+  /* Card System - Apple-style: hairline border + white glow + soft shadow */
+  --card-border-radius: 11px;
+  --card-padding: 18px;
+  --card-padding-sm: 13px;
+  --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 0 0 1px rgba(255, 255, 255, 0.6), 0 2px 4px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --card-border: 1px solid rgba(0, 0, 0, 0.05);
+  --card-bg: var(--color-neutral-100);
+  --card-backdrop-blur: 12px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+  background: var(--bg-secondary);
+  margin: 0;
+  padding: 0;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+  color: var(--text-primary);
+}
+
+/* Enhanced font rendering for all text elements */
+h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, label {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-secondary);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.dashboard-card {
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(var(--card-backdrop-blur));
+  backdrop-filter: blur(var(--card-backdrop-blur));
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--card-shadow);
+  border: var(--card-border);
+  transition: all var(--transition-base);
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-card:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+.dashboard-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-4);
+}
+
+.dashboard-card-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+/* Compact Card Utility */
+.card {
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(var(--card-backdrop-blur));
+  backdrop-filter: blur(var(--card-backdrop-blur));
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--card-shadow);
+  border: var(--card-border);
+  transition: all var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+

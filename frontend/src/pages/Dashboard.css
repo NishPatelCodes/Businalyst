@@ -1,0 +1,281 @@
+/* ============================================
+   DASHBOARD LAYOUT - COMPACT 3 COLUMN GRID
+   ============================================ */
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.dashboard-main {
+  flex: 1;
+  margin-left: var(--layout-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  margin-top: var(--layout-content-margin-top);
+  padding: var(--spacing-4) var(--spacing-4);
+  flex: 1;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* ============================================
+   DASHBOARD HEADER - COMPACT
+   ============================================ */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-4);
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.dashboard-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.dashboard-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.date-range-selector,
+.dropdown-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--bg-primary);
+  border: var(--card-border);
+  border-radius: 7px;
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.date-range-selector:hover,
+.dropdown-selector:hover {
+  background: var(--bg-secondary);
+  border-color: var(--color-neutral-300);
+}
+
+.date-range-selector svg,
+.dropdown-selector svg {
+  width: 13px;
+  height: 13px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--bg-primary);
+  border: var(--card-border);
+  border-radius: 7px;
+  font-size: var(--font-size-xs);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.action-button:hover {
+  background: var(--bg-secondary);
+  border-color: var(--color-neutral-300);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.05);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
+
+.action-button svg {
+  width: 13px;
+  height: 13px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.action-button.primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.action-button.primary:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.action-button.primary svg {
+  color: #ffffff;
+}
+
+/* ============================================
+   KPI SECTION - 5 EQUAL COLUMNS: HealthMeter + 4 KPI cards
+   Same width and height for all five cards
+   ============================================ */
+
+.dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--grid-gap);
+  width: 100%;
+  align-items: stretch;
+  margin-bottom: var(--grid-gap);
+  min-height: var(--layout-metrics-min-height);
+}
+
+.dashboard-metrics > * {
+  min-height: 0;
+}
+
+/* Charts Row - 3 Column Grid */
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gap);
+  margin-bottom: var(--grid-gap);
+  align-items: stretch;
+}
+
+.chart-left {
+  grid-column: span 2;
+  min-width: 0;
+  background: var(--bg-secondary);
+  border-radius: var(--card-border-radius);
+}
+
+.chart-right {
+  grid-column: span 1;
+  min-width: 0;
+}
+
+/* Analytics Row - 3 Column Grid */
+.analytics-map-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gap);
+  align-items: stretch;
+}
+
+.analytics-left {
+  grid-column: span 1;
+  min-width: 0;
+}
+
+.orders-middle {
+  grid-column: span 1;
+  min-width: 0;
+}
+
+.map-right {
+  grid-column: span 1;
+  min-width: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1280px) {
+  .charts-row,
+  .analytics-map-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .chart-left {
+    grid-column: span 2;
+  }
+  
+  .chart-right {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-main {
+    margin-left: 0;
+  }
+  
+  .dashboard-content {
+    padding: var(--spacing-3) var(--spacing-3);
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .dashboard-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .dashboard-metrics {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  
+  .charts-row,
+  .analytics-map-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .chart-left,
+  .chart-right {
+    grid-column: span 1;
+  }
+  
+  .analytics-left,
+  .orders-middle,
+  .map-right {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: var(--spacing-2) var(--spacing-2);
+  }
+  
+  .dashboard-title {
+    font-size: var(--font-size-lg);
+  }
+  
+  .dashboard-actions {
+    flex-direction: column;
+  }
+  
+  .date-range-selector,
+  .dropdown-selector,
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

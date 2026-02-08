@@ -1,0 +1,286 @@
+/* ============================================
+   LEADS CHART - WEALTHSIMPLE STYLE
+   Single green line on canvas, smooth curve,
+   one dot on last point, time range pills.
+   ============================================ */
+
+.leads-chart {
+  background: transparent;
+  padding: var(--spacing-3) 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.leads-chart:hover {
+  box-shadow: none;
+}
+
+.leads-chart-header {
+  margin-bottom: var(--spacing-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.chart-header-left {
+  flex: 1;
+}
+
+.leads-chart-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.chart-subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
+}
+
+.chart-current-value {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.current-value-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: 2px;
+  line-height: var(--line-height-tight);
+}
+
+.current-value-amount {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: #34c759;
+  line-height: var(--line-height-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.leads-chart-container {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 220px;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.leads-chart-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  min-width: 100%;
+}
+
+/* Y-axis labels (left side) - premium minimal style */
+.chart-axis-label {
+  font-size: 11px;
+  fill: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-y-axis .chart-axis-label {
+  opacity: 0.85;
+}
+
+.chart-x-axis .chart-axis-label {
+  opacity: 0.75;
+}
+
+/* Dashed baseline (Wealthsimple grey) */
+.chart-baseline {
+  stroke: var(--color-neutral-300);
+  stroke-dasharray: 6 4;
+}
+
+/* Light reference line */
+.chart-reference-line {
+  stroke: rgba(0, 0, 0, 0.06);
+  stroke-dasharray: 4 3;
+}
+
+/* Green area fill under line */
+.chart-area-wealthsimple {
+  fill: url(#wealthsimpleGreenGradient);
+}
+
+/* Main green line - Wealthsimple green */
+.chart-line-wealthsimple {
+  stroke: #34c759;
+}
+
+/* Single dot on last data point */
+.chart-last-point {
+  fill: #34c759;
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+
+.data-point-hit {
+  cursor: pointer;
+}
+
+/* Minimal tooltip (Wealthsimple-style) */
+.chart-tooltip--wealthsimple {
+  padding: var(--spacing-1) var(--spacing-2);
+  min-width: auto;
+}
+
+.chart-tooltip--wealthsimple .tooltip-date {
+  margin-bottom: 2px;
+}
+
+.chart-tooltip--wealthsimple .tooltip-value {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* Time range selector pills */
+.chart-time-ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+  margin-top: var(--spacing-3);
+  padding-bottom: var(--spacing-1);
+}
+
+.chart-time-range-pill {
+  padding: var(--spacing-1) var(--spacing-2);
+  border: none;
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  font-family: inherit;
+}
+
+.chart-time-range-pill:hover {
+  color: var(--text-primary);
+  background: var(--color-neutral-100);
+}
+
+.chart-time-range-pill--active {
+  background: var(--color-neutral-800);
+  color: #ffffff;
+}
+
+.chart-time-range-pill--active:hover {
+  background: var(--color-neutral-700);
+  color: #ffffff;
+}
+
+/* Legacy tooltip layout (when both date and value shown) */
+.chart-tooltip {
+  position: fixed;
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(var(--card-backdrop-blur));
+  backdrop-filter: blur(var(--card-backdrop-blur));
+  border: var(--card-border);
+  border-radius: var(--card-border-radius);
+  padding: var(--spacing-2) var(--spacing-3);
+  box-shadow: var(--card-shadow-hover);
+  pointer-events: none;
+  z-index: 1000;
+  transform: translateX(-50%);
+  min-width: 176px;
+}
+
+.tooltip-date {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-1);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.tooltip-value {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.tooltip-delta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.tooltip-delta svg {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.tooltip-delta--positive {
+  color: #34c759;
+}
+
+.tooltip-delta--negative {
+  color: #ff3b30;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .leads-chart-container {
+    min-height: 198px;
+  }
+}
+
+@media (max-width: 768px) {
+  .leads-chart {
+    padding: var(--spacing-2) 0;
+    min-height: 0;
+  }
+
+  .leads-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-current-value {
+    text-align: left;
+  }
+
+  .leads-chart-title {
+    font-size: var(--font-size-sm);
+  }
+
+  .current-value-amount {
+    font-size: var(--font-size-lg);
+  }
+
+  .leads-chart-container {
+    min-height: 165px;
+  }
+
+  .chart-time-ranges {
+    margin-top: var(--spacing-2);
+  }
+}
