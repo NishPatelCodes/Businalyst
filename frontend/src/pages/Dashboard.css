@@ -14,14 +14,14 @@
 
 .dashboard-main {
   flex: 1;
-  margin-left: 180px;
+  margin-left: var(--layout-sidebar-width);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
 .dashboard-content {
-  margin-top: 56px;
+  margin-top: var(--layout-content-margin-top);
   padding: var(--spacing-4) var(--spacing-4);
   flex: 1;
   max-width: 100%;
@@ -65,7 +65,7 @@
   padding: var(--spacing-1) var(--spacing-2);
   background: var(--bg-primary);
   border: var(--card-border);
-  border-radius: 6px;
+  border-radius: 7px;
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
@@ -81,8 +81,8 @@
 
 .date-range-selector svg,
 .dropdown-selector svg {
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
   color: var(--text-secondary);
   flex-shrink: 0;
 }
@@ -94,7 +94,7 @@
   padding: var(--spacing-1) var(--spacing-2);
   background: var(--bg-primary);
   border: var(--card-border);
-  border-radius: 6px;
+  border-radius: 7px;
   font-size: var(--font-size-xs);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
@@ -106,7 +106,7 @@
   background: var(--bg-secondary);
   border-color: var(--color-neutral-300);
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.05);
 }
 
 .action-button:active {
@@ -114,8 +114,8 @@
 }
 
 .action-button svg {
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
   color: var(--text-secondary);
   flex-shrink: 0;
 }
@@ -137,26 +137,18 @@
 }
 
 /* ============================================
-   KPI SECTION - 6 COLUMN GRID LAYOUT
-   Health Meter (2 cols) + 4 KPI Cards (1 col each)
+   KPI SECTION - 5 EQUAL COLUMNS: HealthMeter + 4 KPI cards
+   Same width and height for all five cards
    ============================================ */
 
 .dashboard-metrics {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: var(--grid-gap);
-  margin-bottom: var(--grid-gap);
+  width: 100%;
   align-items: stretch;
-}
-
-/* Health Meter - 2 columns */
-.dashboard-metrics > .health-meter {
-  grid-column: span 2;
-}
-
-/* KPI Cards - 1 column each */
-.dashboard-metrics > .kpi-card {
-  grid-column: span 1;
+  margin-bottom: var(--grid-gap);
+  min-height: var(--layout-metrics-min-height);
 }
 
 .dashboard-metrics > * {
@@ -175,6 +167,8 @@
 .chart-left {
   grid-column: span 2;
   min-width: 0;
+  background: var(--bg-secondary);
+  border-radius: var(--card-border-radius);
 }
 
 .chart-right {
@@ -210,18 +204,6 @@
    ============================================ */
 
 @media (max-width: 1280px) {
-  .dashboard-metrics {
-    grid-template-columns: repeat(6, 1fr);
-  }
-  
-  .dashboard-metrics > .health-meter {
-    grid-column: span 2;
-  }
-  
-  .dashboard-metrics > .kpi-card {
-    grid-column: span 1;
-  }
-  
   .charts-row,
   .analytics-map-row {
     grid-template-columns: repeat(2, 1fr);
@@ -256,15 +238,8 @@
   }
   
   .dashboard-metrics {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  .dashboard-metrics > .health-meter {
-    grid-column: span 3;
-  }
-  
-  .dashboard-metrics > .kpi-card {
-    grid-column: span 1;
+    grid-template-columns: 1fr;
+    min-height: auto;
   }
   
   .charts-row,

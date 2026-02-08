@@ -1,20 +1,20 @@
 .top-navigation {
-  height: 55px;
+  height: var(--layout-topnav-height);
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 26px;
   position: fixed;
   top: 0;
-  left: 190px;
+  left: var(--layout-topnav-offset-left);
   right: 0;
   z-index: 90;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   background: rgba(255, 255, 255, 0.8);
-  gap: 24px;
+  gap: 26px;
 }
 
 .nav-welcome {
@@ -22,7 +22,7 @@
 }
 
 .welcome-text {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: #1f2937;
   margin: 0;
@@ -45,7 +45,7 @@
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 13px;
   color: #9ca3af;
   pointer-events: none;
   z-index: 1;
@@ -53,12 +53,12 @@
 
 .search-input {
   width: 100%;
-  height: 36px;
-  padding: 0 12px 0 38px;
+  height: 40px;
+  padding: 0 13px 0 42px;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 11px;
   background: #f9fafb;
-  font-size: 13px;
+  font-size: 14px;
   color: #111827;
   line-height: 1.4;
   letter-spacing: -0.01em;
@@ -85,19 +85,19 @@
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 13px;
   flex-shrink: 0;
 }
 
 .nav-icon-button {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 9px;
   color: #6b7280;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -113,22 +113,22 @@
 }
 
 .nav-icon-button svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .nav-icon-button-theme svg {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
 }
 
 .nav-profile {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 4px 9px;
+  border-radius: 9px;
   transition: all 0.2s ease;
 }
 
@@ -137,15 +137,15 @@
 }
 
 .profile-image {
-  width: 32px;
-  height: 32px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid #e5e7eb;
 }
 
 .profile-name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: #111827;
   line-height: 1.4;
@@ -157,8 +157,8 @@
 }
 
 .profile-chevron {
-  width: 12px;
-  height: 12px;
+  width: 13px;
+  height: 13px;
   color: #6b7280;
   transition: transform 0.2s ease;
 }
