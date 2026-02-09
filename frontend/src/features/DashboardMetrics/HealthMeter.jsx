@@ -6,20 +6,20 @@ const HealthMeter = ({
   target = 80 
 }) => {
   // Total segments for the gauge (35-40 range for thicker appearance)
-  const totalSegments = 38
+  const totalSegments = 36
   // Calculate filled segments based on value percentage
   const filledSegments = Math.round((value / 100) * totalSegments)
   
-  // SVG dimensions
-  const svgWidth = 300
-  const svgHeight = 170
-  const centerX = 150
-  const centerY = 145
-  const radius = 115
+  // SVG dimensions - compact size
+  const svgWidth = 280
+  const svgHeight = 155
+  const centerX = 140
+  const centerY = 135
+  const radius = 105
   
   // Segment dimensions: width 8-10px, height 24-28px for thicker appearance
-  const segmentWidth = 9
-  const segmentHeight = 26
+  const segmentWidth = 8
+  const segmentHeight = 24
   
   // Arc parameters: -90° to +90° (exactly 180 degrees)
   const startAngle = -90
@@ -39,18 +39,12 @@ const HealthMeter = ({
   
   // Calculate transform for each segment using polar coordinates
   const getSegmentTransform = (index) => {
-    // Calculate angle: angle = startAngle + index * angleStep
-    // Progresses from -90° (left) to +90° (right)
     const angle = startAngle + index * angleStep
-    
-    // Transform order: rotate(angle centerX centerY) translate(-rectWidth/2, -rectHeight)
-    // This rotates around center, then translates to position rect extending inward
     return `rotate(${angle} ${centerX} ${centerY}) translate(${-segmentWidth / 2}, ${-segmentHeight})`
   }
 
   return (
     <div className="health-meter">
-      {/* SVG Gauge */}
       <div className="health-meter-gauge">
         <svg 
           width="100%" 
@@ -59,12 +53,10 @@ const HealthMeter = ({
           preserveAspectRatio="xMidYMid meet"
           className="gauge-svg"
         >
-          {/* Render each segment */}
           {Array.from({ length: totalSegments }).map((_, index) => {
             const isFilled = index < filledSegments
             const color = getSegmentColor(index, isFilled)
             const transform = getSegmentTransform(index)
-            
             return (
               <rect
                 key={index}
@@ -78,8 +70,6 @@ const HealthMeter = ({
             )
           })}
         </svg>
-        
-        {/* Center content: Percentage and status */}
         <div className="gauge-center-content">
           <div className="gauge-value">
             {value}<span className="gauge-percent-sign">%</span>
@@ -92,4 +82,3 @@ const HealthMeter = ({
 }
 
 export default HealthMeter
-

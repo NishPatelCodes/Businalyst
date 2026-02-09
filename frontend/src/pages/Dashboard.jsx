@@ -1,13 +1,12 @@
 import React from 'react'
 import Sidebar from '../components/Sidebar'
 import TopNavigation from '../components/TopNavigation'
-import HealthMeter from '../components/HealthMeter'
-import KPICards from '../components/KPICards'
-import LeadsChart from '../components/LeadsChart'
-import ExpenseSources from '../components/ExpenseSources'
-import SubscriptionAnalytics from '../components/SubscriptionAnalytics'
-import OrdersList from '../components/OrdersList'
-import MapView from '../components/MapView'
+import DashboardMetrics from '../features/DashboardMetrics'
+import LeadsChart from '../features/LeadsChart'
+import ExpenseSources from '../features/ExpenseSources'
+import SubscriptionAnalytics from '../features/SubscriptionAnalytics'
+import OrdersList from '../features/OrdersList'
+import MapView from '../features/MapView'
 import './Dashboard.css'
 
 const Dashboard = () => {
@@ -60,8 +59,7 @@ const Dashboard = () => {
           </div>
           
           <div className="dashboard-metrics">
-            <HealthMeter />
-            <KPICards />
+            <DashboardMetrics />
           </div>
 
           <div className="charts-row">

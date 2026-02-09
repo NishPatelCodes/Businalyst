@@ -43,10 +43,9 @@ const LeadsChart = () => {
     ...d
   }))
 
-  // Y-axis tick values (6-7 ticks for better readability)
   const getYAxisTicks = () => {
     const range = yAxisMax - yAxisMin
-    const roughStep = range / 6  // Targeting 6-7 ticks
+    const roughStep = range / 6
     const mag = Math.pow(10, Math.floor(Math.log10(roughStep)))
     const step = Math.ceil(roughStep / mag) * mag
     const first = Math.floor(yAxisMin / step) * step
@@ -58,7 +57,6 @@ const LeadsChart = () => {
   }
   const yAxisTicks = getYAxisTicks()
 
-  // Sharp line (straight segments, no curve)
   const getSharpPath = () => {
     if (points.length < 2) return ''
     let path = `M ${points[0].x} ${points[0].y} `
@@ -93,34 +91,18 @@ const LeadsChart = () => {
       }
     })
     setHoveredPoint(closestIndex)
-    
-    // Constrain tooltip position to viewport
     const tooltipWidth = 176
-    const tooltipHeight = 80
     let left = e.clientX
     let top = e.clientY - 48
-    
-    // Clamp horizontal
-    if (left - tooltipWidth / 2 < 0) {
-      left = tooltipWidth / 2
-    } else if (left + tooltipWidth / 2 > window.innerWidth) {
-      left = window.innerWidth - tooltipWidth / 2
-    }
-    
-    // Clamp vertical
-    if (top < 0) {
-      top = e.clientY + 20
-    }
-    
+    if (left - tooltipWidth / 2 < 0) left = tooltipWidth / 2
+    else if (left + tooltipWidth / 2 > window.innerWidth) left = window.innerWidth - tooltipWidth / 2
+    if (top < 0) top = e.clientY + 20
     setTooltipPosition({ x: left, y: top })
   }
 
   const handleMouseLeave = () => setHoveredPoint(null)
-  
-  // Get current value for callout
   const currentValue = chartData[chartData.length - 1].value
-  
-  // Calculate delta for tooltip
+
   const getDelta = (index) => {
     if (index <= 0) return null
     const current = chartData[index].value
@@ -165,78 +147,28 @@ const LeadsChart = () => {
             </linearGradient>
           </defs>
 
-          {/* Y-axis labels (left side) */}
           <g className="chart-y-axis" aria-hidden="true">
             {yAxisTicks.map((value) => {
               const y = valueToY(value)
               return (
-                <text
-                  key={value}
-                  x={padding.left - 10}
-                  y={y + 4}
-                  textAnchor="end"
-                  className="chart-axis-label"
-                >
+                <text key={value} x={padding.left - 10} y={y + 4} textAnchor="end" className="chart-axis-label">
                   {formatCurrency(value)}
                 </text>
               )
             })}
           </g>
 
-          {/* Dashed baseline */}
-          <line
-            x1={padding.left}
-            y1={baselineY}
-            x2={padding.left + graphWidth}
-            y2={baselineY}
-            className="chart-baseline"
-            strokeWidth="1"
-          />
-          
-          {/* Light reference line at first value */}
-          <line
-            x1={padding.left}
-            y1={valueToY(chartData[0].value)}
-            x2={padding.left + graphWidth}
-            y2={valueToY(chartData[0].value)}
-            className="chart-reference-line"
-            strokeWidth="1"
-          />
-
-          {/* Area fill under line */}
+          <line x1={padding.left} y1={baselineY} x2={padding.left + graphWidth} y2={baselineY} className="chart-baseline" strokeWidth="1" />
+          <line x1={padding.left} y1={valueToY(chartData[0].value)} x2={padding.left + graphWidth} y2={valueToY(chartData[0].value)} className="chart-reference-line" strokeWidth="1" />
           <path d={areaPath} className="chart-area-wealthsimple" fill="url(#wealthsimpleGreenGradient)" />
+          <path d={linePath} className="chart-line-wealthsimple" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx={lastPoint.x} cy={lastPoint.y} r="5" className="chart-last-point" />
 
-          {/* Main green line (sharp) */}
-          <path
-            d={linePath}
-            className="chart-line-wealthsimple"
-            fill="none"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-
-          {/* Single dot on last point only */}
-          <circle
-            cx={lastPoint.x}
-            cy={lastPoint.y}
-            r="5"
-            className="chart-last-point"
-          />
-
-          {/* X-axis labels (minimal - first, middle points, and last) */}
           <g className="chart-x-axis" aria-hidden="true">
             {chartData.map((d, index) => {
-              // Show first, last, and every other point
               if (index === 0 || index === chartData.length - 1 || index % 2 === 0) {
                 return (
-                  <text
-                    key={index}
-                    x={indexToX(index)}
-                    y={baselineY + 20}
-                    textAnchor="middle"
-                    className="chart-axis-label"
-                  >
+                  <text key={index} x={indexToX(index)} y={baselineY + 20} textAnchor="middle" className="chart-axis-label">
                     {d.date}
                   </text>
                 )
@@ -244,28 +176,14 @@ const LeadsChart = () => {
               return null
             })}
           </g>
-          
-          {/* Invisible hit areas for tooltip */}
+
           {points.map((pt, index) => (
-            <circle
-              key={index}
-              cx={pt.x}
-              cy={pt.y}
-              r="14"
-              fill="transparent"
-              className="data-point-hit"
-            />
+            <circle key={index} cx={pt.x} cy={pt.y} r="14" fill="transparent" className="data-point-hit" />
           ))}
         </svg>
 
         {hoveredPoint !== null && (
-          <div
-            className="chart-tooltip chart-tooltip--wealthsimple"
-            style={{
-              left: `${tooltipPosition.x}px`,
-              top: `${tooltipPosition.y}px`
-            }}
-          >
+          <div className="chart-tooltip chart-tooltip--wealthsimple" style={{ left: `${tooltipPosition.x}px`, top: `${tooltipPosition.y}px` }}>
             <div className="tooltip-date">{chartData[hoveredPoint].date}</div>
             <div className="tooltip-value">{formatCurrency(chartData[hoveredPoint].value)}</div>
             {getDelta(hoveredPoint) && (
@@ -284,7 +202,6 @@ const LeadsChart = () => {
         )}
       </div>
 
-      {/* Time range selector (Wealthsimple-style pills) */}
       <div className="chart-time-ranges">
         {TIME_RANGES.map((range) => (
           <button
