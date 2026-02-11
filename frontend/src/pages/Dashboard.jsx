@@ -73,13 +73,19 @@ const Dashboard = () => {
           
           <div className="analytics-map-row">
             <div className="analytics-left">
-              <SubscriptionAnalytics />
+              <div className="analytics-card-wrapper">
+                <SubscriptionAnalytics />
+              </div>
             </div>
             <div className="orders-middle">
-              <OrdersList />
+              <div className="analytics-card-wrapper">
+                <OrdersList />
+              </div>
             </div>
             <div className="map-right">
-              <MapView />
+              <div className="analytics-card-wrapper">
+                <MapView />
+              </div>
             </div>
           </div>
         </div>

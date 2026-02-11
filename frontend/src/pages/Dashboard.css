@@ -176,29 +176,50 @@
   min-width: 0;
 }
 
-/* Analytics Row - 3 Column Grid */
+/* Analytics Row - 3 Column Grid (compact, equal height) */
 .analytics-map-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--grid-gap);
+  gap: 16px;
   align-items: stretch;
+  height: 300px;
 }
 
-.analytics-left {
-  grid-column: span 1;
-  min-width: 0;
-}
-
-.orders-middle {
-  grid-column: span 1;
-  min-width: 0;
-  background: var(--bg-secondary);
-  border-radius: var(--card-border-radius);
-}
-
+.analytics-left,
+.orders-middle,
 .map-right {
   grid-column: span 1;
   min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+
+/* Shared card wrapper: Compact Apple + Wealthsimple aesthetic */
+.analytics-card-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 2px 4px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.analytics-card-wrapper:hover {
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.03),
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    0 8px 16px rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 /* ============================================
@@ -221,6 +242,16 @@
   
   .chart-right {
     grid-column: span 2;
+  }
+}
+
+@media (max-width: 1280px) {
+  .analytics-map-row {
+    gap: 14px;
+  }
+  
+  .analytics-card-wrapper {
+    padding: 14px;
   }
 }
 
@@ -263,6 +294,15 @@
   .map-right {
     grid-column: span 1;
   }
+  
+  .analytics-map-row {
+    height: auto;
+    gap: 12px;
+  }
+  
+  .analytics-card-wrapper {
+    min-height: 260px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -283,5 +323,15 @@
   .action-button {
     width: 100%;
     justify-content: center;
+  }
+  
+  .analytics-map-row {
+    gap: 10px;
+  }
+  
+  .analytics-card-wrapper {
+    padding: 12px;
+    border-radius: 12px;
+    min-height: 240px;
   }
 }

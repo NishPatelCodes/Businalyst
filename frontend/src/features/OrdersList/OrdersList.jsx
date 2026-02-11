@@ -39,9 +39,15 @@ const OrdersList = () => {
   const maxValue = Math.max(...ordersData.map(d => d.total))
   const yAxisLabels = [0, 5, 15, 25, 30]
 
+  const totalOrders = ordersData.reduce((sum, d) => sum + d.total, 0)
+  const monthlyGrowth = 6.7
+  const targetProgress = 78
+
   return (
     <div className="orders-list">
-      <h2 className="orders-title">Orders List</h2>
+      <div className="orders-header">
+        <h2 className="orders-title">Orders List</h2>
+      </div>
 
       <div className="orders-chart-container">
         <svg className="orders-chart" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid meet">
@@ -139,6 +145,24 @@ const OrdersList = () => {
             })}
           </g>
         </svg>
+      </div>
+
+      <div className="orders-mini-stats">
+        <div className="orders-mini-stat">
+          <span className="orders-mini-stat-label">Total</span>
+          <span className="orders-mini-stat-value">{totalOrders}</span>
+        </div>
+        <div className="orders-mini-stat">
+          <span className="orders-mini-stat-label">MoM growth</span>
+          <span className="orders-mini-stat-value positive">+{monthlyGrowth}%</span>
+        </div>
+        <div className="orders-mini-stat">
+          <span className="orders-mini-stat-label">Target progress</span>
+          <span className="orders-mini-stat-value">{targetProgress}%</span>
+          <div className="orders-progress-bar">
+            <div className="orders-progress-fill" style={{ width: `${targetProgress}%` }} />
+          </div>
+        </div>
       </div>
     </div>
   )

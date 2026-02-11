@@ -69,6 +69,23 @@ const SubscriptionAnalytics = () => {
             </div>
           </div>
         ))}
+
+        <div className="analytics-mini-stats">
+          <div className="mini-stat">
+            <span className="mini-stat-label">Growth</span>
+            <span className="mini-stat-value positive">+12.4%</span>
+          </div>
+          <div className="mini-stat-divider"></div>
+          <div className="mini-stat">
+            <span className="mini-stat-label">Target</span>
+            <span className="mini-stat-value">85%</span>
+          </div>
+          <div className="mini-stat-divider"></div>
+          <div className="mini-stat">
+            <span className="mini-stat-label">vs last month</span>
+            <span className="mini-stat-value positive">+2.1%</span>
+          </div>
+        </div>
       </div>
     </div>
   )
