@@ -10,12 +10,12 @@ const HealthMeter = ({
   // Calculate filled segments based on value percentage
   const filledSegments = Math.round((value / 100) * totalSegments)
   
-  // SVG dimensions - compact size
-  const svgWidth = 280
-  const svgHeight = 155
-  const centerX = 140
-  const centerY = 135
-  const radius = 105
+  // SVG dimensions - compact size, centered
+  const svgWidth = 300
+  const svgHeight = 170
+  const centerX = svgWidth / 2  // 150 - perfectly centered
+  const centerY = svgHeight - 20  // 150 - positioned for arc
+  const radius = 120
   
   // Segment dimensions: width 8-10px, height 24-28px for thicker appearance
   const segmentWidth = 8
@@ -52,6 +52,7 @@ const HealthMeter = ({
           viewBox="0 0 300 170"
           preserveAspectRatio="xMidYMid meet"
           className="gauge-svg"
+          style={{ overflow: 'visible' }}
         >
           {Array.from({ length: totalSegments }).map((_, index) => {
             const isFilled = index < filledSegments

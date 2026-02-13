@@ -199,8 +199,15 @@
   box-shadow: var(--card-shadow-hover);
   pointer-events: none;
   z-index: 1000;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(-10px);
   min-width: 176px;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.chart-tooltip--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .tooltip-date {

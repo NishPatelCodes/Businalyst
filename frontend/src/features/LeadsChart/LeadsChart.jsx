@@ -1,13 +1,16 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import './LeadsChart.css'
 
 const TIME_RANGES = ['1H', '24H', '1W', '1M', '3M', '1Y', '5Y']
 
 const LeadsChart = () => {
   const [hoveredPoint, setHoveredPoint] = useState(null)
+  const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
   const [selectedRange, setSelectedRange] = useState('24H')
   const chartRef = useRef(null)
+  const tooltipTimeoutRef = useRef(null)
+  const lastMousePositionRef = useRef({ x: 0, y: 0 })
 
   const chartData = [
     { date: 'Jul', value: 550000 },
@@ -77,8 +80,38 @@ const LeadsChart = () => {
     return `$${value.toFixed(0)}`
   }
 
+  useEffect(() => {
+    return () => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current)
+      }
+    }
+  }, [])
+
   const handleMouseMove = (e) => {
     if (!chartRef.current) return
+    
+    // Initialize last position if not set
+    if (lastMousePositionRef.current.x === 0 && lastMousePositionRef.current.y === 0) {
+      lastMousePositionRef.current = { x: e.clientX, y: e.clientY }
+      return
+    }
+    
+    // Check if mouse has moved significantly (more than 5px)
+    const mouseMoved = Math.abs(e.clientX - lastMousePositionRef.current.x) > 5 || 
+                       Math.abs(e.clientY - lastMousePositionRef.current.y) > 5
+    
+    // If mouse moved significantly, reset tooltip and clear timeout
+    if (mouseMoved) {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current)
+        tooltipTimeoutRef.current = null
+      }
+      setShowTooltip(false)
+    }
+    
+    lastMousePositionRef.current = { x: e.clientX, y: e.clientY }
+    
     const rect = chartRef.current.getBoundingClientRect()
     const x = (e.clientX - rect.left) * (chartWidth / rect.width)
     let closestIndex = 0
@@ -91,6 +124,7 @@ const LeadsChart = () => {
       }
     })
     setHoveredPoint(closestIndex)
+    
     const tooltipWidth = 176
     let left = e.clientX
     let top = e.clientY - 48
@@ -98,9 +132,24 @@ const LeadsChart = () => {
     else if (left + tooltipWidth / 2 > window.innerWidth) left = window.innerWidth - tooltipWidth / 2
     if (top < 0) top = e.clientY + 20
     setTooltipPosition({ x: left, y: top })
+    
+    // Only set timeout if mouse hasn't moved significantly and there's no existing timeout
+    if (!mouseMoved && !tooltipTimeoutRef.current) {
+      // Set timeout to show tooltip after 0.5 seconds of static hover
+      tooltipTimeoutRef.current = setTimeout(() => {
+        setShowTooltip(true)
+        tooltipTimeoutRef.current = null
+      }, 500)
+    }
   }
 
-  const handleMouseLeave = () => setHoveredPoint(null)
+  const handleMouseLeave = () => {
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current)
+    }
+    setHoveredPoint(null)
+    setShowTooltip(false)
+  }
   const currentValue = chartData[chartData.length - 1].value
 
   const getDelta = (index) => {
@@ -182,8 +231,8 @@ const LeadsChart = () => {
           ))}
         </svg>
 
-        {hoveredPoint !== null && (
-          <div className="chart-tooltip chart-tooltip--wealthsimple" style={{ left: `${tooltipPosition.x}px`, top: `${tooltipPosition.y}px` }}>
+        {hoveredPoint !== null && showTooltip && (
+          <div className={`chart-tooltip chart-tooltip--wealthsimple ${showTooltip ? 'chart-tooltip--visible' : ''}`} style={{ left: `${tooltipPosition.x}px`, top: `${tooltipPosition.y}px` }}>
             <div className="tooltip-date">{chartData[hoveredPoint].date}</div>
             <div className="tooltip-value">{formatCurrency(chartData[hoveredPoint].value)}</div>
             {getDelta(hoveredPoint) && (
