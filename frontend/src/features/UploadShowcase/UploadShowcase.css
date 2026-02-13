@@ -1,0 +1,275 @@
+/* ============================================
+   UPLOAD SHOWCASE - 5-Card Asymmetric Grid
+   ============================================ */
+
+.upload-showcase {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto minmax(180px, auto) auto;
+  gap: 16px 18px;
+  position: relative;
+}
+
+/* Shared card base */
+.showcase-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 2px 4px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.showcase-card:hover {
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.03),
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    0 8px 16px rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Grid placement for different sized cards */
+.showcase-card--line-chart {
+  grid-column: span 2;
+  grid-row: 1;
+}
+
+.showcase-card--bar-chart {
+  grid-column: span 2;
+  grid-row: 1;
+}
+
+.showcase-card--area-chart {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: -8px;
+  z-index: 1;
+}
+
+.showcase-card--required {
+  grid-column: span 2;
+  grid-row: 3;
+}
+
+.showcase-card--optional {
+  grid-column: span 2;
+  grid-row: 3;
+}
+
+/* Card header */
+.showcase-card-header {
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.showcase-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.showcase-card-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: #86868b;
+  margin: 4px 0 0 0;
+  line-height: 1.3;
+}
+
+/* KPI metrics */
+.showcase-metrics {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.metric-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.metric-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #86868b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1d1d1f;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-value.large {
+  font-size: 36px;
+}
+
+.metric-description {
+  font-size: 11px;
+  font-weight: 500;
+  color: #86868b;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.growth-indicator {
+  font-size: 12px;
+  color: #30d158;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+/* Chart styling */
+.showcase-chart {
+  width: 100%;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.showcase-chart.large {
+  height: 140px;
+}
+
+.showcase-chart svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Column list cards (Required/Optional) */
+.column-list-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.column-list-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.column-list-pill.required {
+  background: #007AFF;
+  color: #ffffff;
+}
+
+.column-list-pill.optional {
+  background: #9c27b0;
+  color: #ffffff;
+}
+
+.column-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.column-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+.column-radio {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid #86868b;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.column-radio.selected::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #007AFF;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .upload-showcase {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 16px;
+  }
+  
+  .showcase-card--line-chart,
+  .showcase-card--bar-chart,
+  .showcase-card--area-chart,
+  .showcase-card--required,
+  .showcase-card--optional {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  
+  .showcase-card--area-chart {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .showcase-card {
+    padding: 14px;
+  }
+  
+  .showcase-card-title {
+    font-size: 14px;
+  }
+  
+  .showcase-metrics {
+    gap: 16px;
+  }
+  
+  .metric-value {
+    font-size: 20px;
+  }
+  
+  .metric-value.large {
+    font-size: 30px;
+  }
+  
+  .showcase-chart {
+    height: 90px;
+  }
+  
+  .showcase-chart.large {
+    height: 120px;
+  }
+}
