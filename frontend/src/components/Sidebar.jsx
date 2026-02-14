@@ -73,6 +73,15 @@ const Sidebar = () => {
             <span>Content</span>
           </a>
 
+          <a href="/upload" className="nav-item">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 13V4M10 4L7 7M10 4L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M4 16H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M4 13H6M14 13H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <span>Upload</span>
+          </a>
+
           <a href="/online-store" className="nav-item">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M4 6L6 4H14L16 6V16H4V6Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>

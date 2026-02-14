@@ -1,0 +1,88 @@
+/* ============================================
+   UPLOAD PAGE - Apple + Wealthsimple Style
+   ============================================ */
+
+.upload-content {
+  margin-top: var(--layout-content-margin-top);
+  padding: var(--spacing-4) var(--spacing-4);
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Hero Section */
+.upload-hero {
+  text-align: center;
+  padding: 24px 0 16px 0;
+}
+
+.upload-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0 0 8px 0;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.upload-subtitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: #86868b;
+  margin: 0;
+  line-height: 1.4;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Section spacing */
+.upload-showcase-section {
+  /* Showcase has its own spacing */
+}
+
+.upload-dropzone-section {
+  /* Dropzone has its own spacing */
+}
+
+.upload-table-section {
+  /* Table is the last section */
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .upload-content {
+    max-width: 100%;
+    gap: 28px;
+  }
+  
+  .upload-title {
+    font-size: 28px;
+  }
+  
+  .upload-subtitle {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .upload-content {
+    padding: var(--spacing-3) var(--spacing-2);
+    gap: 24px;
+  }
+  
+  .upload-hero {
+    padding: 16px 0 8px 0;
+  }
+  
+  .upload-title {
+    font-size: 24px;
+  }
+  
+  .upload-subtitle {
+    font-size: 13px;
+  }
+}

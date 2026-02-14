@@ -1,0 +1,103 @@
+/* ============================================
+   FILE DROPZONE - Apple + Wealthsimple Style
+   ============================================ */
+
+.file-dropzone {
+  border: 2px dashed #d1d1d6;
+  border-radius: 16px;
+  background: #fafafa;
+  padding: 48px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+}
+
+.file-dropzone:hover {
+  border-color: #007AFF;
+  background: #f5f9ff;
+}
+
+.file-dropzone.dragging {
+  border-color: #007AFF;
+  background: #e5f2ff;
+  border-style: solid;
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+}
+
+.file-dropzone.has-file {
+  border-color: #30d158;
+  background: #f0fdf4;
+}
+
+.dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.dropzone-icon {
+  margin-bottom: 4px;
+}
+
+.dropzone-icon svg {
+  display: block;
+}
+
+.dropzone-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.dropzone-subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #86868b;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.dropzone-formats {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.format-badge {
+  padding: 4px 12px;
+  background: #e8e8ed;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: 0.02em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .file-dropzone {
+    padding: 36px 24px;
+  }
+  
+  .dropzone-icon svg {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .dropzone-title {
+    font-size: 16px;
+  }
+  
+  .dropzone-subtitle {
+    font-size: 13px;
+  }
+  
+  .format-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+  }
+}
