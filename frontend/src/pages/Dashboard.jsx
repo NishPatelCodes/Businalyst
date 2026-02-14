@@ -67,7 +67,9 @@ const Dashboard = () => {
               <LeadsChart />
             </div>
             <div className="chart-right">
-              <ExpenseSources />
+              <div className="analytics-card-wrapper">
+                <ExpenseSources />
+              </div>
             </div>
           </div>
           

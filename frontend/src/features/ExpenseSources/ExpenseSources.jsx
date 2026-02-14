@@ -56,6 +56,9 @@ const ExpenseSources = () => {
 
   return (
     <div className="expense-sources">
+      <div className="expense-header">
+        <h2 className="expense-title">Expense Sources</h2>
+      </div>
       <div className="expense-chart-container">
         <svg
           className="expense-donut-chart"
