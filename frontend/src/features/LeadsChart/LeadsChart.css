@@ -70,7 +70,7 @@
   position: relative;
   width: 100%;
   flex: 1;
-  min-height: 220px;
+  min-height: 280px;
   overflow: hidden;
   display: flex;
   align-items: stretch;
@@ -155,7 +155,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-1);
-  margin-top: var(--spacing-3);
+  margin-top: var(--spacing-1);
   padding-bottom: var(--spacing-1);
 }
 
@@ -256,7 +256,7 @@
 /* Responsive */
 @media (max-width: 1024px) {
   .leads-chart-container {
-    min-height: 198px;
+    min-height: 260px;
   }
 }
 
@@ -284,10 +284,10 @@
   }
 
   .leads-chart-container {
-    min-height: 165px;
+    min-height: 220px;
   }
 
   .chart-time-ranges {
-    margin-top: var(--spacing-2);
+    margin-top: var(--spacing-1);
   }
 }

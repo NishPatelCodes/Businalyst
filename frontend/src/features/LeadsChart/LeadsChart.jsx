@@ -22,7 +22,7 @@ const LeadsChart = () => {
   ]
 
   const chartWidth = 1200
-  const chartHeight = 260
+  const chartHeight = 320
   const padding = { top: 20, right: 24, bottom: 40, left: 56 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom

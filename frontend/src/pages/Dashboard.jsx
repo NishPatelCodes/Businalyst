@@ -68,7 +68,7 @@ const Dashboard = () => {
             </div>
             <div className="chart-right">
               <div className="analytics-card-wrapper">
-                <ExpenseSources />
+              <ExpenseSources />
               </div>
             </div>
           </div>
