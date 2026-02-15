@@ -1,169 +1,256 @@
 /* ============================================
-   EXPENSE SOURCES - WEALTHSIMPLE FLOATING STYLE
+   EXPENSE SOURCES - Apple-inspired UI
+   Clarity first, SF Pro typography, subtle depth.
    ============================================ */
 
-/* Expense sources within card */
 .expense-sources {
   background: transparent;
   padding: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
   height: 100%;
   min-height: 0;
-}
-
-.expense-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-  flex-shrink: 0;
-}
-
-.expense-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1d1d1f;
-  margin: 0;
-  line-height: 1.2;
-  letter-spacing: -0.015em;
+  justify-content: flex-start;
 }
 
 .expense-chart-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
+  position: relative;
   flex: 0 0 auto;
-  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .expense-donut-chart {
-  width: 100%;
-  max-width: 260px;
+  width: 260px;
   height: 260px;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
-  transition: filter 0.3s ease;
+  display: block;
 }
 
-.expense-donut-chart:hover {
-  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.15));
-}
-
+/* Segment: smooth hover scale + transition */
 .donut-segment {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
   cursor: pointer;
 }
 
-.donut-segment:hover {
-  opacity: 0.9;
-  filter: brightness(1.1);
+.donut-segment--dimmed {
+  opacity: 0.5;
 }
 
-.donut-center-label {
-  font-size: 12px;
+.donut-segment--hover {
+  /* Scale applied via inline transform in JSX */
+}
+
+/* Percentage on slice: white on dark slices */
+.donut-slice-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  fill: #ffffff;
+  pointer-events: none;
+  user-select: none;
+}
+
+.donut-slice-label--dark {
+  fill: #1d1d1f;
+}
+
+/* Center: total amount + subtitle (matching KPI card styling) */
+.donut-center-total {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  fill: #000000;
+  letter-spacing: -0.02em;
+}
+
+.donut-center-subtitle {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  font-size: 11px;
   font-weight: 500;
   fill: #86868b;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: 0.02em;
 }
 
-.donut-center-total {
-  font-size: 24px;
-  font-weight: 700;
-  fill: #1d1d1f;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+/* Tooltip: pill style, high contrast */
+.expense-tooltip {
+  pointer-events: none;
 }
 
+.expense-tooltip-bg {
+  fill: rgba(28, 28, 31, 0.94);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+}
 
-/* Legend below chart - arranged in two rows */
+.expense-tooltip-name {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  fill: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.expense-tooltip-value {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  fill: rgba(255, 255, 255, 0.9);
+  letter-spacing: -0.01em;
+}
+
+/* Legend card on the right - Apple liquid glass effect */
 .expense-legend-card {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px 20px;
-  padding: 0;
-  margin-top: 0;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+  border-radius: 16px;
+  padding: 8px 10px;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  flex: 0 1 auto;
+  min-width: 120px;
+  max-width: 150px;
 }
 
-.legend-item {
+.expense-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.expense-legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  padding: 0;
+  gap: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease, background 0.2s ease;
+  padding: 3px 4px;
+  border-radius: 6px;
 }
 
-.legend-item:hover {
-  transform: translateX(2px);
+.expense-legend-item:hover {
+  background: rgba(0, 0, 0, 0.03);
 }
 
-.legend-item:hover .legend-dot {
-  transform: scale(1.2);
-  box-shadow: 
-    0 3px 6px rgba(0, 0, 0, 0.2),
-    0 0 0 2px rgba(255, 255, 255, 0.4);
+.expense-legend-item--active {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
 }
 
-.legend-dot {
-  width: 12px;
-  height: 12px;
+.expense-legend-item--dimmed {
+  opacity: 0.35;
+}
+
+.expense-legend-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 2px;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.legend-name {
-  font-size: 13px;
-  font-weight: 400;
-  color: #1d1d1f;
-  line-height: 1.4;
+.expense-legend-name {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.9);
+  flex: 1;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 0.5px 1px rgba(255, 255, 255, 0.5);
 }
 
-/* Responsive - Match LeadsChart heights */
+.expense-legend-percentage {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.95);
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0.5px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive */
 @media (max-width: 1024px) {
-  .expense-chart-container {
-    margin-bottom: 4px;
+  .expense-sources {
+    flex-direction: column;
+    gap: 10px;
   }
 
   .expense-donut-chart {
-    max-width: 240px;
-    height: 240px;
+    width: 220px;
+    height: 220px;
   }
-  
+
   .expense-legend-card {
-    gap: 12px 20px;
+    width: 100%;
+    max-width: 200px;
+    padding: 8px 10px;
+  }
+
+  .expense-legend {
+    gap: 5px;
   }
   
-  .legend-name {
-    font-size: 12px;
+  .expense-legend-item {
+    padding: 2px 3px;
   }
 }
 
 @media (max-width: 768px) {
   .expense-sources {
-    padding: var(--spacing-2) 0;
-  }
-
-  .expense-chart-container {
-    margin-bottom: 4px;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .expense-donut-chart {
-    max-width: 220px;
-    height: 220px;
+    width: 200px;
+    height: 200px;
   }
-  
+
   .expense-legend-card {
-    gap: 10px 16px;
+    width: 100%;
+    max-width: 180px;
+    padding: 6px 8px;
+  }
+
+  .expense-legend {
+    gap: 4px;
   }
   
-  .legend-dot {
-    width: 10px;
-    height: 10px;
+  .expense-legend-item {
+    padding: 2px 3px;
+  }
+
+  .expense-legend-name,
+  .expense-legend-percentage {
+    font-size: 9px;
   }
   
-  .legend-name {
-    font-size: 11px;
+  .expense-legend-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .donut-center-total {
+    font-size: 18px;
+  }
+
+  .donut-center-subtitle {
+    font-size: 10px;
+  }
+
+  .donut-slice-label {
+    font-size: 12px;
   }
 }
