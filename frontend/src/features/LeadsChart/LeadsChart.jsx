@@ -8,6 +8,7 @@ const LeadsChart = () => {
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
   const [selectedRange, setSelectedRange] = useState('24H')
+  const [selectedTab, setSelectedTab] = useState('Revenue')
   const chartRef = useRef(null)
   const tooltipTimeoutRef = useRef(null)
   const lastMousePositionRef = useRef({ x: 0, y: 0 })
@@ -171,8 +172,20 @@ const LeadsChart = () => {
     <div className="leads-chart leads-chart--wealthsimple">
       <div className="leads-chart-header">
         <div className="chart-header-left">
-          <h2 className="leads-chart-title">Leads won vs leads lost</h2>
-          <div className="chart-subtitle">Last 6 months</div>
+          <div className="leads-chart-tabs">
+            <button
+              className={`leads-chart-tab ${selectedTab === 'Revenue' ? 'leads-chart-tab--active' : ''}`}
+              onClick={() => setSelectedTab('Revenue')}
+            >
+              Revenue
+            </button>
+            <button
+              className={`leads-chart-tab ${selectedTab === 'Profit' ? 'leads-chart-tab--active' : ''}`}
+              onClick={() => setSelectedTab('Profit')}
+            >
+              Profit
+            </button>
+          </div>
         </div>
         <div className="chart-current-value">
           <div className="current-value-label">Current</div>
