@@ -109,8 +109,15 @@ const ExpenseSources = () => {
 
   return (
     <div className="expense-sources" role="region" aria-label="Expense sources chart">
-      {/* Pie chart on the left */}
-      <div className="expense-chart-container">
+      {/* Title */}
+      <div className="expense-sources-header">
+        <h2 className="expense-sources-title">Expense Sources</h2>
+      </div>
+      
+      {/* Chart and Legend Container */}
+      <div className="expense-content-wrapper">
+        {/* Pie chart on the left */}
+        <div className="expense-chart-container">
           <svg
             className="expense-donut-chart"
             viewBox="0 0 260 260"
@@ -235,6 +242,7 @@ const ExpenseSources = () => {
             ))}
           </div>
         </div>
+      </div>
     </div>
   )
 }
