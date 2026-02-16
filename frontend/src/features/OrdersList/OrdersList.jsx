@@ -2,70 +2,49 @@ import React from 'react'
 import './OrdersList.css'
 
 const OrdersList = () => {
-  // Premium jewel-tone gradient matching pie chart - sophisticated blues & teals
-  const segmentColors = [
-    '#1d3557',  // Deep Navy
-    '#457b9d',  // Steel Blue
-    '#2a9d8f',  // Teal
-    '#48cae4',  // Bright Cyan
-    '#90e0ef'   // Sky Blue
+  // Daily revenue data matching the image (in thousands)
+  const revenueData = [
+    { day: 'Mo', value: 2.1 },
+    { day: 'Tu', value: 3.0 },
+    { day: 'We', value: 1.8 },
+    { day: 'Th', value: 1.1 },
+    { day: 'Fr', value: 2.2 },
+    { day: 'Sa', value: 3.4 },
+    { day: 'Su', value: 1.7 }
   ]
 
-  const ordersData = [
-    {
-      month: 'January',
-      segments: [
-        { label: '10%', value: 3.2, color: segmentColors[0] },
-        { label: '20%', value: 6.4, color: segmentColors[1] },
-        { label: '40%', value: 12.8, color: segmentColors[2] },
-        { label: '60%', value: 6.4, color: segmentColors[3] },
-        { label: '80%', value: 3.2, color: segmentColors[4] }
-      ],
-      total: 32
-    },
-    {
-      month: 'February',
-      segments: [
-        { label: '10%', value: 3.0, color: segmentColors[0] },
-        { label: '20%', value: 6.0, color: segmentColors[1] },
-        { label: '40%', value: 12.0, color: segmentColors[2] },
-        { label: '60%', value: 6.0, color: segmentColors[3] },
-        { label: '80%', value: 3.0, color: segmentColors[4] }
-      ],
-      total: 30
-    }
-  ]
+  const maxValue = 4 // 4k max on y-axis
+  const yAxisLabels = [0, 1, 2, 3, 4] // 0, 1k, 2k, 3k, 4k
+  const tealColor = '#2a9d8f' // Teal color for bars
 
-  const maxValue = Math.max(...ordersData.map(d => d.total))
-  const yAxisLabels = [0, 5, 15, 25, 30]
+  const chartWidth = 400
+  const chartHeight = 250
+  const padding = { top: 20, right: 40, bottom: 40, left: 40 }
+  const graphWidth = chartWidth - padding.left - padding.right
+  const graphHeight = chartHeight - padding.top - padding.bottom
 
-  const totalOrders = ordersData.reduce((sum, d) => sum + d.total, 0)
-  const monthlyGrowth = 6.7
-  const targetProgress = 78
+  const barWidth = graphWidth / revenueData.length - 10
+  const barSpacing = 10
 
   return (
     <div className="orders-list">
       <div className="orders-header">
-        <h2 className="orders-title">Orders List</h2>
+        <h2 className="orders-title">Revenue Summary</h2>
+        <a href="#" className="orders-report-link">Report &gt;</a>
       </div>
 
       <div className="orders-chart-container">
-        <svg className="orders-chart" viewBox="0 0 400 250" preserveAspectRatio="xMidYMid meet">
-          <defs>
-            <filter id="barShadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="rgba(0,0,0,0.08)" />
-            </filter>
-          </defs>
-          {/* Grid lines - horizontal grey lines with low opacity */}
+        <svg className="orders-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="xMidYMid meet">
+          {/* Grid lines - horizontal grey lines */}
           <g className="grid-lines">
             {yAxisLabels.map((value, index) => {
-              const y = 200 - (value / maxValue) * 180
+              const y = padding.top + graphHeight - (value / maxValue) * graphHeight
               return (
                 <line
                   key={index}
-                  x1="40"
+                  x1={padding.left}
                   y1={y}
-                  x2="360"
+                  x2={padding.left + graphWidth}
                   y2={y}
                   strokeWidth="0.5"
                   opacity="0.5"
@@ -77,92 +56,68 @@ const OrdersList = () => {
           {/* Y-axis labels */}
           <g className="y-axis-labels">
             {yAxisLabels.map((value, index) => {
-              const y = 200 - (value / maxValue) * 180
+              const y = padding.top + graphHeight - (value / maxValue) * graphHeight
               return (
                 <text
                   key={index}
-                  x="35"
+                  x={padding.left - 5}
                   y={y + 4}
                   textAnchor="end"
                   className="axis-label"
                 >
-                  {value}
+                  {value === 0 ? '0' : `${value}k`}
                 </text>
               )
             })}
           </g>
 
           {/* Bars */}
-          {ordersData.map((monthData, monthIndex) => {
-            const barWidth = 100
-            const barX = 100 + monthIndex * 150
-            let currentY = 200
-            const scale = 180 / maxValue
+          {revenueData.map((dayData, index) => {
+            const barHeight = (dayData.value / maxValue) * graphHeight
+            const barX = padding.left + index * (barWidth + barSpacing) + barSpacing / 2
+            const barY = padding.top + graphHeight - barHeight
+            const cornerRadius = 6 // Increased corner radius for top corners
+
+            // Create path with rounded top corners only
+            const path = `
+              M ${barX + cornerRadius},${barY}
+              L ${barX + barWidth - cornerRadius},${barY}
+              Q ${barX + barWidth},${barY} ${barX + barWidth},${barY + cornerRadius}
+              L ${barX + barWidth},${barY + barHeight}
+              L ${barX},${barY + barHeight}
+              L ${barX},${barY + cornerRadius}
+              Q ${barX},${barY} ${barX + cornerRadius},${barY}
+              Z
+            `
 
             return (
-              <g key={monthIndex}>
-                {/* Stacked segments */}
-                {monthData.segments.map((segment, segIndex) => {
-                  const segmentHeight = segment.value * scale
-                  const y = currentY - segmentHeight
-                  currentY = y
-
-                  return (
-                    <rect
-                      key={segIndex}
-                      x={barX}
-                      y={y}
-                      width={barWidth}
-                      height={segmentHeight}
-                      fill={segment.color}
-                      stroke="rgba(255,255,255,0.4)"
-                      strokeWidth="1"
-                      rx="2"
-                      className="bar-segment"
-                      filter="url(#barShadow)"
-                    />
-                  )
-                })}
-              </g>
+              <path
+                key={index}
+                d={path}
+                fill={tealColor}
+                className="bar-segment"
+              />
             )
           })}
 
           {/* X-axis labels */}
           <g className="x-axis-labels">
-            {ordersData.map((monthData, index) => {
-              const barX = 100 + index * 150
+            {revenueData.map((dayData, index) => {
+              const barX = padding.left + index * (barWidth + barSpacing) + barSpacing / 2
               return (
                 <text
                   key={index}
-                  x={barX + 50}
-                  y="230"
+                  x={barX + barWidth / 2}
+                  y={padding.top + graphHeight + 20}
                   textAnchor="middle"
                   className="axis-label"
                 >
-                  {monthData.month}
+                  {dayData.day}
                 </text>
               )
             })}
           </g>
         </svg>
-      </div>
-
-      <div className="orders-mini-stats">
-        <div className="orders-mini-stat">
-          <span className="orders-mini-stat-label">Total</span>
-          <span className="orders-mini-stat-value">{totalOrders}</span>
-        </div>
-        <div className="orders-mini-stat">
-          <span className="orders-mini-stat-label">MoM growth</span>
-          <span className="orders-mini-stat-value positive">+{monthlyGrowth}%</span>
-        </div>
-        <div className="orders-mini-stat">
-          <span className="orders-mini-stat-label">Target progress</span>
-          <span className="orders-mini-stat-value">{targetProgress}%</span>
-          <div className="orders-progress-bar">
-            <div className="orders-progress-fill" style={{ width: `${targetProgress}%` }} />
-          </div>
-        </div>
       </div>
     </div>
   )

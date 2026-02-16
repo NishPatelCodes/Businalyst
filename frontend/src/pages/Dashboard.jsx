@@ -38,7 +38,7 @@ const Dashboard = () => {
                 </svg>
               </div>
               
-              <button className="action-button">
+              <button className="action-button add-widget-button">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5"/>
                   <rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5"/>
@@ -48,10 +48,9 @@ const Dashboard = () => {
                 <span>Add widget</span>
               </button>
               
-              
-              <button className="action-button primary">
+              <button className="action-button primary export-button">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8 2V14M2 8H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M8 11L8 2M8 11L5 8M8 11L11 8M2 14L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span>Export</span>
               </button>
