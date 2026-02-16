@@ -3,6 +3,22 @@
    Clean white cards with solid black accents.
    ============================================ */
 
+.kpi-no-data {
+  grid-column: 1 / -1;
+  font-size: 14px;
+  color: #86868b;
+  margin: 0 0 8px 0;
+}
+
+.kpi-no-data a {
+  color: #0071e3;
+  text-decoration: none;
+}
+
+.kpi-no-data a:hover {
+  text-decoration: underline;
+}
+
 .kpi-card {
   background: #ffffff;
   border-radius: 14px;

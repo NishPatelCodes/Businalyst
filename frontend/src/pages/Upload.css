@@ -46,6 +46,67 @@
 
 .upload-dropzone-section {
   /* Dropzone has its own spacing */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.upload-actions {
+  margin-top: 8px;
+}
+
+.upload-process-button {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: #0071e3;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.upload-process-button:hover:not(:disabled) {
+  background: #0077ed;
+}
+
+.upload-process-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.upload-error {
+  color: #d32f2f;
+  font-size: 14px;
+  margin: 8px 0 0 0;
+}
+
+.upload-success {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.upload-success-message {
+  color: #1d1d1f;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 12px 0;
+}
+
+.upload-view-dashboard-button {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: #34c759;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.upload-view-dashboard-button:hover {
+  background: #30b350;
 }
 
 .upload-table-section {

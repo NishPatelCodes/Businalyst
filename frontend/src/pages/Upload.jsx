@@ -1,18 +1,56 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import TopNavigation from '../components/TopNavigation'
 import FileDropzone from '../components/FileDropzone'
 import ExampleDataTable from '../components/ExampleDataTable'
+import { KpiContext } from '../context/KpiContext'
 import './Upload.css'
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const Upload = () => {
   const [selectedFile, setSelectedFile] = useState(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [error, setError] = useState(null)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
+  const { setKpiData } = useContext(KpiContext)
+  const navigate = useNavigate()
 
   const handleFileSelect = (file) => {
     setSelectedFile(file)
-    console.log('File selected:', file.name, file.size, file.type)
-    // Here you could add client-side parsing with papaparse or xlsx
-    // For now, we just store the file
+    setError(null)
+    setUploadSuccess(false)
+  }
+
+  const handleUpload = async () => {
+    if (!selectedFile) return
+    setIsUploading(true)
+    setError(null)
+    setUploadSuccess(false)
+    try {
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      const res = await fetch(`${API_BASE}/upload/`, {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Upload failed')
+        return
+      }
+      setKpiData({
+        profit_sum: data.profit_sum,
+        revenue_sum: data.revenue_sum,
+        orders_sum: data.orders_sum,
+      })
+      setUploadSuccess(true)
+    } catch (err) {
+      setError(err.message || 'Network error')
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   return (
@@ -31,6 +69,31 @@ const Upload = () => {
 
           <div className="upload-dropzone-section">
             <FileDropzone onFileSelect={handleFileSelect} />
+            {selectedFile && !uploadSuccess && (
+              <div className="upload-actions">
+                <button
+                  type="button"
+                  className="upload-process-button"
+                  onClick={handleUpload}
+                  disabled={isUploading}
+                >
+                  {isUploading ? 'Processing…' : 'Process file'}
+                </button>
+              </div>
+            )}
+            {error && <p className="upload-error">{error}</p>}
+            {uploadSuccess && (
+              <div className="upload-success">
+                <p className="upload-success-message">File processed successfully. Your KPIs are ready.</p>
+                <button
+                  type="button"
+                  className="upload-view-dashboard-button"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  View dashboard
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="upload-table-section">
