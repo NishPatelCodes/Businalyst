@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import TopNavigation from '../components/TopNavigation'
 import DashboardMetrics from '../features/DashboardMetrics'
@@ -7,9 +8,12 @@ import ExpenseSources from '../features/ExpenseSources'
 import SubscriptionAnalytics from '../features/SubscriptionAnalytics'
 import OrdersList from '../features/OrdersList'
 import MapView from '../features/MapView'
+import { KpiContext } from '../context/KpiContext'
 import './Dashboard.css'
 
 const Dashboard = () => {
+  const { kpiData } = useContext(KpiContext)
+
   return (
     <div className="dashboard-container">
       <Sidebar />
@@ -56,6 +60,12 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
+          
+          {!kpiData && (
+            <p className="dashboard-no-data">
+              No data yet — <Link to="/upload">upload a file</Link> on the Upload page to see your KPIs.
+            </p>
+          )}
           
           <div className="dashboard-metrics">
             <DashboardMetrics />

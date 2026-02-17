@@ -80,6 +80,14 @@ const MapView = () => {
               <pattern id="dotPattern" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
                 <circle cx="3" cy="3" r="1" fill="#636366" opacity="1"/>
               </pattern>
+              {/* Glow filter for markers */}
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
             </defs>
             <ZoomableGroup
               zoom={position.zoom}
@@ -103,30 +111,46 @@ const MapView = () => {
                     ))
                   }
                 </Geographies>
-                {/* Purple markers with glow */}
+                {/* Green markers with enhanced glow */}
                 {mapMarkers.map((marker, index) => (
                   <Marker key={index} coordinates={marker.coordinates}>
                     <g>
-                      {/* Glow effect */}
+                      {/* Enhanced glow effect layers */}
+                      <circle
+                        r={16}
+                        fill="#34c759"
+                        fillOpacity={0.08}
+                      />
+                      <circle
+                        r={14}
+                        fill="#34c759"
+                        fillOpacity={0.12}
+                      />
+                      <circle
+                        r={12}
+                        fill="#34c759"
+                        fillOpacity={0.18}
+                      />
                       <circle
                         r={10}
-                        fill="#9B59B6"
-                        fillOpacity={0.2}
+                        fill="#34c759"
+                        fillOpacity={0.22}
                       />
                       <circle
                         r={8}
-                        fill="#9B59B6"
-                        fillOpacity={0.3}
+                        fill="#34c759"
+                        fillOpacity={0.28}
                       />
-                      {/* Main marker */}
+                      {/* Main marker with glow filter */}
                       <circle
                         r={6}
-                        fill="#9B59B6"
+                        fill="#34c759"
                         fillOpacity={0.9}
                         stroke="#ffffff"
                         strokeWidth={1.5}
+                        filter="url(#glow)"
                       />
-                      <circle r={2.5} fill="#ffffff" fillOpacity={0.8} />
+                      <circle r={2.5} fill="#ffffff" fillOpacity={0.9} />
                     </g>
                   </Marker>
                 ))}
@@ -154,25 +178,6 @@ const MapView = () => {
                 <path d="M3 7H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </button>
-          </div>
-        </div>
-
-        <div className="map-legend-bottom">
-          <div className="map-legend-item-bottom">
-            <div className="map-legend-dot-bottom" style={{ backgroundColor: '#D1D1D6' }} />
-            <span className="map-legend-name-bottom">Europe</span>
-          </div>
-          <div className="map-legend-item-bottom">
-            <div className="map-legend-dot-bottom" style={{ backgroundColor: '#9B59B6' }} />
-            <span className="map-legend-name-bottom">Asia</span>
-          </div>
-          <div className="map-legend-item-bottom">
-            <div className="map-legend-dot-bottom" style={{ backgroundColor: '#007AFF' }} />
-            <span className="map-legend-name-bottom">Africa</span>
-          </div>
-          <div className="map-legend-item-bottom">
-            <div className="map-legend-dot-bottom" style={{ backgroundColor: '#34C759' }} />
-            <span className="map-legend-name-bottom">America</span>
           </div>
         </div>
 

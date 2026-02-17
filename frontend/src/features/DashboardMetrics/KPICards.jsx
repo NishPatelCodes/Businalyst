@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import { Link } from 'react-router-dom'
 import { KpiContext } from '../../context/KpiContext'
 import './KPICards.css'
 
@@ -76,7 +75,7 @@ const KPICards = () => {
       icon: ordersIcon,
     },
     {
-      title: 'Conversion',
+      title: 'Expense',
       value: '—',
       current: 0,
       target: 5.0,
@@ -110,11 +109,6 @@ const KPICards = () => {
 
   return (
     <>
-      {!kpiData && (
-        <p className="kpi-no-data">
-          No data yet — <Link to="/upload">upload a file</Link> on the Upload page to see your KPIs.
-        </p>
-      )}
       {kpis.map((kpi, index) => {
         const progress = calculateProgress(kpi.current, kpi.target)
         return (

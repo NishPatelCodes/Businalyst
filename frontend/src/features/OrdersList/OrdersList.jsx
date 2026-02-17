@@ -15,7 +15,6 @@ const OrdersList = () => {
 
   const maxValue = 4 // 4k max on y-axis
   const yAxisLabels = [0, 1, 2, 3, 4] // 0, 1k, 2k, 3k, 4k
-  const tealColor = '#2a9d8f' // Teal color for bars
 
   const chartWidth = 400
   const chartHeight = 250
@@ -30,11 +29,16 @@ const OrdersList = () => {
     <div className="orders-list">
       <div className="orders-header">
         <h2 className="orders-title">Revenue Summary</h2>
-        <a href="#" className="orders-report-link">Report &gt;</a>
       </div>
 
       <div className="orders-chart-container">
         <svg className="orders-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#34c759" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#34c759" stopOpacity="0.5" />
+            </linearGradient>
+          </defs>
           {/* Grid lines - horizontal grey lines */}
           <g className="grid-lines">
             {yAxisLabels.map((value, index) => {
@@ -94,7 +98,7 @@ const OrdersList = () => {
               <path
                 key={index}
                 d={path}
-                fill={tealColor}
+                fill="url(#barGradient)"
                 className="bar-segment"
               />
             )

@@ -4,14 +4,14 @@ import './SubscriptionAnalytics.css'
 const SubscriptionAnalytics = () => {
   const metrics = [
     {
-      label: 'Rating Point',
+      label: 'Prepaid',
       value: 1228,
       total: 1928,
       color: '#ff3b30',      // Apple red - vibrant and premium
       lightColor: '#ffebeb'  // Soft red tint
     },
     {
-      label: 'Low Stock',
+      label: 'Cash On delivery',
       value: 600,
       total: 1928,
       color: '#007aff',      // Apple blue - professional and clean
@@ -21,7 +21,7 @@ const SubscriptionAnalytics = () => {
 
   const renderSegmentedBar = (metric) => {
     const percentage = (metric.value / metric.total) * 100
-    const numSegments = 45 // Optimal number for premium look
+    const numSegments = 25 // Fixed to 25 bars
     const filledSegments = Math.round((percentage / 100) * numSegments)
     
     return (
@@ -46,7 +46,7 @@ const SubscriptionAnalytics = () => {
     <div className="subscription-analytics">
       <div className="analytics-header">
         <div className="header-content">
-          <h2 className="analytics-title">Subscription Analytics</h2>
+          <h2 className="analytics-title">Payment method</h2>
           <p className="analytics-subtitle">
             Track, analyze, and improve your subscription business.
           </p>

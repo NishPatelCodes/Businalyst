@@ -192,6 +192,26 @@
 }
 
 /* ============================================
+   NO DATA MESSAGE
+   ============================================ */
+
+.dashboard-no-data {
+  font-size: 14px;
+  color: #86868b;
+  margin: 0 0 var(--spacing-4) 0;
+  padding: 0;
+}
+
+.dashboard-no-data a {
+  color: #0071e3;
+  text-decoration: none;
+}
+
+.dashboard-no-data a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
    KPI SECTION - 6 EQUAL COLUMNS: HealthMeter + 5 KPI cards
    Same width and height for all six cards
    ============================================ */
