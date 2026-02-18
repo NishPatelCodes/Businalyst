@@ -9,6 +9,7 @@ import ExpenseSources from '../features/ExpenseSources'
 import SubscriptionAnalytics from '../features/SubscriptionAnalytics'
 import OrdersList from '../features/OrdersList'
 import MapView from '../features/MapView'
+import TopProfitTable from '../components/TopProfitTable'
 import { KpiContext } from '../context/KpiContext'
 import DateRangePicker from '../components/DateRangePicker'
 import './Dashboard.css'
@@ -220,6 +221,10 @@ const Dashboard = () => {
                 <MapView />
               </div>
             </div>
+          </div>
+
+          <div className="dashboard-top-profit-section">
+            <TopProfitTable />
           </div>
         </div>
       </div>

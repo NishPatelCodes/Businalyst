@@ -530,6 +530,11 @@
   display: flex;
 }
 
+.dashboard-top-profit-section {
+  margin-top: var(--grid-gap);
+  width: 100%;
+}
+
 /* Shared card wrapper: Compact Apple + Wealthsimple aesthetic */
 .analytics-card-wrapper {
   flex: 1;

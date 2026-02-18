@@ -59,11 +59,108 @@ def linechart(df):
         "date_data": date_series.tolist(),
     }
     
+def _to_json_value(val):
+    """Convert a pandas/cell value to a JSON-serializable value."""
+    if pd.isna(val):
+        return None
+    if hasattr(val, "item"):
+        return val.item()
+    if isinstance(val, (pd.Timestamp,)):
+        return str(val)
+    if isinstance(val, (float,)):
+        return float(val)
+    if isinstance(val, (int,)):
+        return int(val)
+    return str(val)
 
 
+def table_component(df):
+    if "profit" not in df.columns:
+        raise ValueError("Missing column: profit")
+    df = df.copy()
+    df["profit"] = pd.to_numeric(df["profit"], errors="coerce")
+    df_sorted = df.sort_values(by="profit", ascending=False).reset_index(drop=True).head(5)
+    columns = list(df_sorted.columns)
+
+    rows = []
+    for _, row in df_sorted.iterrows():
+        rows.append({col: _to_json_value(row[col]) for col in columns})
+    return {"top5_profit": rows, "top5_columns": columns}
 
 
+# Columns we treat as numeric / not categorical for pie
+_NUMERIC_OR_DATE_LIKE = {"profit", "revenue", "orders", "expense", "order date", "date"}
 
+
+def _is_numeric_column(df, col):
+    """True if the column is numeric dtype or its values are mostly numeric when parsed."""
+    if pd.api.types.is_numeric_dtype(df[col]):
+        return True
+    s = df[col].dropna().astype(str).str.strip()
+    s = s[s != ""]
+    if len(s) == 0:
+        return True
+    numeric_parsed = pd.to_numeric(s, errors="coerce")
+    # If most non-null values are valid numbers, treat as numeric
+    pct_numeric = numeric_parsed.notna().mean()
+    return pct_numeric >= 0.8
+
+
+def _is_good_categorical(df, col, min_categories=2, max_categories=50):
+    """Return True if col looks like a good categorical for a pie chart (text categories only)."""
+    if col in _NUMERIC_OR_DATE_LIKE:
+        return False
+    if "date" in col.lower():
+        return False
+    if _is_numeric_column(df, col):
+        return False
+    s = df[col].dropna().astype(str).str.strip()
+    s = s[s != ""]
+    n = s.nunique()
+    if n < min_categories or n > max_categories:
+        return False
+    return True
+
+
+# Max segments to show in the pie (top N by count; rest merged into "Other")
+PIE_MAX_SEGMENTS = 5
+
+
+def pie_chart_column(df):
+    """
+    Pick a good categorical column for a pie chart: 2–50 categories, not numeric/date.
+    Returns column name and value counts. If column has more than PIE_MAX_SEGMENTS
+    categories, returns top PIE_MAX_SEGMENTS by count plus "Other".
+    """
+    df = df.copy()
+    best_col = None
+    best_n = 0
+
+    for col in df.columns:
+        if not _is_good_categorical(df, col):
+            continue
+        n = df[col].dropna().astype(str).str.strip().replace("", pd.NA).dropna().nunique()
+        if min(best_n, n) == 0 or n > best_n:
+            best_col = col
+            best_n = n
+
+    if best_col is None:
+        return None
+
+    counts = df[best_col].dropna().astype(str).str.strip()
+    counts = counts[counts != ""].value_counts()
+
+    # Build full list; if more than PIE_MAX_SEGMENTS, keep top PIE_MAX_SEGMENTS and add "Other"
+    items = [{"name": str(label), "value": int(count)} for label, count in counts.items()]
+    if len(items) > PIE_MAX_SEGMENTS:
+        top = items[:PIE_MAX_SEGMENTS]
+        other_sum = sum(d["value"] for d in items[PIE_MAX_SEGMENTS:])
+        top.append({"name": "Other", "value": other_sum})
+        pie_data = top
+    else:
+        pie_data = items
+
+    return {"pie_column": best_col, "pie_data": pie_data}
 
 # 3️⃣ Django view: API endpoint
 @csrf_exempt
@@ -84,8 +181,21 @@ def upload_dataset(request):
             payload["revenue_data"] = chart["revenue_data"]
             payload["profit_data"] = chart["profit_data"]
             payload["date_data"] = chart["date_data"]
-        except ValueError:
-            pass  # file has no date column; skip chart data
+        except Exception:
+            pass
+        try:
+            table = table_component(df)
+            payload["top5_profit"] = table["top5_profit"]
+            payload["top5_columns"] = table["top5_columns"]
+        except Exception:
+            pass
+        try:
+            pie = pie_chart_column(df)
+            if pie:
+                payload["pie_column"] = pie["pie_column"]
+                payload["pie_data"] = pie["pie_data"]
+        except Exception:
+            pass
         return JsonResponse(payload)
 
     except ValueError as e:

@@ -1,0 +1,212 @@
+// Reuses Example Data Table styling for consistent dashboard look
+.top-profit-table-container {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 2px 4px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.top-profit-table-container .table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 18px 12px 18px;
+}
+
+.top-profit-table-container .table-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.top-profit-table-container .table-badge {
+  padding: 2px 8px;
+  background: #f5f5f7;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #86868b;
+  letter-spacing: 0.02em;
+}
+
+.top-profit-table-container .table-badge--button {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.top-profit-table-container .table-badge--button:hover {
+  background: #ebebed;
+}
+
+.top-profit-table-container .table-badge--muted {
+  background: #f5f5f7;
+  color: #86868b;
+}
+
+.top-profit-table-empty {
+  padding: 24px 18px;
+  margin: 0;
+  font-size: 13px;
+  color: #86868b;
+}
+
+.top-profit-table-container .table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.top-profit-table-container .table-wrapper--scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.top-profit-table-container .data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.top-profit-table-container .data-table--dynamic th,
+.top-profit-table-container .data-table--dynamic td {
+  min-width: 100px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-profit-table-container .data-table--dynamic th {
+  min-width: 110px;
+}
+
+.top-profit-table-container .data-table thead {
+  background: #f5f5f7;
+}
+
+.top-profit-table-container .data-table th {
+  text-align: left;
+  padding: 10px 18px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #86868b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.top-profit-table-container .th-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.top-profit-table-container .th-content svg {
+  opacity: 0.5;
+}
+
+.top-profit-table-container .data-table tbody tr {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  transition: background 0.15s ease;
+}
+
+.top-profit-table-container .data-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.top-profit-table-container .data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.top-profit-table-container .data-table td {
+  padding: 12px 18px;
+  font-size: 13px;
+  color: #1d1d1f;
+  line-height: 1.4;
+}
+
+.top-profit-table-container .name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.top-profit-table-container .avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #007AFF, #5AC8FA);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.top-profit-table-container .name-text {
+  font-weight: 500;
+}
+
+.top-profit-table-container .date-cell {
+  color: #86868b;
+  font-size: 12px;
+}
+
+.top-profit-table-container .type-cell {
+  font-weight: 500;
+}
+
+.top-profit-table-container .amount-cell {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.top-profit-table-container .status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.top-profit-table-container .status-badge.status-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.top-profit-table-container .actions-cell {
+  text-align: right;
+}
+
+.top-profit-table-container .action-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #86868b;
+  transition: all 0.15s ease;
+}
+
+.top-profit-table-container .action-button:hover {
+  background: #f5f5f7;
+  color: #1d1d1f;
+}
+
+.top-profit-table-container .action-button:active {
+  background: #e8e8ed;
+  transform: scale(0.95);
+}

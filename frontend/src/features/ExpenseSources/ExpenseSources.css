@@ -31,6 +31,13 @@
   letter-spacing: -0.015em;
 }
 
+.expense-sources-empty {
+  padding: 20px 0;
+  margin: 0;
+  font-size: 13px;
+  color: #86868b;
+}
+
 .expense-content-wrapper {
   display: flex;
   flex-direction: row;
@@ -143,6 +150,10 @@
   flex: 0 1 auto;
   min-width: 120px;
   max-width: 150px;
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .expense-legend {

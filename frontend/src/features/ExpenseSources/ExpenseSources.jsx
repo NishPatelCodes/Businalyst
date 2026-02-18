@@ -1,13 +1,17 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useContext, useMemo } from 'react'
+import { KpiContext } from '../../context/KpiContext'
 import './ExpenseSources.css'
 
-// Vibrant colors (adjacent slices ordered for contrast)
+// Vibrant colors (adjacent slices ordered for contrast); cycle for >5 segments
 const SEGMENT_COLORS = [
-  { base: '#007AFF', light: '#4DA6FF', id: 'expense-blue' },     // Vibrant blue
-  { base: '#22C55E', light: '#5CD687', id: 'expense-green' },    // Vibrant green
-  { base: '#F97316', light: '#FBA055', id: 'expense-orange' },   // Vibrant orange
-  { base: '#06B6D4', light: '#4DCCE6', id: 'expense-teal' },     // Vibrant teal
-  { base: '#A855F7', light: '#C488F9', id: 'expense-purple' },   // Vibrant purple
+  { base: '#007AFF', light: '#4DA6FF', id: 'expense-blue' },
+  { base: '#22C55E', light: '#5CD687', id: 'expense-green' },
+  { base: '#F97316', light: '#FBA055', id: 'expense-orange' },
+  { base: '#06B6D4', light: '#4DCCE6', id: 'expense-teal' },
+  { base: '#A855F7', light: '#C488F9', id: 'expense-purple' },
+  { base: '#E11D48', light: '#F43F5E', id: 'expense-rose' },
+  { base: '#84CC16', light: '#A3E635', id: 'expense-lime' },
+  { base: '#0EA5E9', light: '#38BDF8', id: 'expense-sky' },
 ]
 
 /** Relative luminance (0–1). Above ~0.6 use dark text for contrast. */
@@ -19,22 +23,40 @@ function luminance(hex) {
   return 0.299 * r + 0.587 * g + 0.114 * b
 }
 
+const columnTitle = (key) =>
+  key.split(/[\s_]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+
 const ExpenseSources = () => {
+  const { kpiData } = useContext(KpiContext)
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const [tooltip, setTooltip] = useState({ x: 0, y: 0, visible: false })
 
-  const totalAmount = 5301
-  const expenseData = [
-    { name: 'Food & Groceries', percentage: 25 },
-    { name: 'Housing', percentage: 20 },
-    { name: 'Utilities', percentage: 22 },
-    { name: 'Transportation', percentage: 18 },
-    { name: 'Healthcare', percentage: 15 },
-  ].map((item, i) => ({
-    ...item,
-    amount: Math.round((totalAmount * item.percentage) / 100),
-    color: SEGMENT_COLORS[i],
-  }))
+  const expenseData = useMemo(() => {
+    const raw = Array.isArray(kpiData?.pie_data) ? kpiData.pie_data : null
+    if (raw && raw.length > 0) {
+      const total = raw.reduce((s, d) => s + (Number(d.value) || 0), 0)
+      if (total === 0) return null
+      // Use full array from backend (no slice) – backend sends 2–8 categories
+      return raw.map((d, i) => ({
+        name: String(d.name ?? '—'),
+        value: Number(d.value) || 0,
+        percentage: Math.round(((Number(d.value) || 0) / total) * 1000) / 10,
+        amount: Number(d.value) || 0,
+        color: SEGMENT_COLORS[i % SEGMENT_COLORS.length],
+      }))
+    }
+    return [
+      { name: 'Food & Groceries', percentage: 25, amount: 1325, color: SEGMENT_COLORS[0] },
+      { name: 'Housing', percentage: 20, amount: 1060, color: SEGMENT_COLORS[1] },
+      { name: 'Utilities', percentage: 22, amount: 1166, color: SEGMENT_COLORS[2] },
+      { name: 'Transportation', percentage: 18, amount: 954, color: SEGMENT_COLORS[3] },
+      { name: 'Healthcare', percentage: 15, amount: 795, color: SEGMENT_COLORS[4] },
+    ]
+  }, [kpiData?.pie_data])
+
+  const chartTitle = kpiData?.pie_column ? columnTitle(kpiData.pie_column) : 'Expense Sources'
+  const totalAmount = expenseData ? expenseData.reduce((s, d) => s + (d.amount ?? 0), 0) : 0
+  const isCountChart = Array.isArray(kpiData?.pie_data) && kpiData.pie_data.length > 0
 
   const formatCurrency = useCallback((amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -45,6 +67,8 @@ const ExpenseSources = () => {
     }).format(amount)
   }, [])
 
+  const formatNumber = useCallback((n) => new Intl.NumberFormat('en-US').format(Number(n) || 0), [])
+
   // Donut geometry (viewBox 0 0 260 260)
   const centerX = 130
   const centerY = 130
@@ -53,6 +77,17 @@ const ExpenseSources = () => {
   const gapWidth = 1
   const outerGapAngle = (gapWidth / radius) * (180 / Math.PI)
   const innerGapAngle = (gapWidth / innerRadius) * (180 / Math.PI)
+
+  if (!expenseData || expenseData.length === 0) {
+    return (
+      <div className="expense-sources" role="region" aria-label="Category chart">
+        <div className="expense-sources-header">
+          <h2 className="expense-sources-title">Category breakdown</h2>
+        </div>
+        <p className="expense-sources-empty">Upload a file to see a pie chart by category.</p>
+      </div>
+    )
+  }
 
   const totalPercentage = expenseData.reduce((s, item) => s + item.percentage, 0)
   const numGaps = expenseData.length
@@ -111,7 +146,7 @@ const ExpenseSources = () => {
     <div className="expense-sources" role="region" aria-label="Expense sources chart">
       {/* Title */}
       <div className="expense-sources-header">
-        <h2 className="expense-sources-title">Expense Sources</h2>
+        <h2 className="expense-sources-title">{chartTitle}</h2>
       </div>
       
       {/* Chart and Legend Container */}
@@ -161,7 +196,7 @@ const ExpenseSources = () => {
                       transform={hoveredIndex === index ? `translate(${centerX}, ${centerY}) scale(1.04) translate(${-centerX}, ${-centerY})` : ''}
                       onMouseMove={(e) => handleSegmentMouseMove(index, e)}
                       onMouseLeave={handleSegmentMouseLeave}
-                      aria-label={`${item.name}: ${formatCurrency(item.amount)} (${item.percentage}%)`}
+                      aria-label={isCountChart ? `${item.name}: ${item.amount} (${item.percentage}%)` : `${item.name}: ${formatCurrency(item.amount)} (${item.percentage}%)`}
                     />
                     {/* Percentage label: dark text on light slices, white on dark slices */}
                     <text
@@ -188,10 +223,10 @@ const ExpenseSources = () => {
                 textAnchor="middle"
                 className="donut-center-total"
               >
-                {formatCurrency(totalAmount)}
+                {isCountChart ? formatNumber(totalAmount) : formatCurrency(totalAmount)}
               </text>
               <text x={centerX} y={centerY + 15} textAnchor="middle" className="donut-center-subtitle">
-                This Period
+                {isCountChart ? 'Total count' : 'This Period'}
               </text>
             </g>
 
@@ -211,7 +246,9 @@ const ExpenseSources = () => {
                   {expenseData[hoveredIndex].name}
                 </text>
                 <text x="0" y="8" textAnchor="middle" className="expense-tooltip-value">
-                  {formatCurrency(expenseData[hoveredIndex].amount)} · {expenseData[hoveredIndex].percentage}%
+                  {isCountChart
+                    ? `${formatNumber(expenseData[hoveredIndex].amount)} · ${expenseData[hoveredIndex].percentage}%`
+                    : `${formatCurrency(expenseData[hoveredIndex].amount)} · ${expenseData[hoveredIndex].percentage}%`}
                 </text>
               </g>
             )}
