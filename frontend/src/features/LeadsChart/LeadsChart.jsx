@@ -1,9 +1,30 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useContext, useMemo } from 'react'
+import { KpiContext } from '../../context/KpiContext'
 import './LeadsChart.css'
 
 const TIME_RANGES = ['1H', '24H', '1W', '1M', '3M', '1Y', '5Y']
 
+const PLACEHOLDER_DATA = [
+  { date: 'Jul', value: 550000 },
+  { date: 'Aug', value: 320000 },
+  { date: 'Sep', value: 480000 },
+  { date: 'Oct', value: 560000 },
+  { date: 'Nov', value: 520000 },
+  { date: 'Dec', value: 452264 },
+]
+
+const formatDateLabel = (raw) => {
+  if (raw == null) return ''
+  const s = String(raw)
+  const d = new Date(s)
+  if (Number.isNaN(d.getTime())) return s
+  const month = d.toLocaleString('en-US', { month: 'short' })
+  const day = d.getDate()
+  return `${month} ${day}`
+}
+
 const LeadsChart = () => {
+  const { kpiData } = useContext(KpiContext)
   const [hoveredPoint, setHoveredPoint] = useState(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
@@ -13,14 +34,22 @@ const LeadsChart = () => {
   const tooltipTimeoutRef = useRef(null)
   const lastMousePositionRef = useRef({ x: 0, y: 0 })
 
-  const chartData = [
-    { date: 'Jul', value: 550000 },
-    { date: 'Aug', value: 320000 },
-    { date: 'Sep', value: 480000 },
-    { date: 'Oct', value: 560000 },
-    { date: 'Nov', value: 520000 },
-    { date: 'Dec', value: 452264 }
-  ]
+  const chartData = useMemo(() => {
+    const dates = kpiData?.date_data
+    const revenue = kpiData?.revenue_data
+    const profit = kpiData?.profit_data
+    if (dates?.length && (selectedTab === 'Revenue' ? revenue : profit)) {
+      const values = selectedTab === 'Revenue' ? revenue : profit
+      const len = Math.min(dates.length, values.length)
+      if (len > 0) {
+        return Array.from({ length: len }, (_, i) => ({
+          date: formatDateLabel(dates[i]),
+          value: Number(values[i]) || 0,
+        }))
+      }
+    }
+    return PLACEHOLDER_DATA
+  }, [kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab])
 
   const chartWidth = 1200
   const chartHeight = 272
@@ -151,7 +180,7 @@ const LeadsChart = () => {
     setHoveredPoint(null)
     setShowTooltip(false)
   }
-  const currentValue = chartData[chartData.length - 1].value
+  const currentValue = chartData.length ? chartData[chartData.length - 1].value : 0
 
   const getDelta = (index) => {
     if (index <= 0) return null
