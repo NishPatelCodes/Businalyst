@@ -1,4 +1,5 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import TopNavigation from '../components/TopNavigation'
@@ -9,10 +10,88 @@ import SubscriptionAnalytics from '../features/SubscriptionAnalytics'
 import OrdersList from '../features/OrdersList'
 import MapView from '../features/MapView'
 import { KpiContext } from '../context/KpiContext'
+import DateRangePicker from '../components/DateRangePicker'
 import './Dashboard.css'
+
+const CURRENCIES = [
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+]
 
 const Dashboard = () => {
   const { kpiData } = useContext(KpiContext)
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
+  const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
+  const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0])
+  const [dateRange, setDateRange] = useState(() => {
+    const end = new Date()
+    const start = new Date()
+    start.setMonth(end.getMonth() - 1)
+    return { start, end }
+  })
+  const currencyDropdownRef = useRef(null)
+  const currencyButtonRef = useRef(null)
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
+
+  const formatDate = (date) => {
+    if (!date) return ''
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  }
+
+  const getDisplayText = () => {
+    if (dateRange.start && dateRange.end) {
+      return `${formatDate(dateRange.start)} - ${formatDate(dateRange.end)}`
+    }
+    return 'Select dates'
+  }
+
+  const handleDateRangeApply = (range) => {
+    setDateRange(range)
+  }
+
+  // Calculate dropdown position and handle click outside
+  useEffect(() => {
+    const updatePosition = () => {
+      if (currencyButtonRef.current && isCurrencyDropdownOpen) {
+        const rect = currencyButtonRef.current.getBoundingClientRect()
+        setDropdownPosition({
+          top: rect.bottom + window.scrollY + 8,
+          right: window.innerWidth - rect.right
+        })
+      }
+    }
+
+    const handleClickOutside = (event) => {
+      if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(event.target)) {
+        const button = event.target.closest('.currency-button')
+        if (!button) {
+          setIsCurrencyDropdownOpen(false)
+        }
+      }
+    }
+
+    if (isCurrencyDropdownOpen) {
+      updatePosition()
+      window.addEventListener('resize', updatePosition)
+      window.addEventListener('scroll', updatePosition, true)
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => {
+        window.removeEventListener('resize', updatePosition)
+        window.removeEventListener('scroll', updatePosition, true)
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
+    }
+  }, [isCurrencyDropdownOpen])
+
+  const handleCurrencySelect = (currency) => {
+    setSelectedCurrency(currency)
+    setIsCurrencyDropdownOpen(false)
+  }
 
   return (
     <div className="dashboard-container">
@@ -24,33 +103,78 @@ const Dashboard = () => {
           <div className="dashboard-header">
             <h1 className="dashboard-title">Dashboard</h1>
             <div className="dashboard-actions">
-              <div className="date-range-selector">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M2 6H14" stroke="currentColor" strokeWidth="1.5"/>
-                  <circle cx="5" cy="9" r="0.5" fill="currentColor"/>
-                  <circle cx="8" cy="9" r="0.5" fill="currentColor"/>
-                  <circle cx="11" cy="9" r="0.5" fill="currentColor"/>
-                </svg>
-                <span>Jan 1, 2025 - Feb, 1 2025</span>
+              <div className="time-period-selector" style={{ position: 'relative' }}>
+                <button 
+                  className="time-period-button"
+                  onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                    <path d="M2 6H14" stroke="currentColor" strokeWidth="1.5"/>
+                    <circle cx="5" cy="9" r="0.5" fill="currentColor"/>
+                    <circle cx="8" cy="9" r="0.5" fill="currentColor"/>
+                    <circle cx="11" cy="9" r="0.5" fill="currentColor"/>
+                  </svg>
+                  <span>{getDisplayText()}</span>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                
+                <DateRangePicker
+                  isOpen={isDatePickerOpen}
+                  onClose={() => setIsDatePickerOpen(false)}
+                  onApply={handleDateRangeApply}
+                  initialRange={dateRange}
+                />
               </div>
               
-              <div className="dropdown-selector">
-                <span>Last 30 days</span>
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+              <div className="currency-selector" style={{ position: 'relative' }}>
+                <button 
+                  ref={currencyButtonRef}
+                  className="action-button currency-button"
+                  onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="4" width="12" height="8" rx="1.5" fill="currentColor"/>
+                    <circle cx="8" cy="8" r="3" fill="white"/>
+                    <path d="M8 5.5V10.5M9.25 6.75C9.25 6.47386 9.02614 6.25 8.75 6.25H7.5C7.22386 6.25 7 6.47386 7 6.75C7 7.02614 7.22386 7.25 7.5 7.25H8.25C8.52614 7.25 8.75 7.47386 8.75 7.75C8.75 8.02614 8.52614 8.25 8.25 8.25H7.5C7.22386 8.25 7 8.47386 7 8.75C7 9.02614 7.22386 9.25 7.5 9.25H8.75C9.02614 9.25 9.25 9.02614 9.25 8.75" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" fill="none"/>
+                  </svg>
+                  <span>{selectedCurrency.code} ({selectedCurrency.symbol})</span>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                
+                {isCurrencyDropdownOpen && createPortal(
+                  <div 
+                    ref={currencyDropdownRef}
+                    className="currency-dropdown"
+                    style={{
+                      position: 'fixed',
+                      top: `${dropdownPosition.top}px`,
+                      right: `${dropdownPosition.right}px`,
+                      zIndex: 99999,
+                      maxHeight: '280px',
+                      overflowY: 'scroll',
+                      overflowX: 'hidden'
+                    }}
+                  >
+                    {CURRENCIES.map((currency) => (
+                      <button
+                        key={currency.code}
+                        className={`currency-option ${selectedCurrency.code === currency.code ? 'active' : ''}`}
+                        onClick={() => handleCurrencySelect(currency)}
+                      >
+                        <span className="currency-symbol">{currency.symbol}</span>
+                        <span className="currency-code">{currency.code}</span>
+                        <span className="currency-name">{currency.name}</span>
+                      </button>
+                    ))}
+                  </div>,
+                  document.body
+                )}
               </div>
-              
-              <button className="action-button add-widget-button">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                </svg>
-                <span>Add widget</span>
-              </button>
               
               <button className="action-button primary export-button">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

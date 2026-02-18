@@ -16,6 +16,13 @@ const SubscriptionAnalytics = () => {
       total: 1928,
       color: '#007aff',      // Apple blue - professional and clean
       lightColor: '#e5f2ff'  // Soft blue tint
+    },
+    {
+      label: 'Credit Card',
+      value: 100,
+      total: 1928,
+      color: '#10b981',      // Green - success and growth
+      lightColor: '#d1fae5'  // Soft green tint
     }
   ]
 

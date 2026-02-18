@@ -1,4 +1,4 @@
-Order Date,Product Name,Category,Region,Quantity,Sales,Profit
+Order Date,Product Name,Expense,Region,Orders,Revenue,Profit
 2024-12-31,Printer,Office,North,4,3640,348.93
 2022-11-27,Mouse,Accessories,East,7,1197,106.53
 2022-05-11,Tablet,Electronics,South,5,5865,502.73

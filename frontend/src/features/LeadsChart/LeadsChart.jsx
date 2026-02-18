@@ -2,8 +2,6 @@ import React, { useState, useRef, useEffect, useContext, useMemo } from 'react'
 import { KpiContext } from '../../context/KpiContext'
 import './LeadsChart.css'
 
-const TIME_RANGES = ['1H', '24H', '1W', '1M', '3M', '1Y', '5Y']
-
 const PLACEHOLDER_DATA = [
   { date: 'Jul', value: 550000 },
   { date: 'Aug', value: 320000 },
@@ -13,14 +11,75 @@ const PLACEHOLDER_DATA = [
   { date: 'Dec', value: 452264 },
 ]
 
-const formatDateLabel = (raw) => {
+const formatDateLabel = (raw, range) => {
   if (raw == null) return ''
   const s = String(raw)
   const d = new Date(s)
-  if (Number.isNaN(d.getTime())) return s
-  const month = d.toLocaleString('en-US', { month: 'short' })
-  const day = d.getDate()
-  return `${month} ${day}`
+  
+  // If date parsing fails (e.g., placeholder data like 'Jul', 'Aug'), return as-is
+  if (Number.isNaN(d.getTime())) {
+    // For placeholder data, just return the month abbreviation
+    return s
+  }
+  
+  // Format based on selected range
+  switch (range) {
+    case '1H':
+      return d.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    case '24H':
+      return d.toLocaleString('en-US', { hour: 'numeric', hour12: true })
+    case '1W':
+      return d.toLocaleString('en-US', { weekday: 'short', day: 'numeric' })
+    case '1M':
+      return d.toLocaleString('en-US', { month: 'short', day: 'numeric' })
+    case '3M':
+      return d.toLocaleString('en-US', { month: 'short' })
+    case '1Y':
+      return d.toLocaleString('en-US', { month: 'short' })
+    case '5Y':
+      return d.toLocaleString('en-US', { year: 'numeric', month: 'short' })
+    default:
+      const month = d.toLocaleString('en-US', { month: 'short' })
+      const day = d.getDate()
+      return `${month} ${day}`
+  }
+}
+
+const getDataPointsForRange = (allData, range) => {
+  if (!allData || allData.length === 0) return allData
+  
+  const now = new Date()
+  let cutoffDate = new Date()
+  
+  switch (range) {
+    case '1H':
+      cutoffDate.setHours(now.getHours() - 1)
+      break
+    case '24H':
+      cutoffDate.setHours(now.getHours() - 24)
+      break
+    case '1W':
+      cutoffDate.setDate(now.getDate() - 7)
+      break
+    case '1M':
+      cutoffDate.setMonth(now.getMonth() - 1)
+      break
+    case '3M':
+      cutoffDate.setMonth(now.getMonth() - 3)
+      break
+    case '1Y':
+      cutoffDate.setFullYear(now.getFullYear() - 1)
+      break
+    case '5Y':
+      cutoffDate.setFullYear(now.getFullYear() - 5)
+      break
+    default:
+      return allData
+  }
+  
+  // For placeholder data or when dates aren't available, return all data
+  // In a real scenario, you'd filter by date here
+  return allData
 }
 
 const LeadsChart = () => {
@@ -28,7 +87,7 @@ const LeadsChart = () => {
   const [hoveredPoint, setHoveredPoint] = useState(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
-  const [selectedRange, setSelectedRange] = useState('24H')
+  const [selectedRange] = useState('1Y') // Default range, controlled by top-level time period selector
   const [selectedTab, setSelectedTab] = useState('Revenue')
   const chartRef = useRef(null)
   const tooltipTimeoutRef = useRef(null)
@@ -38,18 +97,76 @@ const LeadsChart = () => {
     const dates = kpiData?.date_data
     const revenue = kpiData?.revenue_data
     const profit = kpiData?.profit_data
+    let allData = []
+    
     if (dates?.length && (selectedTab === 'Revenue' ? revenue : profit)) {
       const values = selectedTab === 'Revenue' ? revenue : profit
       const len = Math.min(dates.length, values.length)
       if (len > 0) {
-        return Array.from({ length: len }, (_, i) => ({
-          date: formatDateLabel(dates[i]),
+        allData = Array.from({ length: len }, (_, i) => ({
+          date: dates[i],
+          rawDate: dates[i],
           value: Number(values[i]) || 0,
         }))
       }
+    } else {
+      // Use placeholder data with raw dates
+      allData = PLACEHOLDER_DATA.map((d, i) => ({
+        ...d,
+        rawDate: d.date,
+      }))
     }
-    return PLACEHOLDER_DATA
-  }, [kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab])
+    
+    // Filter data based on selected range
+    const filteredData = getDataPointsForRange(allData, selectedRange)
+    
+    // Calculate how many points to show based on range
+    let maxPoints = filteredData.length
+    switch (selectedRange) {
+      case '1H':
+        maxPoints = Math.min(maxPoints, 12) // Show up to 12 points (5-min intervals)
+        break
+      case '24H':
+        maxPoints = Math.min(maxPoints, 24) // Show up to 24 points (hourly)
+        break
+      case '1W':
+        maxPoints = Math.min(maxPoints, 7) // Show up to 7 points (daily)
+        break
+      case '1M':
+        maxPoints = Math.min(maxPoints, 30) // Show up to 30 points (daily)
+        break
+      case '3M':
+        maxPoints = Math.min(maxPoints, 12) // Show up to 12 points (weekly)
+        break
+      case '1Y':
+        maxPoints = Math.min(maxPoints, 12) // Show up to 12 points (monthly)
+        break
+      case '5Y':
+        maxPoints = Math.min(maxPoints, 20) // Show up to 20 points (quarterly)
+        break
+    }
+    
+    // Sample data points evenly if we have more than maxPoints
+    let sampledData = filteredData
+    if (filteredData.length > maxPoints) {
+      const step = filteredData.length / maxPoints
+      sampledData = []
+      for (let i = 0; i < maxPoints; i++) {
+        const index = Math.floor(i * step)
+        sampledData.push(filteredData[index])
+      }
+      // Always include the last point
+      if (sampledData[sampledData.length - 1] !== filteredData[filteredData.length - 1]) {
+        sampledData[sampledData.length - 1] = filteredData[filteredData.length - 1]
+      }
+    }
+    
+    // Format dates based on selected range
+    return sampledData.map((d) => ({
+      ...d,
+      date: formatDateLabel(d.rawDate || d.date, selectedRange),
+    }))
+  }, [kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab, selectedRange])
 
   const chartWidth = 1200
   const chartHeight = 272
@@ -257,7 +374,25 @@ const LeadsChart = () => {
 
           <g className="chart-x-axis" aria-hidden="true">
             {chartData.map((d, index) => {
-              if (index === 0 || index === chartData.length - 1 || index % 2 === 0) {
+              // Calculate how many labels to show based on data density
+              const totalPoints = chartData.length
+              let showLabel = false
+              
+              if (totalPoints <= 7) {
+                // Show all labels if 7 or fewer points
+                showLabel = true
+              } else if (totalPoints <= 12) {
+                // Show every other label for 8-12 points
+                showLabel = index === 0 || index === totalPoints - 1 || index % 2 === 0
+              } else if (totalPoints <= 24) {
+                // Show every 3rd label for 13-24 points, plus first and last
+                showLabel = index === 0 || index === totalPoints - 1 || index % 3 === 0
+              } else {
+                // Show every 4th label for more than 24 points, plus first and last
+                showLabel = index === 0 || index === totalPoints - 1 || index % 4 === 0
+              }
+              
+              if (showLabel) {
                 return (
                   <text key={index} x={indexToX(index)} y={baselineY + 20} textAnchor="middle" className="chart-axis-label">
                     {d.date}
@@ -293,18 +428,6 @@ const LeadsChart = () => {
         )}
       </div>
 
-      <div className="chart-time-ranges">
-        {TIME_RANGES.map((range) => (
-          <button
-            key={range}
-            type="button"
-            className={`chart-time-range-pill ${selectedRange === range ? 'chart-time-range-pill--active' : ''}`}
-            onClick={() => setSelectedRange(range)}
-          >
-            {range}
-          </button>
-        ))}
-      </div>
     </div>
   )
 }
