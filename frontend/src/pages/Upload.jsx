@@ -52,7 +52,13 @@ const Upload = () => {
       })
       setUploadSuccess(true)
     } catch (err) {
-      setError(err.message || 'Network error')
+      const msg = err.message || 'Network error'
+      const isFetchFailed = /failed to fetch|network error|load failed/i.test(msg)
+      setError(
+        isFetchFailed
+          ? `Could not reach the server. Make sure the backend is running at ${API_BASE} (e.g. run "python manage.py runserver" in the backend folder).`
+          : msg
+      )
     } finally {
       setIsUploading(false)
     }
