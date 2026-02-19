@@ -49,6 +49,10 @@ const Upload = () => {
         revenue_data: data.revenue_data,
         profit_data: data.profit_data,
         date_data: data.date_data,
+        top5_profit: data.top5_profit,
+        top5_columns: data.top5_columns,
+        pie_column: data.pie_column,
+        pie_data: data.pie_data,
       })
       setUploadSuccess(true)
     } catch (err) {

@@ -11,6 +11,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 900px;
 }
 
 .file-dropzone:hover {

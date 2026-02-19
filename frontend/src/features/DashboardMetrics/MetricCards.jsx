@@ -1,11 +1,11 @@
 import React, { useContext } from 'react'
 import { KpiContext } from '../../context/KpiContext'
-import './KPICards.css'
+import './MetricCards.css'
 
 const formatCurrency = (n) =>
   Number(n).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 
-const KPICards = () => {
+const MetricCards = () => {
   const { kpiData } = useContext(KpiContext)
 
   const profitIcon = (
@@ -146,4 +146,4 @@ const KPICards = () => {
   )
 }
 
-export default KPICards
+export default MetricCards

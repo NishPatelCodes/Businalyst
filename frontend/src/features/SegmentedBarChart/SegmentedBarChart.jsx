@@ -1,7 +1,7 @@
 import React from 'react'
-import './SubscriptionAnalytics.css'
+import './SegmentedBarChart.css'
 
-const SubscriptionAnalytics = () => {
+const SegmentedBarChart = () => {
   const metrics = [
     {
       label: 'Prepaid',
@@ -98,6 +98,6 @@ const SubscriptionAnalytics = () => {
   )
 }
 
-export default SubscriptionAnalytics
+export default SegmentedBarChart
 
 

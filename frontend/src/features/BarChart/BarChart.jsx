@@ -1,7 +1,7 @@
 import React from 'react'
-import './OrdersList.css'
+import './BarChart.css'
 
-const OrdersList = () => {
+const BarChart = () => {
   // Daily revenue data matching the image (in thousands)
   const revenueData = [
     { day: 'Mo', value: 2.1 },
@@ -13,7 +13,9 @@ const OrdersList = () => {
     { day: 'Su', value: 1.7 }
   ]
 
-  const maxValue = 4 // 4k max on y-axis
+  // Ensure all values are non-negative
+  const minValue = 0 // Always start from 0
+  const maxValue = Math.max(4, ...revenueData.map(d => Math.max(0, d.value))) // Ensure max is at least 4 and never negative
   const yAxisLabels = [0, 1, 2, 3, 4] // 0, 1k, 2k, 3k, 4k
 
   const chartWidth = 400
@@ -39,9 +41,19 @@ const OrdersList = () => {
               <stop offset="100%" stopColor="#34c759" stopOpacity="0.5" />
             </linearGradient>
           </defs>
-          {/* Grid lines - horizontal grey lines */}
+          {/* X-axis baseline */}
+          <line
+            x1={padding.left}
+            y1={padding.top + graphHeight}
+            x2={padding.left + graphWidth}
+            y2={padding.top + graphHeight}
+            stroke="#e5e7eb"
+            strokeWidth="1"
+          />
+
+          {/* Grid lines - horizontal grey lines (only above baseline) */}
           <g className="grid-lines">
-            {yAxisLabels.map((value, index) => {
+            {yAxisLabels.filter(value => value > 0).map((value, index) => {
               const y = padding.top + graphHeight - (value / maxValue) * graphHeight
               return (
                 <line
@@ -60,7 +72,9 @@ const OrdersList = () => {
           {/* Y-axis labels */}
           <g className="y-axis-labels">
             {yAxisLabels.map((value, index) => {
-              const y = padding.top + graphHeight - (value / maxValue) * graphHeight
+              // Ensure 0 is always at the baseline (X-axis)
+              const baselineY = padding.top + graphHeight
+              const y = value === 0 ? baselineY : baselineY - (value / maxValue) * graphHeight
               return (
                 <text
                   key={index}
@@ -77,18 +91,24 @@ const OrdersList = () => {
 
           {/* Bars */}
           {revenueData.map((dayData, index) => {
-            const barHeight = (dayData.value / maxValue) * graphHeight
+            // Ensure value is never negative and calculate height from 0
+            const safeValue = Math.max(0, dayData.value)
+            const barHeight = (safeValue / maxValue) * graphHeight
             const barX = padding.left + index * (barWidth + barSpacing) + barSpacing / 2
-            const barY = padding.top + graphHeight - barHeight
+            // Baseline is the X-axis line - bars always start from here
+            const baselineY = padding.top + graphHeight
+            // Bar top position (bars grow upward from baseline)
+            const barY = baselineY - barHeight
             const cornerRadius = 6 // Increased corner radius for top corners
 
             // Create path with rounded top corners only
+            // Bottom of bar is always at baselineY (X-axis)
             const path = `
               M ${barX + cornerRadius},${barY}
               L ${barX + barWidth - cornerRadius},${barY}
               Q ${barX + barWidth},${barY} ${barX + barWidth},${barY + cornerRadius}
-              L ${barX + barWidth},${barY + barHeight}
-              L ${barX},${barY + barHeight}
+              L ${barX + barWidth},${baselineY}
+              L ${barX},${baselineY}
               L ${barX},${barY + cornerRadius}
               Q ${barX},${barY} ${barX + cornerRadius},${barY}
               Z
@@ -127,7 +147,7 @@ const OrdersList = () => {
   )
 }
 
-export default OrdersList
+export default BarChart
 
 
 

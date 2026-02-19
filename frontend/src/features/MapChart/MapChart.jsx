@@ -6,7 +6,7 @@ import {
   Marker,
   ZoomableGroup
 } from 'react-simple-maps'
-import './MapView.css'
+import './MapChart.css'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
 const CONTINENTS_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json'
@@ -29,7 +29,7 @@ const mapMarkers = [
 ]
 
 
-const MapView = () => {
+const MapChart = () => {
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
 
   const handleZoomIn = () => {
@@ -196,4 +196,4 @@ const MapView = () => {
   )
 }
 
-export default MapView
+export default MapChart

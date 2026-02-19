@@ -4,11 +4,12 @@ import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import TopNavigation from '../components/TopNavigation'
 import DashboardMetrics from '../features/DashboardMetrics'
-import LeadsChart from '../features/LeadsChart'
-import ExpenseSources from '../features/ExpenseSources'
-import SubscriptionAnalytics from '../features/SubscriptionAnalytics'
-import OrdersList from '../features/OrdersList'
-import MapView from '../features/MapView'
+import LineChart from '../features/LineChart'
+import DonutChart from '../features/DonutChart'
+import SegmentedBarChart from '../features/SegmentedBarChart'
+import BarChart from '../features/BarChart'
+import MapChart from '../features/MapChart'
+import TopProfitTable from '../components/TopProfitTable'
 import { KpiContext } from '../context/KpiContext'
 import DateRangePicker from '../components/DateRangePicker'
 import './Dashboard.css'
@@ -135,11 +136,6 @@ const Dashboard = () => {
                   className="action-button currency-button"
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="4" width="12" height="8" rx="1.5" fill="currentColor"/>
-                    <circle cx="8" cy="8" r="3" fill="white"/>
-                    <path d="M8 5.5V10.5M9.25 6.75C9.25 6.47386 9.02614 6.25 8.75 6.25H7.5C7.22386 6.25 7 6.47386 7 6.75C7 7.02614 7.22386 7.25 7.5 7.25H8.25C8.52614 7.25 8.75 7.47386 8.75 7.75C8.75 8.02614 8.52614 8.25 8.25 8.25H7.5C7.22386 8.25 7 8.47386 7 8.75C7 9.02614 7.22386 9.25 7.5 9.25H8.75C9.02614 9.25 9.25 9.02614 9.25 8.75" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" fill="none"/>
-                  </svg>
                   <span>{selectedCurrency.code} ({selectedCurrency.symbol})</span>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -197,29 +193,33 @@ const Dashboard = () => {
 
           <div className="charts-row">
             <div className="chart-left">
-              <LeadsChart />
+              <LineChart />
             </div>
             <div className="chart-right">
-              <ExpenseSources />
+              <DonutChart />
             </div>
           </div>
           
           <div className="analytics-map-row">
             <div className="analytics-left">
               <div className="analytics-card-wrapper">
-                <SubscriptionAnalytics />
+                <SegmentedBarChart />
               </div>
             </div>
             <div className="orders-middle">
               <div className="analytics-card-wrapper">
-                <OrdersList />
+                <BarChart />
               </div>
             </div>
             <div className="map-right">
               <div className="analytics-card-wrapper">
-                <MapView />
+                <MapChart />
               </div>
             </div>
+          </div>
+
+          <div className="dashboard-top-profit-section">
+            <TopProfitTable />
           </div>
         </div>
       </div>

@@ -309,12 +309,15 @@
 .currency-button {
   color: #000000;
   background: #10b981;
-  border: 1px solid #059669;
+  border: 1px solid #000000;
+  padding: 8px 18px !important;
+  gap: 10px !important;
+  min-width: 140px;
 }
 
 .currency-button:hover {
   background: #059669;
-  border-color: #047857;
+  border-color: #000000;
   color: #000000;
 }
 
@@ -325,6 +328,8 @@
 
 .currency-button span {
   color: #000000;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 
 .currency-dropdown {
@@ -471,7 +476,7 @@
 }
 
 /* ============================================
-   KPI SECTION - 6 EQUAL COLUMNS: HealthMeter + 5 KPI cards
+   KPI SECTION - 6 EQUAL COLUMNS: GaugeChart + MetricCards
    Same width and height for all six cards
    ============================================ */
 
@@ -528,6 +533,11 @@
   min-width: 0;
   min-height: 0;
   display: flex;
+}
+
+.dashboard-top-profit-section {
+  margin-top: var(--grid-gap);
+  width: 100%;
 }
 
 /* Shared card wrapper: Compact Apple + Wealthsimple aesthetic */
