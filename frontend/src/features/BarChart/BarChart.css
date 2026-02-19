@@ -36,6 +36,18 @@
   min-height: 200px;
 }
 
+.orders-chart-empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.bar-chart-empty-message {
+  margin: 0;
+  font-size: 13px;
+  color: #86868b;
+  text-align: center;
+}
+
 .orders-chart {
   width: 100%;
   flex: 1;
