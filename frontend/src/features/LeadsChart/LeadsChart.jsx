@@ -11,40 +11,6 @@ const PLACEHOLDER_DATA = [
   { date: 'Dec', value: 452264 },
 ]
 
-const formatDateLabel = (raw, range) => {
-  if (raw == null) return ''
-  const s = String(raw)
-  const d = new Date(s)
-  
-  // If date parsing fails (e.g., placeholder data like 'Jul', 'Aug'), return as-is
-  if (Number.isNaN(d.getTime())) {
-    // For placeholder data, just return the month abbreviation
-    return s
-  }
-  
-  // Format based on selected range
-  switch (range) {
-    case '1H':
-      return d.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-    case '24H':
-      return d.toLocaleString('en-US', { hour: 'numeric', hour12: true })
-    case '1W':
-      return d.toLocaleString('en-US', { weekday: 'short', day: 'numeric' })
-    case '1M':
-      return d.toLocaleString('en-US', { month: 'short', day: 'numeric' })
-    case '3M':
-      return d.toLocaleString('en-US', { month: 'short' })
-    case '1Y':
-      return d.toLocaleString('en-US', { month: 'short' })
-    case '5Y':
-      return d.toLocaleString('en-US', { year: 'numeric', month: 'short' })
-    default:
-      const month = d.toLocaleString('en-US', { month: 'short' })
-      const day = d.getDate()
-      return `${month} ${day}`
-  }
-}
-
 const getDataPointsForRange = (allData, range) => {
   if (!allData || allData.length === 0) return allData
   
@@ -161,16 +127,16 @@ const LeadsChart = () => {
       }
     }
     
-    // Format dates based on selected range
+    // Use raw date strings from backend as-is (e.g. "2026-01-01") — no formatting
     return sampledData.map((d) => ({
       ...d,
-      date: formatDateLabel(d.rawDate || d.date, selectedRange),
+      date: d.rawDate ?? d.date ?? '',
     }))
   }, [kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab, selectedRange])
 
   const chartWidth = 1200
   const chartHeight = 272
-  const padding = { top: 17, right: 24, bottom: 34, left: 56 }
+  const padding = { top: 17, right: 24, bottom: 34, left: 72 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom
 
@@ -225,6 +191,18 @@ const LeadsChart = () => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
     if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`
     return `$${value.toFixed(0)}`
+  }
+
+  // Exact value for tooltip — no rounding (e.g. 9200 not $9k)
+  const formatCurrencyExact = (value) => {
+    const n = Number(value)
+    if (Number.isNaN(n)) return '—'
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(n)
   }
 
   useEffect(() => {
@@ -305,7 +283,7 @@ const LeadsChart = () => {
     const previous = chartData[index - 1].value
     const delta = current - previous
     const isPositive = delta >= 0
-    const formatted = formatCurrency(Math.abs(delta))
+    const formatted = formatCurrencyExact(Math.abs(delta))
     return {
       value: delta,
       formatted,
@@ -374,32 +352,26 @@ const LeadsChart = () => {
 
           <g className="chart-x-axis" aria-hidden="true">
             {chartData.map((d, index) => {
-              // Calculate how many labels to show based on data density
               const totalPoints = chartData.length
               let showLabel = false
-              
-              if (totalPoints <= 7) {
-                // Show all labels if 7 or fewer points
-                showLabel = true
-              } else if (totalPoints <= 12) {
-                // Show every other label for 8-12 points
-                showLabel = index === 0 || index === totalPoints - 1 || index % 2 === 0
-              } else if (totalPoints <= 24) {
-                // Show every 3rd label for 13-24 points, plus first and last
-                showLabel = index === 0 || index === totalPoints - 1 || index % 3 === 0
-              } else {
-                // Show every 4th label for more than 24 points, plus first and last
-                showLabel = index === 0 || index === totalPoints - 1 || index % 4 === 0
-              }
-              
-              if (showLabel) {
-                return (
-                  <text key={index} x={indexToX(index)} y={baselineY + 20} textAnchor="middle" className="chart-axis-label">
-                    {d.date}
-                  </text>
-                )
-              }
-              return null
+              if (totalPoints <= 7) showLabel = true
+              else if (totalPoints <= 12) showLabel = index === 0 || index === totalPoints - 1 || index % 2 === 0
+              else if (totalPoints <= 24) showLabel = index === 0 || index === totalPoints - 1 || index % 3 === 0
+              else showLabel = index === 0 || index === totalPoints - 1 || index % 4 === 0
+
+              if (!showLabel) return null
+
+              const x = indexToX(index)
+              const isFirst = index === 0
+              const isLast = index === totalPoints - 1
+              const textAnchor = isFirst ? 'start' : isLast ? 'end' : 'middle'
+              const xOffset = isFirst ? 2 : isLast ? -2 : 0
+
+              return (
+                <text key={index} x={x + xOffset} y={baselineY + 20} textAnchor={textAnchor} className="chart-axis-label">
+                  {d.date}
+                </text>
+              )
             })}
           </g>
 
@@ -411,7 +383,7 @@ const LeadsChart = () => {
         {hoveredPoint !== null && showTooltip && (
           <div className={`chart-tooltip chart-tooltip--wealthsimple ${showTooltip ? 'chart-tooltip--visible' : ''}`} style={{ left: `${tooltipPosition.x}px`, top: `${tooltipPosition.y}px` }}>
             <div className="tooltip-date">{chartData[hoveredPoint].date}</div>
-            <div className="tooltip-value">{formatCurrency(chartData[hoveredPoint].value)}</div>
+            <div className="tooltip-value">{formatCurrencyExact(chartData[hoveredPoint].value)}</div>
             {getDelta(hoveredPoint) && (
               <div className={`tooltip-delta ${getDelta(hoveredPoint).isPositive ? 'tooltip-delta--positive' : 'tooltip-delta--negative'}`}>
                 <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
