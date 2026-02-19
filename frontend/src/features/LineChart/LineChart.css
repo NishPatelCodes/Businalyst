@@ -1,10 +1,8 @@
 /* ============================================
-   LEADS CHART - WEALTHSIMPLE STYLE
-   Single green line on canvas, smooth curve,
-   one dot on last point, time range pills.
+   LINE CHART - time series with area fill
    ============================================ */
 
-.leads-chart {
+.line-chart {
   background: transparent;
   padding: 10px 0;
   display: flex;
@@ -13,11 +11,11 @@
   min-height: 0;
 }
 
-.leads-chart:hover {
+.line-chart:hover {
   box-shadow: none;
 }
 
-.leads-chart-header {
+.line-chart-header {
   margin-bottom: 7px;
   display: flex;
   justify-content: space-between;
@@ -29,14 +27,14 @@
   flex: 1;
 }
 
-.leads-chart-tabs {
+.line-chart-tabs {
   display: flex;
   align-items: center;
   gap: 16px;
   margin-bottom: 4px;
 }
 
-.leads-chart-tab {
+.line-chart-tab {
   background: none;
   border: none;
   padding: 0;
@@ -51,13 +49,13 @@
   font-family: inherit;
 }
 
-.leads-chart-tab--active {
+.line-chart-tab--active {
   color: var(--text-primary);
   font-size: var(--font-size-md);
   opacity: 1;
 }
 
-.leads-chart-tab--active::after {
+.line-chart-tab--active::after {
   content: '';
   position: absolute;
   bottom: -4px;
@@ -70,33 +68,20 @@
 }
 
 @keyframes underlineSlide {
-  from {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  to {
-    transform: scaleX(1);
-    opacity: 1;
-  }
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
 }
 
-.leads-chart-tab:not(.leads-chart-tab--active) {
+.line-chart-tab:not(.line-chart-tab--active) {
   color: var(--text-secondary);
   font-size: 14px;
   opacity: 0.6;
   transform: scale(0.95);
 }
 
-.leads-chart-tab:not(.leads-chart-tab--active):hover {
+.line-chart-tab:not(.line-chart-tab--active):hover {
   opacity: 0.8;
   transform: scale(0.97);
-}
-
-.chart-subtitle {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  font-weight: var(--font-weight-normal);
-  line-height: var(--line-height-tight);
 }
 
 .chart-current-value {
@@ -120,7 +105,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.leads-chart-container {
+.line-chart-container {
   position: relative;
   width: 100%;
   flex: 1;
@@ -131,14 +116,13 @@
   justify-content: stretch;
 }
 
-.leads-chart-svg {
+.line-chart-svg {
   width: 100%;
   height: 100%;
   display: block;
   min-width: 100%;
 }
 
-/* Y-axis labels (left side) - premium minimal style */
 .chart-axis-label {
   font-size: 11px;
   fill: var(--text-secondary);
@@ -147,37 +131,27 @@
   font-variant-numeric: tabular-nums;
 }
 
-.chart-y-axis .chart-axis-label {
-  opacity: 0.85;
-}
+.chart-y-axis .chart-axis-label { opacity: 0.85; }
+.chart-x-axis .chart-axis-label { opacity: 0.75; }
 
-.chart-x-axis .chart-axis-label {
-  opacity: 0.75;
-}
-
-/* Dashed baseline (Wealthsimple grey) */
 .chart-baseline {
   stroke: var(--color-neutral-300);
   stroke-dasharray: 6 4;
 }
 
-/* Light reference line */
 .chart-reference-line {
   stroke: rgba(0, 0, 0, 0.06);
   stroke-dasharray: 4 3;
 }
 
-/* Green area fill under line */
 .chart-area-wealthsimple {
   fill: url(#wealthsimpleGreenGradient);
 }
 
-/* Main green line - Wealthsimple green */
 .chart-line-wealthsimple {
   stroke: #34c759;
 }
 
-/* Single dot on last data point */
 .chart-last-point {
   fill: #34c759;
   stroke: #ffffff;
@@ -188,60 +162,18 @@
   cursor: pointer;
 }
 
-/* Minimal tooltip (Wealthsimple-style) */
 .chart-tooltip--wealthsimple {
   padding: var(--spacing-1) var(--spacing-2);
   min-width: auto;
 }
 
-.chart-tooltip--wealthsimple .tooltip-date {
-  margin-bottom: 2px;
-}
-
+.chart-tooltip--wealthsimple .tooltip-date { margin-bottom: 2px; }
 .chart-tooltip--wealthsimple .tooltip-value {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 
-/* Time range selector pills */
-.chart-time-ranges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-1);
-  margin-top: var(--spacing-1);
-  padding-bottom: var(--spacing-1);
-}
-
-.chart-time-range-pill {
-  padding: var(--spacing-1) var(--spacing-2);
-  border: none;
-  border-radius: 999px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  background: transparent;
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
-  font-family: inherit;
-}
-
-.chart-time-range-pill:hover {
-  color: var(--text-primary);
-  background: var(--color-neutral-100);
-}
-
-.chart-time-range-pill--active {
-  background: var(--color-neutral-800);
-  color: #ffffff;
-}
-
-.chart-time-range-pill--active:hover {
-  background: var(--color-neutral-700);
-  color: #ffffff;
-}
-
-/* Legacy tooltip layout (when both date and value shown) */
 .chart-tooltip {
   position: fixed;
   background: var(--card-bg);
@@ -270,7 +202,6 @@
   color: var(--text-primary);
   margin-bottom: var(--spacing-1);
   line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-normal);
 }
 
 .tooltip-value {
@@ -278,7 +209,6 @@
   color: var(--text-primary);
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-normal);
 }
 
 .tooltip-delta {
@@ -293,55 +223,18 @@
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.tooltip-delta svg {
-  width: 10px;
-  height: 10px;
-  flex-shrink: 0;
-}
+.tooltip-delta svg { width: 10px; height: 10px; flex-shrink: 0; }
+.tooltip-delta--positive { color: #34c759; }
+.tooltip-delta--negative { color: #ff3b30; }
 
-.tooltip-delta--positive {
-  color: #34c759;
-}
-
-.tooltip-delta--negative {
-  color: #ff3b30;
-}
-
-/* Responsive */
 @media (max-width: 1024px) {
-  .leads-chart-container {
-    min-height: 221px;
-  }
+  .line-chart-container { min-height: 221px; }
 }
 
 @media (max-width: 768px) {
-  .leads-chart {
-    padding: 7px 0;
-    min-height: 0;
-  }
-
-  .leads-chart-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .chart-current-value {
-    text-align: left;
-  }
-
-  .leads-chart-title {
-    font-size: var(--font-size-sm);
-  }
-
-  .current-value-amount {
-    font-size: var(--font-size-lg);
-  }
-
-  .leads-chart-container {
-    min-height: 187px;
-  }
-
-  .chart-time-ranges {
-    margin-top: var(--spacing-1);
-  }
+  .line-chart { padding: 7px 0; min-height: 0; }
+  .line-chart-header { flex-direction: column; align-items: flex-start; }
+  .chart-current-value { text-align: left; }
+  .current-value-amount { font-size: var(--font-size-lg); }
+  .line-chart-container { min-height: 187px; }
 }

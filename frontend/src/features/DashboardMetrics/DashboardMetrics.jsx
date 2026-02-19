@@ -1,16 +1,15 @@
 import React from 'react'
-import HealthMeter from './HealthMeter'
-import KPICards from './KPICards'
+import GaugeChart from './GaugeChart'
+import MetricCards from './MetricCards'
 
 /**
- * Single feature component: HealthMeter + all KPI cards.
- * Maps to one backend slice (e.g. /api/metrics/ or /api/dashboard/summary/).
+ * Metrics row: gauge chart + KPI metric cards.
  */
 const DashboardMetrics = () => {
   return (
     <>
-      <HealthMeter />
-      <KPICards />
+      <GaugeChart />
+      <MetricCards />
     </>
   )
 }

@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import TopNavigation from '../components/TopNavigation'
 import DashboardMetrics from '../features/DashboardMetrics'
-import LeadsChart from '../features/LeadsChart'
-import ExpenseSources from '../features/ExpenseSources'
-import SubscriptionAnalytics from '../features/SubscriptionAnalytics'
-import OrdersList from '../features/OrdersList'
-import MapView from '../features/MapView'
+import LineChart from '../features/LineChart'
+import DonutChart from '../features/DonutChart'
+import SegmentedBarChart from '../features/SegmentedBarChart'
+import BarChart from '../features/BarChart'
+import MapChart from '../features/MapChart'
 import TopProfitTable from '../components/TopProfitTable'
 import { KpiContext } from '../context/KpiContext'
 import DateRangePicker from '../components/DateRangePicker'
@@ -198,27 +198,27 @@ const Dashboard = () => {
 
           <div className="charts-row">
             <div className="chart-left">
-              <LeadsChart />
+              <LineChart />
             </div>
             <div className="chart-right">
-              <ExpenseSources />
+              <DonutChart />
             </div>
           </div>
           
           <div className="analytics-map-row">
             <div className="analytics-left">
               <div className="analytics-card-wrapper">
-                <SubscriptionAnalytics />
+                <SegmentedBarChart />
               </div>
             </div>
             <div className="orders-middle">
               <div className="analytics-card-wrapper">
-                <OrdersList />
+                <BarChart />
               </div>
             </div>
             <div className="map-right">
               <div className="analytics-card-wrapper">
-                <MapView />
+                <MapChart />
               </div>
             </div>
           </div>

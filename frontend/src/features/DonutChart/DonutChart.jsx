@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useContext, useMemo } from 'react'
 import { KpiContext } from '../../context/KpiContext'
-import './ExpenseSources.css'
+import './DonutChart.css'
 
 // Vibrant colors (adjacent slices ordered for contrast); cycle for >5 segments
 const SEGMENT_COLORS = [
@@ -26,7 +26,7 @@ function luminance(hex) {
 const columnTitle = (key) =>
   key.split(/[\s_]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
 
-const ExpenseSources = () => {
+const DonutChart = () => {
   const { kpiData } = useContext(KpiContext)
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const [tooltip, setTooltip] = useState({ x: 0, y: 0, visible: false })
@@ -284,4 +284,4 @@ const ExpenseSources = () => {
   )
 }
 
-export default ExpenseSources
+export default DonutChart

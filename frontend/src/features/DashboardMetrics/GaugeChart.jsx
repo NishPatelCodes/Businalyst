@@ -1,7 +1,7 @@
 import React from 'react'
-import './HealthMeter.css'
+import './GaugeChart.css'
 
-const HealthMeter = ({ 
+const GaugeChart = ({ 
   value = 68, 
   target = 80 
 }) => {
@@ -82,4 +82,4 @@ const HealthMeter = ({
   )
 }
 
-export default HealthMeter
+export default GaugeChart

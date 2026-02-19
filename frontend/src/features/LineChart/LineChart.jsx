@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react'
 import { KpiContext } from '../../context/KpiContext'
-import './LeadsChart.css'
+import './LineChart.css'
 
 const PLACEHOLDER_DATA = [
   { date: 'Jul', value: 550000 },
@@ -13,10 +13,10 @@ const PLACEHOLDER_DATA = [
 
 const getDataPointsForRange = (allData, range) => {
   if (!allData || allData.length === 0) return allData
-  
+
   const now = new Date()
   let cutoffDate = new Date()
-  
+
   switch (range) {
     case '1H':
       cutoffDate.setHours(now.getHours() - 1)
@@ -42,18 +42,16 @@ const getDataPointsForRange = (allData, range) => {
     default:
       return allData
   }
-  
-  // For placeholder data or when dates aren't available, return all data
-  // In a real scenario, you'd filter by date here
+
   return allData
 }
 
-const LeadsChart = () => {
+const LineChart = () => {
   const { kpiData } = useContext(KpiContext)
   const [hoveredPoint, setHoveredPoint] = useState(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
-  const [selectedRange] = useState('1Y') // Default range, controlled by top-level time period selector
+  const [selectedRange] = useState('1Y')
   const [selectedTab, setSelectedTab] = useState('Revenue')
   const chartRef = useRef(null)
   const tooltipTimeoutRef = useRef(null)
@@ -64,7 +62,7 @@ const LeadsChart = () => {
     const revenue = kpiData?.revenue_data
     const profit = kpiData?.profit_data
     let allData = []
-    
+
     if (dates?.length && (selectedTab === 'Revenue' ? revenue : profit)) {
       const values = selectedTab === 'Revenue' ? revenue : profit
       const len = Math.min(dates.length, values.length)
@@ -76,43 +74,21 @@ const LeadsChart = () => {
         }))
       }
     } else {
-      // Use placeholder data with raw dates
-      allData = PLACEHOLDER_DATA.map((d, i) => ({
-        ...d,
-        rawDate: d.date,
-      }))
+      allData = PLACEHOLDER_DATA.map((d, i) => ({ ...d, rawDate: d.date }))
     }
-    
-    // Filter data based on selected range
+
     const filteredData = getDataPointsForRange(allData, selectedRange)
-    
-    // Calculate how many points to show based on range
     let maxPoints = filteredData.length
     switch (selectedRange) {
-      case '1H':
-        maxPoints = Math.min(maxPoints, 12) // Show up to 12 points (5-min intervals)
-        break
-      case '24H':
-        maxPoints = Math.min(maxPoints, 24) // Show up to 24 points (hourly)
-        break
-      case '1W':
-        maxPoints = Math.min(maxPoints, 7) // Show up to 7 points (daily)
-        break
-      case '1M':
-        maxPoints = Math.min(maxPoints, 30) // Show up to 30 points (daily)
-        break
-      case '3M':
-        maxPoints = Math.min(maxPoints, 12) // Show up to 12 points (weekly)
-        break
-      case '1Y':
-        maxPoints = Math.min(maxPoints, 12) // Show up to 12 points (monthly)
-        break
-      case '5Y':
-        maxPoints = Math.min(maxPoints, 20) // Show up to 20 points (quarterly)
-        break
+      case '1H': maxPoints = Math.min(maxPoints, 12); break
+      case '24H': maxPoints = Math.min(maxPoints, 24); break
+      case '1W': maxPoints = Math.min(maxPoints, 7); break
+      case '1M': maxPoints = Math.min(maxPoints, 30); break
+      case '3M': maxPoints = Math.min(maxPoints, 12); break
+      case '1Y': maxPoints = Math.min(maxPoints, 12); break
+      case '5Y': maxPoints = Math.min(maxPoints, 20); break
     }
-    
-    // Sample data points evenly if we have more than maxPoints
+
     let sampledData = filteredData
     if (filteredData.length > maxPoints) {
       const step = filteredData.length / maxPoints
@@ -121,17 +97,12 @@ const LeadsChart = () => {
         const index = Math.floor(i * step)
         sampledData.push(filteredData[index])
       }
-      // Always include the last point
       if (sampledData[sampledData.length - 1] !== filteredData[filteredData.length - 1]) {
         sampledData[sampledData.length - 1] = filteredData[filteredData.length - 1]
       }
     }
-    
-    // Use raw date strings from backend as-is (e.g. "2026-01-01") — no formatting
-    return sampledData.map((d) => ({
-      ...d,
-      date: d.rawDate ?? d.date ?? '',
-    }))
+
+    return sampledData.map((d) => ({ ...d, date: d.rawDate ?? d.date ?? '' }))
   }, [kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab, selectedRange])
 
   const chartWidth = 1200
@@ -149,7 +120,6 @@ const LeadsChart = () => {
 
   const valueToY = (value) =>
     padding.top + graphHeight - ((value - yAxisMin) / (yAxisMax - yAxisMin)) * graphHeight
-
   const indexToX = (index) =>
     padding.left + (index / Math.max(chartData.length - 1, 1)) * graphWidth
 
@@ -176,9 +146,7 @@ const LeadsChart = () => {
   const getSharpPath = () => {
     if (points.length < 2) return ''
     let path = `M ${points[0].x} ${points[0].y} `
-    for (let i = 1; i < points.length; i++) {
-      path += `L ${points[i].x} ${points[i].y} `
-    }
+    for (let i = 1; i < points.length; i++) path += `L ${points[i].x} ${points[i].y} `
     return path
   }
 
@@ -192,91 +160,50 @@ const LeadsChart = () => {
     if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`
     return `$${value.toFixed(0)}`
   }
-
-  // Exact value for tooltip — no rounding (e.g. 9200 not $9k)
   const formatCurrencyExact = (value) => {
     const n = Number(value)
     if (Number.isNaN(n)) return '—'
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(n)
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n)
   }
 
-  useEffect(() => {
-    return () => {
-      if (tooltipTimeoutRef.current) {
-        clearTimeout(tooltipTimeoutRef.current)
-      }
-    }
-  }, [])
+  useEffect(() => () => { if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current) }, [])
 
   const handleMouseMove = (e) => {
     if (!chartRef.current) return
-    
-    // Initialize last position if not set
     if (lastMousePositionRef.current.x === 0 && lastMousePositionRef.current.y === 0) {
       lastMousePositionRef.current = { x: e.clientX, y: e.clientY }
       return
     }
-    
-    // Check if mouse has moved significantly (more than 5px)
-    const mouseMoved = Math.abs(e.clientX - lastMousePositionRef.current.x) > 5 || 
-                       Math.abs(e.clientY - lastMousePositionRef.current.y) > 5
-    
-    // If mouse moved significantly, reset tooltip and clear timeout
+    const mouseMoved = Math.abs(e.clientX - lastMousePositionRef.current.x) > 5 || Math.abs(e.clientY - lastMousePositionRef.current.y) > 5
     if (mouseMoved) {
-      if (tooltipTimeoutRef.current) {
-        clearTimeout(tooltipTimeoutRef.current)
-        tooltipTimeoutRef.current = null
-      }
+      if (tooltipTimeoutRef.current) { clearTimeout(tooltipTimeoutRef.current); tooltipTimeoutRef.current = null }
       setShowTooltip(false)
     }
-    
     lastMousePositionRef.current = { x: e.clientX, y: e.clientY }
-    
     const rect = chartRef.current.getBoundingClientRect()
     const x = (e.clientX - rect.left) * (chartWidth / rect.width)
-    let closestIndex = 0
-    let minDistance = Infinity
+    let closestIndex = 0, minDistance = Infinity
     points.forEach((pt, index) => {
       const distance = Math.abs(x - pt.x)
-      if (distance < minDistance) {
-        minDistance = distance
-        closestIndex = index
-      }
+      if (distance < minDistance) { minDistance = distance; closestIndex = index }
     })
     setHoveredPoint(closestIndex)
-    
-    const tooltipWidth = 176
-    let left = e.clientX
-    let top = e.clientY - 48
-    if (left - tooltipWidth / 2 < 0) left = tooltipWidth / 2
-    else if (left + tooltipWidth / 2 > window.innerWidth) left = window.innerWidth - tooltipWidth / 2
+    let left = e.clientX, top = e.clientY - 48
+    if (left - 88 < 0) left = 88
+    else if (left + 88 > window.innerWidth) left = window.innerWidth - 88
     if (top < 0) top = e.clientY + 20
     setTooltipPosition({ x: left, y: top })
-    
-    // Only set timeout if mouse hasn't moved significantly and there's no existing timeout
     if (!mouseMoved && !tooltipTimeoutRef.current) {
-      // Set timeout to show tooltip after 0.5 seconds of static hover
-      tooltipTimeoutRef.current = setTimeout(() => {
-        setShowTooltip(true)
-        tooltipTimeoutRef.current = null
-      }, 500)
+      tooltipTimeoutRef.current = setTimeout(() => { setShowTooltip(true); tooltipTimeoutRef.current = null }, 500)
     }
   }
 
   const handleMouseLeave = () => {
-    if (tooltipTimeoutRef.current) {
-      clearTimeout(tooltipTimeoutRef.current)
-    }
+    if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current)
     setHoveredPoint(null)
     setShowTooltip(false)
   }
   const currentValue = chartData.length ? chartData[chartData.length - 1].value : 0
-
   const getDelta = (index) => {
     if (index <= 0) return null
     const current = chartData[index].value
@@ -284,31 +211,16 @@ const LeadsChart = () => {
     const delta = current - previous
     const isPositive = delta >= 0
     const formatted = formatCurrencyExact(Math.abs(delta))
-    return {
-      value: delta,
-      formatted,
-      isPositive,
-      text: `${isPositive ? '+' : '-'}${formatted} from ${chartData[index - 1].date}`
-    }
+    return { value: delta, formatted, isPositive, text: `${isPositive ? '+' : '-'}${formatted} from ${chartData[index - 1].date}` }
   }
 
   return (
-    <div className="leads-chart leads-chart--wealthsimple">
-      <div className="leads-chart-header">
+    <div className="line-chart line-chart--wealthsimple">
+      <div className="line-chart-header">
         <div className="chart-header-left">
-          <div className="leads-chart-tabs">
-            <button
-              className={`leads-chart-tab ${selectedTab === 'Revenue' ? 'leads-chart-tab--active' : ''}`}
-              onClick={() => setSelectedTab('Revenue')}
-            >
-              Revenue
-            </button>
-            <button
-              className={`leads-chart-tab ${selectedTab === 'Profit' ? 'leads-chart-tab--active' : ''}`}
-              onClick={() => setSelectedTab('Profit')}
-            >
-              Profit
-            </button>
+          <div className="line-chart-tabs">
+            <button className={`line-chart-tab ${selectedTab === 'Revenue' ? 'line-chart-tab--active' : ''}`} onClick={() => setSelectedTab('Revenue')}>Revenue</button>
+            <button className={`line-chart-tab ${selectedTab === 'Profit' ? 'line-chart-tab--active' : ''}`} onClick={() => setSelectedTab('Profit')}>Profit</button>
           </div>
         </div>
         <div className="chart-current-value">
@@ -316,70 +228,45 @@ const LeadsChart = () => {
           <div className="current-value-amount">{formatCurrency(currentValue)}</div>
         </div>
       </div>
-
-      <div className="leads-chart-container">
-        <svg
-          ref={chartRef}
-          className="leads-chart-svg"
-          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-          preserveAspectRatio="xMidYMid meet"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        >
+      <div className="line-chart-container">
+        <svg ref={chartRef} className="line-chart-svg" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="xMidYMid meet" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
           <defs>
             <linearGradient id="wealthsimpleGreenGradient" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#34c759" stopOpacity="0.35" />
               <stop offset="100%" stopColor="#34c759" stopOpacity="0.02" />
             </linearGradient>
           </defs>
-
           <g className="chart-y-axis" aria-hidden="true">
-            {yAxisTicks.map((value) => {
-              const y = valueToY(value)
-              return (
-                <text key={value} x={padding.left - 10} y={y + 4} textAnchor="end" className="chart-axis-label">
-                  {formatCurrency(value)}
-                </text>
-              )
-            })}
+            {yAxisTicks.map((value) => (
+              <text key={value} x={padding.left - 10} y={valueToY(value) + 4} textAnchor="end" className="chart-axis-label">{formatCurrency(value)}</text>
+            ))}
           </g>
-
           <line x1={padding.left} y1={baselineY} x2={padding.left + graphWidth} y2={baselineY} className="chart-baseline" strokeWidth="1" />
-          <line x1={padding.left} y1={valueToY(chartData[0].value)} x2={padding.left + graphWidth} y2={valueToY(chartData[0].value)} className="chart-reference-line" strokeWidth="1" />
+          {chartData.length > 0 && (
+            <line x1={padding.left} y1={valueToY(chartData[0].value)} x2={padding.left + graphWidth} y2={valueToY(chartData[0].value)} className="chart-reference-line" strokeWidth="1" />
+          )}
           <path d={areaPath} className="chart-area-wealthsimple" fill="url(#wealthsimpleGreenGradient)" />
           <path d={linePath} className="chart-line-wealthsimple" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx={lastPoint.x} cy={lastPoint.y} r="5" className="chart-last-point" />
-
+          {lastPoint && <circle cx={lastPoint.x} cy={lastPoint.y} r="5" className="chart-last-point" />}
           <g className="chart-x-axis" aria-hidden="true">
             {chartData.map((d, index) => {
               const totalPoints = chartData.length
-              let showLabel = false
-              if (totalPoints <= 7) showLabel = true
-              else if (totalPoints <= 12) showLabel = index === 0 || index === totalPoints - 1 || index % 2 === 0
-              else if (totalPoints <= 24) showLabel = index === 0 || index === totalPoints - 1 || index % 3 === 0
-              else showLabel = index === 0 || index === totalPoints - 1 || index % 4 === 0
-
+              let showLabel = totalPoints <= 7 || index === 0 || index === totalPoints - 1 || (totalPoints <= 12 && index % 2 === 0) || (totalPoints <= 24 && index % 3 === 0) || index % 4 === 0
               if (!showLabel) return null
-
               const x = indexToX(index)
               const isFirst = index === 0
               const isLast = index === totalPoints - 1
               const textAnchor = isFirst ? 'start' : isLast ? 'end' : 'middle'
               const xOffset = isFirst ? 2 : isLast ? -2 : 0
-
               return (
-                <text key={index} x={x + xOffset} y={baselineY + 20} textAnchor={textAnchor} className="chart-axis-label">
-                  {d.date}
-                </text>
+                <text key={index} x={x + xOffset} y={baselineY + 20} textAnchor={textAnchor} className="chart-axis-label">{d.date}</text>
               )
             })}
           </g>
-
           {points.map((pt, index) => (
             <circle key={index} cx={pt.x} cy={pt.y} r="14" fill="transparent" className="data-point-hit" />
           ))}
         </svg>
-
         {hoveredPoint !== null && showTooltip && (
           <div className={`chart-tooltip chart-tooltip--wealthsimple ${showTooltip ? 'chart-tooltip--visible' : ''}`} style={{ left: `${tooltipPosition.x}px`, top: `${tooltipPosition.y}px` }}>
             <div className="tooltip-date">{chartData[hoveredPoint].date}</div>
@@ -387,11 +274,7 @@ const LeadsChart = () => {
             {getDelta(hoveredPoint) && (
               <div className={`tooltip-delta ${getDelta(hoveredPoint).isPositive ? 'tooltip-delta--positive' : 'tooltip-delta--negative'}`}>
                 <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  {getDelta(hoveredPoint).isPositive ? (
-                    <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="currentColor"/>
-                  ) : (
-                    <path d="M6 10L2 6H5V2H7V6H10L6 10Z" fill="currentColor"/>
-                  )}
+                  {getDelta(hoveredPoint).isPositive ? <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="currentColor"/> : <path d="M6 10L2 6H5V2H7V6H10L6 10Z" fill="currentColor"/>}
                 </svg>
                 <span>{getDelta(hoveredPoint).text}</span>
               </div>
@@ -399,9 +282,8 @@ const LeadsChart = () => {
           </div>
         )}
       </div>
-
     </div>
   )
 }
 
-export default LeadsChart
+export default LineChart

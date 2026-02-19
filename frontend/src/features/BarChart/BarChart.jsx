@@ -1,7 +1,7 @@
 import React from 'react'
-import './OrdersList.css'
+import './BarChart.css'
 
-const OrdersList = () => {
+const BarChart = () => {
   // Daily revenue data matching the image (in thousands)
   const revenueData = [
     { day: 'Mo', value: 2.1 },
@@ -127,7 +127,7 @@ const OrdersList = () => {
   )
 }
 
-export default OrdersList
+export default BarChart
 
 
 
