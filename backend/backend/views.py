@@ -106,7 +106,7 @@ def _is_numeric_column(df, col):
     return pct_numeric >= 0.8
 
 
-def _is_good_categorical(df, col, min_categories=2, max_categories=50):
+def _is_good_categorical(df, col, min_categories=2, max_categories=8):
     """Return True if col looks like a good categorical for a pie chart (text categories only)."""
     if col in _NUMERIC_OR_DATE_LIKE:
         return False
@@ -162,6 +162,70 @@ def pie_chart_column(df):
 
     return {"pie_column": best_col, "pie_data": pie_data}
 
+
+BAR_MAX_ITEMS = 8
+_PREFERRED_BAR_COLUMNS = ("region", "segment", "category", "type", "product name", "product")
+
+
+def bar_chart_column(df, exclude_column=None):
+    """
+    Pick a categorical column for the bar chart different from exclude_column (e.g. pie column).
+    Aggregate by sum of revenue/profit if available, else count. Return at most BAR_MAX_ITEMS bars.
+    """
+    df = df.copy()
+    candidates = []
+    for col in df.columns:
+        if col == exclude_column:
+            continue
+        if not _is_good_categorical(df, col, min_categories=2, max_categories=50):
+            continue
+        candidates.append(col)
+
+    if not candidates:
+        return None
+
+    # Prefer region, segment, category, etc. if not excluded
+    best_col = None
+    for pref in _PREFERRED_BAR_COLUMNS:
+        for c in candidates:
+            if pref in c.lower():
+                best_col = c
+                break
+        if best_col:
+            break
+    if best_col is None:
+        best_col = candidates[0]
+
+    # Prefer sum of revenue or profit; fallback to count
+    value_col = None
+    if "revenue" in df.columns:
+        value_col = "revenue"
+    elif "profit" in df.columns:
+        value_col = "profit"
+    elif "orders" in df.columns:
+        value_col = "orders"
+
+    if value_col is not None:
+        df["_bar_val"] = pd.to_numeric(df[value_col], errors="coerce").fillna(0)
+        agg = df.groupby(df[best_col].astype(str).str.strip(), as_index=False)["_bar_val"].sum()
+        agg = agg[agg[best_col].str.len() > 0]
+        agg = agg.sort_values("_bar_val", ascending=False).reset_index(drop=True)
+        items = [{"name": str(row[best_col]), "value": float(row["_bar_val"])} for _, row in agg.iterrows()]
+    else:
+        counts = df[best_col].dropna().astype(str).str.strip()
+        counts = counts[counts != ""].value_counts()
+        items = [{"name": str(label), "value": int(count)} for label, count in counts.items()]
+
+    if not items:
+        return None
+
+    # Cap at BAR_MAX_ITEMS (top by value already sorted)
+    if len(items) > BAR_MAX_ITEMS:
+        items = items[:BAR_MAX_ITEMS]
+
+    return {"bar_column": best_col, "bar_data": items}
+
+
 # 3️⃣ Django view: API endpoint
 @csrf_exempt
 def upload_dataset(request):
@@ -189,11 +253,19 @@ def upload_dataset(request):
             payload["top5_columns"] = table["top5_columns"]
         except Exception:
             pass
+        pie = None
         try:
             pie = pie_chart_column(df)
             if pie:
                 payload["pie_column"] = pie["pie_column"]
                 payload["pie_data"] = pie["pie_data"]
+        except Exception:
+            pass
+        try:
+            bar = bar_chart_column(df, exclude_column=pie["pie_column"] if pie else None)
+            if bar:
+                payload["bar_column"] = bar["bar_column"]
+                payload["bar_data"] = bar["bar_data"]
         except Exception:
             pass
         return JsonResponse(payload)

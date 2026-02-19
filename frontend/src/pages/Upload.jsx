@@ -53,6 +53,8 @@ const Upload = () => {
         top5_columns: data.top5_columns,
         pie_column: data.pie_column,
         pie_data: data.pie_data,
+        bar_column: data.bar_column,
+        bar_data: data.bar_data,
       })
       setUploadSuccess(true)
     } catch (err) {
