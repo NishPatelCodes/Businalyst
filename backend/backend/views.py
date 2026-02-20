@@ -162,6 +162,110 @@ def pie_chart_column(df):
 
     return {"pie_column": best_col, "pie_data": pie_data}
 
+
+# ---------- Map: [lng, lat] for geographic columns (lowercase key) ----------
+# US regions (Superstore-style)
+_REGION_COORDS = {
+    "south": [-86.9, 32.4],
+    "west": [-119.4, 36.8],
+    "east": [-75.5, 43.0],
+    "central": [-98.0, 39.5],
+    "northeast": [-74.0, 41.5],
+    "southeast": [-84.4, 33.7],
+    "north": [-98.0, 47.5],
+    "midwest": [-93.1, 42.0],
+    "northwest": [-120.7, 47.0],
+    "southwest": [-111.0, 34.0],
+}
+# US states – approximate center [lng, lat] for map markers
+_STATE_COORDS = {
+    "alabama": [-86.9, 32.4], "alaska": [-153.5, 64.8], "arizona": [-111.4, 34.3],
+    "arkansas": [-92.4, 34.9], "california": [-119.4, 36.8], "colorado": [-105.3, 38.9],
+    "connecticut": [-72.8, 41.6], "delaware": [-75.5, 38.9], "florida": [-81.5, 27.7],
+    "georgia": [-83.6, 32.2], "hawaii": [-155.6, 19.7], "idaho": [-114.4, 44.4],
+    "illinois": [-89.2, 40.0], "indiana": [-86.1, 40.3], "iowa": [-93.1, 42.0],
+    "kansas": [-98.5, 38.5], "kentucky": [-84.3, 37.7], "louisiana": [-91.9, 31.2],
+    "maine": [-69.4, 45.4], "maryland": [-76.6, 39.0], "massachusetts": [-71.4, 42.4],
+    "michigan": [-84.5, 43.3], "minnesota": [-94.7, 46.3], "mississippi": [-89.6, 32.7],
+    "missouri": [-91.8, 37.9], "montana": [-110.4, 47.0], "nebraska": [-99.9, 41.1],
+    "nevada": [-116.4, 39.3], "new hampshire": [-71.6, 43.2], "new jersey": [-74.4, 40.2],
+    "new mexico": [-105.8, 34.5], "new york": [-75.5, 43.0], "north carolina": [-79.0, 35.5],
+    "north dakota": [-100.4, 47.5], "ohio": [-82.9, 40.4], "oklahoma": [-97.5, 35.5],
+    "oregon": [-120.6, 43.9], "pennsylvania": [-77.2, 40.9], "rhode island": [-71.5, 41.6],
+    "south carolina": [-81.2, 33.8], "south dakota": [-99.9, 44.4], "tennessee": [-86.6, 35.8],
+    "texas": [-99.2, 31.4], "utah": [-111.6, 39.3], "vermont": [-72.6, 44.1],
+    "virginia": [-78.7, 37.5], "washington": [-120.7, 47.0], "west virginia": [-80.5, 38.6],
+    "wisconsin": [-89.6, 44.3], "wyoming": [-107.6, 43.0], "district of columbia": [-77.0, 38.9],
+    "washington d.c.": [-77.0, 38.9], "dc": [-77.0, 38.9],
+}
+# Countries
+_COUNTRY_COORDS = {
+    "united states": [-98.0, 38.0], "usa": [-98.0, 38.0], "canada": [-106.3, 56.1],
+    "united kingdom": [-2.6, 54.5], "uk": [-2.6, 54.5], "germany": [10.5, 51.2],
+    "france": [2.2, 46.2], "australia": [133.8, -25.3], "india": [78.0, 21.0],
+    "china": [105.2, 35.9], "japan": [138.3, 36.2], "brazil": [-55.0, -10.8],
+    "mexico": [-102.6, 23.6], "spain": [-3.7, 40.4], "italy": [12.6, 42.8],
+    "netherlands": [5.3, 52.1], "russia": [105.3, 61.5], "south korea": [127.8, 36.4],
+}
+
+
+def _coords_for_place(name):
+    """Return [lng, lat] for a place name (state, region, or country). Normalize to lowercase key."""
+    if not name or not isinstance(name, str):
+        return None
+    key = name.strip().lower()
+    if not key or key in ("nan", ""):
+        return None
+    if key in _STATE_COORDS:
+        return _STATE_COORDS[key]
+    if key in _REGION_COORDS:
+        return _REGION_COORDS[key]
+    if key in _COUNTRY_COORDS:
+        return _COUNTRY_COORDS[key]
+    return None
+
+
+def map_data(df):
+    """
+    Pick a geographic column (state, region, country) and return aggregated
+    revenue (or profit) per value with correct [lng, lat] for map markers.
+    Prefer state for granularity, then region, then country.
+    """
+    df = df.copy()
+    geo_col = None
+    for col in ["state", "region", "country"]:
+        if col in df.columns:
+            geo_col = col
+            break
+    if geo_col is None:
+        return None
+
+    value_col = "revenue" if "revenue" in df.columns else "profit"
+    if value_col not in df.columns:
+        return None
+    df[value_col] = pd.to_numeric(df[value_col], errors="coerce")
+    agg = df.groupby(df[geo_col].astype(str).str.strip(), dropna=True)[value_col].sum()
+
+    out = []
+    for name, value in agg.items():
+        if not name or str(name).strip().lower() in ("nan", ""):
+            continue
+        coords = _coords_for_place(name)
+        if coords is None:
+            continue  # skip places we can't map (no random positions)
+        out.append({
+            "name": str(name).strip(),
+            "value": float(value),
+            "coordinates": list(coords),
+        })
+
+    out.sort(key=lambda x: x["value"], reverse=True)
+    out = out[:15]
+    if not out:
+        return None
+    return {"map_column": geo_col, "map_data": out}
+
+
 # 3️⃣ Django view: API endpoint
 @csrf_exempt
 def upload_dataset(request):
@@ -194,6 +298,13 @@ def upload_dataset(request):
             if pie:
                 payload["pie_column"] = pie["pie_column"]
                 payload["pie_data"] = pie["pie_data"]
+        except Exception:
+            pass
+        try:
+            map_result = map_data(df)
+            if map_result:
+                payload["map_column"] = map_result["map_column"]
+                payload["map_data"] = map_result["map_data"]
         except Exception:
             pass
         return JsonResponse(payload)
