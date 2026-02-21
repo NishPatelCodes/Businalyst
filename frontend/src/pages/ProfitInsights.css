@@ -1,0 +1,819 @@
+/* ============================================================
+   PROFIT INSIGHTS – pixel-faithful recreation of reference image
+   ============================================================ */
+
+/* ── Shell ──────────────────────────────────────────────────── */
+.pi-page {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+}
+
+.pi-shell {
+  flex: 1;
+  margin-left: var(--layout-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Custom Top Nav (breadcrumb variant) ────────────────────── */
+.pi-topnav {
+  height: var(--layout-topnav-height);
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  padding: 0 26px;
+  gap: 20px;
+  position: fixed;
+  top: 0;
+  left: var(--layout-topnav-offset-left);
+  right: 0;
+  z-index: 90;
+}
+
+/* breadcrumb section */
+.pi-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.pi-bc-back {
+  display: flex;
+  align-items: center;
+  color: #6b7280;
+  text-decoration: none;
+  transition: color .15s;
+}
+.pi-bc-back:hover { color: #111827; }
+
+.pi-bc-link {
+  font-size: 14px;
+  color: #6b7280;
+  text-decoration: none;
+  font-weight: 400;
+  transition: color .15s;
+}
+.pi-bc-link:hover { color: #111827; }
+
+.pi-bc-sep {
+  font-size: 14px;
+  color: #d1d5db;
+}
+
+.pi-bc-active {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* search */
+.pi-topnav-search {
+  flex: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pi-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.pi-search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px 0 38px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  font-size: 14px;
+  color: #111827;
+  font-family: inherit;
+  outline: none;
+  transition: all .2s;
+}
+.pi-search-input::placeholder { color: #9ca3af; }
+.pi-search-input:focus {
+  background: #fff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+
+/* right icons + profile */
+.pi-topnav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.pi-nav-btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all .2s;
+}
+.pi-nav-btn:hover { background: #f3f4f6; color: #111827; }
+
+.pi-profile {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.pi-profile:hover { background: #f3f4f6; }
+
+.pi-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+}
+
+.pi-profile-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.pi-profile svg { color: #6b7280; }
+
+/* ── Scrollable content area ────────────────────────────────── */
+.pi-content {
+  margin-top: var(--layout-content-margin-top);
+  padding: 20px 22px;
+  flex: 1;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* ── Page header row ────────────────────────────────────────── */
+.pi-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 16px;
+  flex-wrap: nowrap;
+}
+
+.pi-page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.pi-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* shared action button */
+.pi-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: all .2s;
+}
+.pi-action-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+.pi-action-btn svg { color: #6b7280; flex-shrink: 0; }
+
+/* currency button – green tinted like Dashboard */
+.pi-currency-btn {
+  background: #10b981;
+  border-color: #059669;
+  color: #fff;
+  min-width: 120px;
+}
+.pi-currency-btn:hover { background: #059669; border-color: #047857; }
+.pi-currency-btn svg { color: #fff; }
+
+/* export button – blue */
+.pi-export-btn {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+.pi-export-btn:hover { background: #1d4ed8; border-color: #1d4ed8; }
+.pi-export-btn svg { color: #fff; }
+
+/* ── Currency dropdown ──────────────────────────────────────── */
+.pi-currency-dd {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.18);
+  width: 230px;
+  max-height: 270px;
+  overflow-y: auto;
+  padding: 4px;
+  animation: piFadeIn .18s ease;
+}
+
+@keyframes piFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pi-currency-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 11px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  color: #111827;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background .12s;
+}
+.pi-currency-opt:hover { background: #f3f4f6; }
+.pi-currency-opt.active { background: #eff6ff; font-weight: 600; color: #1d4ed8; }
+
+.pi-cur-sym  { font-size: 15px; font-weight: 600; min-width: 20px; }
+.pi-cur-code { font-weight: 600; min-width: 44px; }
+.pi-cur-name { font-size: 11px; color: #6b7280; margin-left: auto; }
+
+/* ── Body: 2-column ─────────────────────────────────────────── */
+.pi-body {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* LEFT main column */
+.pi-col-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* RIGHT panel */
+.pi-col-right {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Shared card ────────────────────────────────────────────── */
+.pi-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 18px;
+  border: 1px solid rgba(0,0,0,.05);
+  box-shadow:
+    0 0 0 0.5px rgba(0,0,0,.04),
+    0 1px 3px rgba(0,0,0,.04),
+    0 4px 12px rgba(0,0,0,.03);
+  animation: piCardIn .35s ease;
+}
+
+@keyframes piCardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pi-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.01em;
+}
+
+/* ── Profit Trend card ──────────────────────────────────────── */
+.pi-trend-card { padding: 18px 20px; }
+
+.pi-trend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pi-trend-header .pi-card-title { margin: 0; }
+
+.pi-trend-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Daily / Weekly / Monthly pill tabs */
+.pi-tab-group {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.pi-tab {
+  padding: 5px 11px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .18s;
+}
+.pi-tab:hover { color: #111827; }
+.pi-tab.active {
+  background: #fff;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  font-weight: 600;
+}
+
+.pi-tab-more {
+  padding: 5px 7px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #9ca3af;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+}
+.pi-tab-more:hover { background: #e5e7eb; }
+
+/* Compare Previous toggle */
+.pi-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #6b7280;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pi-toggle {
+  width: 34px;
+  height: 18px;
+  border-radius: 99px;
+  background: #d1d5db;
+  position: relative;
+  transition: background .25s;
+  flex-shrink: 0;
+}
+.pi-toggle.on { background: #3b82f6; }
+
+.pi-toggle-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  transition: left .25s;
+}
+.pi-toggle.on .pi-toggle-thumb { left: 18px; }
+
+/* date + big value */
+.pi-trend-meta {
+  margin-bottom: 2px;
+}
+
+.pi-trend-date {
+  font-size: 12px;
+  color: #9ca3af;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.pi-trend-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pi-trend-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2563eb;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* chart area – let LineChart fill */
+.pi-trend-chart-area {
+  margin-top: 4px;
+  min-height: 240px;
+}
+
+/* ── Mid row: 2 cards side by side ─────────────────────────── */
+.pi-mid-row {
+  display: grid;
+  grid-template-columns: 55% 1fr;
+  gap: 14px;
+}
+
+/* Profit Breakdown */
+.pi-breakdown-card { }
+
+/* Stacked horizontal bar */
+.pi-stacked-bar {
+  display: flex;
+  width: 100%;
+  height: 14px;
+  border-radius: 7px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.pi-seg {
+  height: 100%;
+  transition: width .3s;
+}
+
+/* Range handle row */
+.pi-bar-handle-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.pi-bar-handle {
+  width: 60px;
+  height: 4px;
+  border-radius: 2px;
+  background: #2563eb;
+  box-shadow: 0 0 0 3px #eff6ff;
+  cursor: ew-resize;
+}
+
+/* Legend rows */
+.pi-breakdown-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pi-bd-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #374151;
+  overflow: hidden;
+}
+
+.pi-bd-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pi-bd-label {
+  min-width: 44px;
+  font-weight: 500;
+  color: #111827;
+  flex-shrink: 0;
+}
+
+.pi-bd-val {
+  color: #6b7280;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+/* Profit Drivers small card */
+.pi-drivers-sm-card { }
+
+.pi-divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin: 12px 0 4px;
+}
+
+/* ── Profit Drivers list (shared) ───────────────────────────── */
+.pi-drivers-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.pi-drivers-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.45;
+}
+
+.pi-driver-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.pi-driver-dot.blue { background: #3b82f6; }
+
+.pi-driver-dot.blue-outline {
+  background: #eff6ff;
+  border: 2px solid #3b82f6;
+}
+
+.pi-drivers-list em {
+  font-style: italic;
+  color: #6b7280;
+}
+
+/* ── Most Profitable Products table ─────────────────────────── */
+.pi-table-card { padding: 16px 18px; }
+
+.pi-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.pi-table-header .pi-card-title { margin: 0; }
+
+.pi-table-view-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.pi-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.pi-view-btn:hover { background: #f9fafb; }
+.pi-view-btn.active {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+.pi-view-btn svg { color: #6b7280; }
+
+.pi-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pi-table thead {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.pi-table th {
+  padding: 0 0 8px 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-align: left;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.pi-table th svg { vertical-align: middle; color: #9ca3af; }
+
+.pi-table td {
+  padding: 10px 0;
+  font-size: 13px;
+  color: #374151;
+  border-bottom: 1px solid #f9fafb;
+  vertical-align: middle;
+}
+
+.pi-table tbody tr:last-child td { border-bottom: none; }
+
+.pi-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pi-product-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* ── RIGHT PANEL CARDS ──────────────────────────────────────── */
+
+/* Profit Drivers */
+.pi-drivers-card { }
+
+/* Vertical bar charts */
+.pi-bar-card { }
+
+.pi-vbar-chart {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  height: 160px;
+}
+
+.pi-vbar-yaxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 120px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.pi-vbar-yaxis span {
+  font-size: 10px;
+  color: #9ca3af;
+  line-height: 1;
+}
+
+.pi-vbar-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex: 1;
+  height: 120px;
+}
+
+.pi-vbar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.pi-vbar-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 120px;
+  width: 100%;
+  position: relative;
+}
+
+.pi-vbar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+  transition: height .3s ease;
+}
+
+.pi-vbar-badge {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 600;
+  background: #374151;
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.pi-vbar-label {
+  font-size: 10px;
+  color: #9ca3af;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Actionable Insights */
+.pi-insights-card { }
+
+/* Loss Heaking Products */
+.pi-loss-table-card { }
+
+.pi-loss-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pi-loss-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.pi-loss-name {
+  flex: 1;
+  color: #374151;
+  font-weight: 500;
+}
+
+.pi-loss-amount {
+  color: #dc2626;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pi-loss-icons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .pi-col-right { width: 260px; }
+}
+
+@media (max-width: 1024px) {
+  .pi-shell { margin-left: 0; }
+  .pi-topnav { left: 0; }
+  .pi-body { flex-direction: column; }
+  .pi-col-right { width: 100%; }
+  .pi-mid-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .pi-content { padding: 14px; }
+  .pi-page-header { flex-direction: column; align-items: flex-start; }
+  .pi-trend-header { flex-direction: column; align-items: flex-start; }
+  .pi-trend-controls { flex-direction: column; align-items: flex-start; }
+  .pi-trend-amount { font-size: 22px; }
+}

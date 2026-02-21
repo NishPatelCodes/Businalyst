@@ -213,6 +213,40 @@
   flex-shrink: 0;
 }
 
+/* More Insights button for Profit card */
+.kpi-more-insights-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: auto;
+  padding: 6px 12px;
+  background: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  position: absolute;
+  bottom: var(--card-padding);
+  right: var(--card-padding);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.2);
+  z-index: 3;
+}
+
+.kpi-more-insights-button:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.kpi-more-insights-button:active {
+  transform: scale(0.98);
+}
+
 /* Responsive */
 @media (max-width: 1280px) {
   .kpi-value {

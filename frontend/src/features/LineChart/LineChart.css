@@ -4,7 +4,9 @@
 
 .line-chart {
   background: transparent;
-  padding: 10px 0;
+  padding: 10px 0 0px 0;
+  margin-top: 25px;
+  margin-bottom: 15px;  
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -113,6 +115,7 @@
   overflow: hidden;
   display: flex;
   align-items: stretch;
+  
   justify-content: stretch;
 }
 
@@ -137,6 +140,10 @@
 .chart-baseline {
   stroke: var(--color-neutral-300);
   stroke-dasharray: 6 4;
+}
+
+.chart-boundary {
+  pointer-events: none;
 }
 
 .chart-reference-line {
@@ -230,6 +237,7 @@
 @media (max-width: 1024px) {
   .line-chart-container { min-height: 221px; }
 }
+
 
 @media (max-width: 768px) {
   .line-chart { padding: 7px 0; min-height: 0; }

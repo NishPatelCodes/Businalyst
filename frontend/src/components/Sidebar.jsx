@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
+import { useLocation, Link } from 'react-router-dom'
 import './Sidebar.css'
 
 const Sidebar = () => {
+  const location = useLocation()
   const [expandedSection, setExpandedSection] = useState('finances')
 
   const toggleSection = (section) => {
@@ -29,13 +31,21 @@ const Sidebar = () => {
 
       <nav className="sidebar-nav">
         <div className="nav-section">
-          <a href="/dashboard" className="nav-item active">
+          <Link to="/dashboard" className={`nav-item ${location.pathname === '/dashboard' ? 'active' : ''}`}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M10 2L2 7L10 12L18 7L10 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
               <path d="M2 12L10 17L18 12" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
             </svg>
             <span>Dashboard</span>
-          </a>
+          </Link>
+
+          <Link to="/profit-insights" className={`nav-item ${location.pathname === '/profit-insights' ? 'active' : ''}`}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.5 2.5L8.39 16.64L10.48 10.48L16.64 8.39L2.5 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M10.48 10.48L16.64 8.39" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span>Profit</span>
+          </Link>
 
           <a href="/orders" className="nav-item">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,4 +1,5 @@
 import React, { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { KpiContext } from '../../context/KpiContext'
 import './MetricCards.css'
 
@@ -7,6 +8,7 @@ const formatCurrency = (n) =>
 
 const MetricCards = () => {
   const { kpiData } = useContext(KpiContext)
+  const navigate = useNavigate()
 
   const profitIcon = (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -111,8 +113,18 @@ const MetricCards = () => {
     <>
       {kpis.map((kpi, index) => {
         const progress = calculateProgress(kpi.current, kpi.target)
+        const isProfitCard = index === 0 // Profit is the first card
         return (
           <div key={index} className="kpi-card">
+            {isProfitCard && (
+              <button 
+                className="kpi-more-insights-button"
+                onClick={() => navigate('/profit-insights')}
+                title="More Insights"
+              >
+                More Insights
+              </button>
+            )}
             <div className="kpi-header">
               <div className="kpi-icon">{kpi.icon}</div>
               <div className="kpi-title">{kpi.title}</div>
