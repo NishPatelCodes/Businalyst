@@ -91,6 +91,22 @@ def table_component(df):
 # Columns we treat as numeric / not categorical for pie
 _NUMERIC_OR_DATE_LIKE = {"profit", "revenue", "orders", "expense", "order date", "date"}
 
+# Geography and payment columns to exclude when picking pie column from right side
+_GEOGRAPHY_KEYWORDS = {"region", "country", "state", "city", "postal", "address", "location", "latitude", "longitude", "lat", "lng"}
+_PAYMENT_KEYWORDS = {"payment", "method", "pay_type", "pay type", "billing", "card"}
+
+
+def _is_geography_column(col):
+    """True if column appears to be geography-related."""
+    key = col.lower().strip()
+    return any(kw in key for kw in _GEOGRAPHY_KEYWORDS)
+
+
+def _is_payment_column(col):
+    """True if column appears to be payment-method related."""
+    key = col.lower().strip()
+    return any(kw in key for kw in _PAYMENT_KEYWORDS)
+
 
 def _is_numeric_column(df, col):
     """True if the column is numeric dtype or its values are mostly numeric when parsed."""
@@ -128,21 +144,31 @@ PIE_MAX_SEGMENTS = 5
 
 def pie_chart_column(df):
     """
-    Pick a good categorical column for a pie chart: 2–50 categories, not numeric/date.
-    Returns column name and value counts. If column has more than PIE_MAX_SEGMENTS
-    categories, returns top PIE_MAX_SEGMENTS by count plus "Other".
+    Pick a categorical column for pie chart:
+    1. If "category" exists and is good categorical, use it.
+    2. Else if "campaign" exists and is good categorical, use it.
+    3. Else scan columns from right (last) to left, use first good categorical
+       excluding geography-related and payment-method columns.
+    Returns column name and value counts. Max PIE_MAX_SEGMENTS segments + "Other".
     """
     df = df.copy()
     best_col = None
-    best_n = 0
 
-    for col in df.columns:
-        if not _is_good_categorical(df, col):
-            continue
-        n = df[col].dropna().astype(str).str.strip().replace("", pd.NA).dropna().nunique()
-        if min(best_n, n) == 0 or n > best_n:
-            best_col = col
-            best_n = n
+    # 1. Prefer "category"
+    for candidate in ["category", "campaign"]:
+        if candidate in df.columns and _is_good_categorical(df, candidate):
+            best_col = candidate
+            break
+
+    # 2. Fallback: scan from right (last column) to left
+    if best_col is None:
+        cols_reversed = list(df.columns)[::-1]
+        for col in cols_reversed:
+            if _is_geography_column(col) or _is_payment_column(col):
+                continue
+            if _is_good_categorical(df, col):
+                best_col = col
+                break
 
     if best_col is None:
         return None
