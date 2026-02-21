@@ -199,6 +199,36 @@
   flex-shrink: 0;
 }
 
+/* View Insights button - like KPI card */
+.payment-view-insights-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  padding: 6px 12px;
+  background: var(--color-primary, #2563eb);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.2);
+}
+
+.payment-view-insights-btn:hover {
+  background: var(--color-primary-hover, #1d4ed8);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.payment-view-insights-btn:active {
+  transform: scale(0.98);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .analytics-card {

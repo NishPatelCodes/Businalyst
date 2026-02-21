@@ -53,11 +53,51 @@ def linechart(df):
     df["profit"] = pd.to_numeric(df["profit"], errors="coerce")
     # Ensure dates are JSON-serializable strings
     date_series = df["date"].astype(str)
-    return {
+    out = {
         "revenue_data": df["revenue"].tolist(),
         "profit_data": df["profit"].tolist(),
         "date_data": date_series.tolist(),
     }
+    if "orders" in df.columns:
+        df["orders"] = pd.to_numeric(df["orders"], errors="coerce")
+        orders_spark = _aggregate_sparkline(df, value_col="orders", date_col="date")
+        if orders_spark:
+            out["orders_data"] = orders_spark
+    return out
+
+
+def _find_date_col(df):
+    """Return the first date-like column name found in df (already lowercased)."""
+    priority = ["date", "order date", "order_date", "orderdate", "ship date", "ship_date", "transaction date"]
+    for c in priority:
+        if c in df.columns:
+            return c
+    for c in df.columns:
+        if "date" in c:
+            return c
+    return None
+
+
+def _aggregate_sparkline(df, value_col, date_col=None):
+    """
+    Aggregate value_col by calendar month. Returns a list of floats (monthly sums)
+    suitable for a sparkline, or None if not enough data.
+    """
+    df = df.copy()
+    if date_col is None or date_col not in df.columns:
+        date_col = _find_date_col(df)
+    if date_col is None or date_col not in df.columns:
+        return None
+    df[value_col] = pd.to_numeric(df[value_col], errors="coerce")
+    df["_date"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
+    df = df.dropna(subset=["_date", value_col])
+    if len(df) == 0:
+        return None
+    df["_period"] = df["_date"].dt.to_period("M")
+    monthly = df.groupby("_period")[value_col].sum().sort_index()
+    if len(monthly) < 2:
+        return None
+    return [float(v) for v in monthly.values]
     
 def _to_json_value(val):
     """Convert a pandas/cell value to a JSON-serializable value."""
@@ -120,6 +160,82 @@ def _is_numeric_column(df, col):
     # If most non-null values are valid numbers, treat as numeric
     pct_numeric = numeric_parsed.notna().mean()
     return pct_numeric >= 0.8
+
+
+BAR_CHART_MAX_BARS = 7
+
+
+def _is_bar_chart_categorical(df, col):
+    """True if col is suitable for bar chart: categorical, not numeric, not date."""
+    if col in _NUMERIC_OR_DATE_LIKE:
+        return False
+    if "date" in col.lower():
+        return False
+    if _is_numeric_column(df, col):
+        return False
+    s = df[col].dropna().astype(str).str.strip()
+    s = s[s != ""]
+    if s.nunique() < 2:
+        return False
+    return True
+
+
+def bar_chart(df):
+    """
+    Pick a categorical column for bar chart:
+    1. Prefer "product name" / "product_name"
+    2. Else use most logical fallback: category, sub-category, product id, customer name, segment, region
+    3. Aggregate by profit (or revenue), return top 7 bars.
+    Returns {"bar_column": str, "bar_data": [{"name": str, "value": float}, ...]} or None.
+    """
+    df = df.copy()
+    value_col = "profit" if "profit" in df.columns else "revenue"
+    if value_col not in df.columns:
+        return None
+
+    df[value_col] = pd.to_numeric(df[value_col], errors="coerce")
+    bar_col = None
+
+    # 1. Prefer product name
+    for c in ["product name", "product_name", "productname"]:
+        if c in df.columns and _is_bar_chart_categorical(df, c):
+            bar_col = c
+            break
+
+    # 2. Fallback: most logical columns for bar chart
+    if bar_col is None:
+        fallbacks = [
+            "category", "sub-category", "sub_category", "subcategory",
+            "product id", "product_id", "productid",
+            "customer name", "customer_name", "customername",
+            "segment", "region", "sales_rep", "sales rep", "campaign",
+        ]
+        for c in fallbacks:
+            if c in df.columns and _is_bar_chart_categorical(df, c):
+                bar_col = c
+                break
+
+    # 3. Last resort: any good categorical (exclude geo/payment for bar)
+    if bar_col is None:
+        for col in df.columns:
+            if _is_geography_column(col) or _is_payment_column(col):
+                continue
+            if _is_bar_chart_categorical(df, col):
+                bar_col = col
+                break
+
+    if bar_col is None:
+        return None
+
+    agg = df.groupby(df[bar_col].astype(str).str.strip(), dropna=True)[value_col].sum()
+    agg = agg[agg.index.str.strip().str.lower() != "nan"]
+    agg = agg.sort_values(ascending=False).head(BAR_CHART_MAX_BARS)
+
+    if len(agg) < 2:
+        return None
+
+    bar_data = [{"name": str(n).strip(), "value": float(v)} for n, v in agg.items()]
+    return {"bar_column": bar_col, "bar_data": bar_data}
 
 
 def _is_good_categorical(df, col, min_categories=2, max_categories=50):
@@ -311,8 +427,28 @@ def upload_dataset(request):
             payload["revenue_data"] = chart["revenue_data"]
             payload["profit_data"] = chart["profit_data"]
             payload["date_data"] = chart["date_data"]
+            if "orders_data" in chart:
+                payload["orders_data"] = chart["orders_data"]
         except Exception:
             pass
+        # Always try to build orders sparkline regardless of linechart success
+        if "orders_data" not in payload and "orders" in df.columns:
+            try:
+                spark = _aggregate_sparkline(df, value_col="orders")
+                if spark:
+                    payload["orders_data"] = spark
+            except Exception:
+                pass
+        # Fallback: aggregate revenue by month as sparkline if still nothing
+        if "orders_data" not in payload:
+            try:
+                val_col = next((c for c in ["revenue", "profit"] if c in df.columns), None)
+                if val_col:
+                    spark = _aggregate_sparkline(df, value_col=val_col)
+                    if spark:
+                        payload["orders_data"] = spark
+            except Exception:
+                pass
         try:
             table = table_component(df)
             payload["top5_profit"] = table["top5_profit"]
@@ -324,6 +460,13 @@ def upload_dataset(request):
             if pie:
                 payload["pie_column"] = pie["pie_column"]
                 payload["pie_data"] = pie["pie_data"]
+        except Exception:
+            pass
+        try:
+            bar = bar_chart(df)
+            if bar:
+                payload["bar_column"] = bar["bar_column"]
+                payload["bar_data"] = bar["bar_data"]
         except Exception:
             pass
         try:

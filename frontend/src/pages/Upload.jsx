@@ -49,12 +49,15 @@ const Upload = () => {
         revenue_data: data.revenue_data,
         profit_data: data.profit_data,
         date_data: data.date_data,
+        orders_data: data.orders_data,
         top5_profit: data.top5_profit,
         top5_columns: data.top5_columns,
         pie_column: data.pie_column,
         pie_data: data.pie_data,
         map_column: data.map_column,
         map_data: data.map_data,
+        bar_column: data.bar_column,
+        bar_data: data.bar_data,
       })
       setUploadSuccess(true)
     } catch (err) {

@@ -1,28 +1,24 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import './SegmentedBarChart.css'
 
 const SegmentedBarChart = () => {
+  const navigate = useNavigate()
+
   const metrics = [
     {
       label: 'Prepaid',
       value: 1228,
       total: 1928,
-      color: '#ff3b30',      // Apple red - vibrant and premium
-      lightColor: '#ffebeb'  // Soft red tint
+      color: '#ff3b30',
+      lightColor: '#ffebeb'
     },
     {
       label: 'Cash On delivery',
       value: 600,
       total: 1928,
-      color: '#007aff',      // Apple blue - professional and clean
-      lightColor: '#e5f2ff'  // Soft blue tint
-    },
-    {
-      label: 'Credit Card',
-      value: 100,
-      total: 1928,
-      color: '#10b981',      // Green - success and growth
-      lightColor: '#d1fae5'  // Soft green tint
+      color: '#007aff',
+      lightColor: '#e5f2ff'
     }
   ]
 
@@ -52,17 +48,7 @@ const SegmentedBarChart = () => {
   return (
     <div className="subscription-analytics">
       <div className="analytics-header">
-        <div className="header-content">
-          <h2 className="analytics-title">Payment method</h2>
-          <p className="analytics-subtitle">
-            Track, analyze, and improve your subscription business.
-          </p>
-        </div>
-        <button className="analytics-action-btn">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 2V14M2 8H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-        </button>
+        <h2 className="analytics-title">Payment method</h2>
       </div>
 
       <div className="analytics-card">
@@ -77,22 +63,13 @@ const SegmentedBarChart = () => {
           </div>
         ))}
 
-        <div className="analytics-mini-stats">
-          <div className="mini-stat">
-            <span className="mini-stat-label">Growth</span>
-            <span className="mini-stat-value positive">+12.4%</span>
-          </div>
-          <div className="mini-stat-divider"></div>
-          <div className="mini-stat">
-            <span className="mini-stat-label">Target</span>
-            <span className="mini-stat-value">85%</span>
-          </div>
-          <div className="mini-stat-divider"></div>
-          <div className="mini-stat">
-            <span className="mini-stat-label">vs last month</span>
-            <span className="mini-stat-value positive">+2.1%</span>
-          </div>
-        </div>
+        <button
+          className="payment-view-insights-btn"
+          onClick={() => navigate('/profit-insights')}
+          title="View Insights"
+        >
+          View Insights
+        </button>
       </div>
     </div>
   )
