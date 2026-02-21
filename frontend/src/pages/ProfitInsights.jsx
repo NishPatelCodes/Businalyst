@@ -1,8 +1,10 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import LineChart from '../features/LineChart'
 import DateRangePicker from '../components/DateRangePicker'
+import ProfitBreakdownChart from '../features/DonutChart/ProfitBreakdownChart'
+import TopMonthsBarChart from '../features/BarChart/TopMonthsBarChart'
 import { KpiContext } from '../context/KpiContext'
 import './ProfitInsights.css'
 
@@ -85,6 +87,78 @@ const ProfitInsights = () => {
 
   const fmtK = (n) => n >= 1000 ? `$${(n / 1000).toFixed(0)}k` : `$${n}`
 
+  // Calculate top 3 profitable months
+  const top3Months = useMemo(() => {
+    if (!kpiData?.date_data || !kpiData?.profit_data) {
+      return [
+        { month: 'Jan', profit: 125000, color: '#2563eb' },
+        { month: 'Feb', profit: 98000, color: '#3b82f6' },
+        { month: 'Mar', profit: 87000, color: '#60a5fa' },
+      ]
+    }
+
+    const dates = kpiData.date_data
+    const profits = kpiData.profit_data
+    const monthData = new Map()
+
+    // Group profits by month
+    dates.forEach((dateStr, i) => {
+      try {
+        const date = new Date(dateStr)
+        if (!isNaN(date.getTime())) {
+          const monthKey = `${date.getFullYear()}-${date.getMonth()}`
+          const monthName = date.toLocaleDateString('en-US', { month: 'short' })
+          const profit = Number(profits[i]) || 0
+          
+          if (monthData.has(monthKey)) {
+            monthData.set(monthKey, {
+              month: monthName,
+              profit: monthData.get(monthKey).profit + profit,
+              color: monthData.get(monthKey).color
+            })
+          } else {
+            const colors = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd']
+            monthData.set(monthKey, {
+              month: monthName,
+              profit: profit,
+              color: colors[monthData.size % colors.length]
+            })
+          }
+        }
+      } catch (e) {
+        // Skip invalid dates
+      }
+    })
+
+    // Sort by profit and get top 3
+    return Array.from(monthData.values())
+      .sort((a, b) => b.profit - a.profit)
+      .slice(0, 3)
+  }, [kpiData?.date_data, kpiData?.profit_data])
+
+  const maxMonthProfit = Math.max(...top3Months.map(m => m.profit), 1)
+  
+  // Calculate Y-axis ticks with nice round numbers
+  const yAxisTicks = useMemo(() => {
+    if (maxMonthProfit === 0) return [0, 0, 0, 0, 0, 0]
+    
+    // Round up to a nice number
+    const magnitude = Math.pow(10, Math.floor(Math.log10(maxMonthProfit)))
+    const normalized = maxMonthProfit / magnitude
+    let niceMax
+    if (normalized <= 1) niceMax = magnitude
+    else if (normalized <= 2) niceMax = 2 * magnitude
+    else if (normalized <= 5) niceMax = 5 * magnitude
+    else niceMax = 10 * magnitude
+    
+    // Generate 6 evenly spaced ticks (including 0)
+    const ticks = []
+    for (let i = 5; i >= 0; i--) {
+      ticks.push(Math.round((niceMax * i) / 5))
+    }
+    return ticks
+  }, [maxMonthProfit])
+
   return (
     <div className="pi-page">
       <Sidebar />
@@ -93,12 +167,6 @@ const ProfitInsights = () => {
         {/* ═══ CUSTOM TOP NAV ═══════════════════════════════════════════ */}
         <header className="pi-topnav">
           <div className="pi-breadcrumbs">
-            <Link to="/dashboard" className="pi-bc-back">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.6"
-                      strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
             <Link to="/dashboard" className="pi-bc-link">Dashboard</Link>
             <span className="pi-bc-sep">/</span>
             <span className="pi-bc-link">Performance</span>
@@ -216,33 +284,7 @@ const ProfitInsights = () => {
                 {/* Profit Breakdown */}
                 <div className="pi-card pi-breakdown-card">
                   <h3 className="pi-card-title">Profit Breakdown</h3>
-
-                  {/* Stacked bar */}
-                  <div className="pi-stacked-bar">
-                    {BREAKDOWN_SEGMENTS.map((s, i) => (
-                      <div key={i} className="pi-seg"
-                           style={{ width: `${s.pct}%`, background: s.color }}
-                           title={`${s.label}: ${s.pct}%`}/>
-                    ))}
-                  </div>
-
-                  {/* Range handle */}
-                  <div className="pi-bar-handle-row">
-                    <div className="pi-bar-handle"/>
-                  </div>
-
-                  {/* Legend rows */}
-                  <div className="pi-breakdown-legend">
-                    {BREAKDOWN_ROWS.map((row, i) => (
-                      <div key={i} className="pi-bd-row">
-                        <span className="pi-bd-dot" style={{ background: row.dot }}/>
-                        <span className="pi-bd-label">{row.label}</span>
-                        {row.cols.map((c, j) => (
-                          <span key={j} className="pi-bd-val">{c}</span>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
+                  <ProfitBreakdownChart />
                 </div>
 
                 {/* Profit Drivers (middle col duplicate) */}
@@ -331,27 +373,17 @@ const ProfitInsights = () => {
             {/* ── RIGHT PANEL ──────────────────────────────────────────────── */}
             <div className="pi-col-right">
 
-              {/* Profit Drivers */}
+              {/* Top 3 Profitable Months */}
               <div className="pi-card pi-drivers-card">
-                <h3 className="pi-card-title">Profit Drivers</h3>
-                <ul className="pi-drivers-list">
-                  <li>
-                    <span className="pi-driver-dot blue-outline"/>
-                    <span><b>Highest cost:</b> <em>Ad Spend</em></span>
-                  </li>
-                  <li>
-                    <span className="pi-driver-dot blue-outline"/>
-                    <span><b>Biggest booster:</b> <em>Revenue from Widget A</em></span>
-                  </li>
-                  <li>
-                    <span className="pi-driver-dot blue-outline"/>
-                    <span><b>Lowest profit day:</b> <em>Feb 1</em></span>
-                  </li>
-                  <li>
-                    <span className="pi-driver-dot blue-outline"/>
-                    <span>Returns caused a <b>$6.5k loss</b> during this period</span>
-                  </li>
-                </ul>
+                <h3 className="pi-card-title">Top 3 Profitable Months</h3>
+                
+                <p className="pi-insights-description">
+                  Study why these months made more profits and implement it in all months to grow your Business
+                </p>
+                
+                <div className="pi-bar-chart-wrapper">
+                  <TopMonthsBarChart />
+                </div>
               </div>
 
               {/* Most Profitable Products – vertical bar chart */}

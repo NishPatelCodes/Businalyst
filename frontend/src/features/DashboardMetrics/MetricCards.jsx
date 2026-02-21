@@ -123,6 +123,9 @@ const MetricCards = () => {
                 title="More Insights"
               >
                 More Insights
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </button>
             )}
             <div className="kpi-header">
@@ -137,19 +140,6 @@ const MetricCards = () => {
               <div className="kpi-target-text">{formatTarget(kpi.current, kpi.target)}</div>
             </div>
             <div className="kpi-footer">
-              <div className={`kpi-change ${kpi.changeType}`}>
-                {kpi.changeType === 'positive' ? (
-                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="currentColor"/>
-                  </svg>
-                ) : (
-                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 10L2 6H5V2H7V6H10L6 10Z" fill="currentColor"/>
-                  </svg>
-                )}
-                <span>{kpi.change}</span>
-              </div>
-              <div className="kpi-comparison">{kpi.comparison}</div>
             </div>
           </div>
         )
