@@ -88,6 +88,41 @@
   overscroll-behavior: contain;
 }
 
+/* Tooltip: place name + value when hovering a dot */
+.map-tooltip {
+  position: fixed;
+  transform: translate(-50%, -100%);
+  margin-top: -12px;
+  padding: 8px 12px;
+  background: #1d1d1f;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 100;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.map-tooltip-name {
+  font-weight: 600;
+}
+
+.map-tooltip-value {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.map-marker-g {
+  cursor: pointer;
+}
+
 .composable-map {
   width: 100% !important;
   height: 100% !important;
