@@ -8,6 +8,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import Dashboard from './pages/Dashboard'
 import Upload from './pages/Upload'
 import ProfitInsights from './pages/ProfitInsights'
+import RevenueInsights from './pages/RevenueInsights'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/profit-insights" element={<ProfitInsights />} />
+        <Route path="/revenue-insights" element={<RevenueInsights />} />
         </Routes>
       </Router>
     </KpiProvider>

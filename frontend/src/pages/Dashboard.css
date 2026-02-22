@@ -33,6 +33,29 @@
   box-sizing: border-box;
 }
 
+.dashboard-demo-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  margin-bottom: var(--spacing-4);
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.08) 0%, rgba(52, 199, 89, 0.04) 100%);
+  border: 1px solid rgba(52, 199, 89, 0.2);
+  border-radius: 10px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.dashboard-demo-banner a {
+  color: var(--accent-primary, #34c759);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dashboard-demo-banner a:hover {
+  text-decoration: underline;
+}
+
 /* ============================================
    DASHBOARD HEADER - COMPACT
    ============================================ */

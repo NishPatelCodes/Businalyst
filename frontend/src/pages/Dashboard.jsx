@@ -25,7 +25,7 @@ const CURRENCIES = [
 ]
 
 const Dashboard = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, isDemoData } = useContext(KpiContext)
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0])
@@ -101,6 +101,13 @@ const Dashboard = () => {
         <TopNavigation />
         
         <div className="dashboard-content">
+          {isDemoData && (
+            <div className="dashboard-demo-banner">
+              <span>Showing demo data —</span>
+              <Link to="/upload">Upload your file</Link>
+              <span>to see your own analytics</span>
+            </div>
+          )}
           <div className="dashboard-header">
             <h1 className="dashboard-title">Dashboard</h1>
             <div className="dashboard-actions">
@@ -180,12 +187,6 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
-          
-          {!kpiData && (
-            <p className="dashboard-no-data">
-              No data yet — <Link to="/upload">upload a file</Link> on the Upload page to see your KPIs.
-            </p>
-          )}
           
           <div className="dashboard-metrics">
             <DashboardMetrics />

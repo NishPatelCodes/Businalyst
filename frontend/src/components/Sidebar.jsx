@@ -47,6 +47,16 @@ const Sidebar = () => {
             <span>Profit</span>
           </Link>
 
+          <Link to="/revenue-insights" className={`nav-item ${location.pathname === '/revenue-insights' ? 'active' : ''}`}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M3 8H17" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M6 11H6.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M10 11H10.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <span>Revenue</span>
+          </Link>
+
           <a href="/orders" className="nav-item">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="3" y="4" width="14" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>

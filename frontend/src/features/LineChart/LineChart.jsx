@@ -241,13 +241,14 @@ const getDataPointsForRange = (allData, range) => {
   return allData
 }
 
-const LineChart = ({ hideTabs = false }) => {
+const LineChart = ({ hideTabs = false, metric }) => {
   const { kpiData } = useContext(KpiContext)
   const [hoveredPoint, setHoveredPoint] = useState(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 })
   const [selectedRange] = useState('1Y')
-  const [selectedTab, setSelectedTab] = useState(hideTabs ? 'Profit' : 'Revenue')
+  const initialTab = hideTabs ? (metric === 'revenue' ? 'Revenue' : 'Profit') : 'Revenue'
+  const [selectedTab, setSelectedTab] = useState(initialTab)
   const chartRef = useRef(null)
   const tooltipTimeoutRef = useRef(null)
   const lastMousePositionRef = useRef({ x: 0, y: 0 })

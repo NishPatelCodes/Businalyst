@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useId } from 'react'
 import { KpiContext } from '../../context/KpiContext'
 import './BarChart.css'
 
@@ -14,18 +14,21 @@ const formatAxisValue = (v) => {
   return String(Math.round(v))
 }
 
-const BarChart = () => {
+const BarChart = ({ data: dataProp, title: titleProp }) => {
   const { kpiData } = useContext(KpiContext)
   const [tooltip, setTooltip] = useState(null)
-  const barData = Array.isArray(kpiData?.bar_data) && kpiData.bar_data.length >= 2
-    ? kpiData.bar_data
-    : [
-        { name: 'Item 1', value: 2100 },
-        { name: 'Item 2', value: 3000 },
-        { name: 'Item 3', value: 1800 },
-        { name: 'Item 4', value: 1100 },
-        { name: 'Item 5', value: 2200 },
-      ]
+  const gradientId = useId().replace(/:/g, '-')
+  const barData = Array.isArray(dataProp) && dataProp.length >= 2
+    ? dataProp
+    : Array.isArray(kpiData?.bar_data) && kpiData.bar_data.length >= 2
+      ? kpiData.bar_data
+      : [
+          { name: 'Item 1', value: 2100 },
+          { name: 'Item 2', value: 3000 },
+          { name: 'Item 3', value: 1800 },
+          { name: 'Item 4', value: 1100 },
+          { name: 'Item 5', value: 2200 },
+        ]
   const barColumn = kpiData?.bar_column || 'Item'
 
   const values = barData.map(d => Math.max(0, Number(d.value) || 0))
@@ -50,9 +53,7 @@ const BarChart = () => {
   const barWidth = Math.max(20, (graphWidth / barData.length) - 10)
   const barSpacing = 10
 
-  const chartTitle = kpiData?.bar_data
-    ? `Top by ${barColumn.replace(/_/g, ' ')}`
-    : 'Revenue Summary'
+  const chartTitle = titleProp ?? (kpiData?.bar_data ? `Top by ${barColumn.replace(/_/g, ' ')}` : 'Revenue Summary')
 
   return (
     <div className="orders-list">
@@ -78,7 +79,7 @@ const BarChart = () => {
         )}
         <svg className="orders-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="xMidYMid meet">
           <defs>
-            <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#34c759" stopOpacity="0.9" />
               <stop offset="100%" stopColor="#34c759" stopOpacity="0.5" />
             </linearGradient>
@@ -158,7 +159,7 @@ const BarChart = () => {
               <path
                 key={index}
                 d={path}
-                fill="url(#barGradient)"
+                fill={`url(#${gradientId})`}
                 className="bar-segment"
                 onMouseEnter={(e) => setTooltip({
                   name: item.name,

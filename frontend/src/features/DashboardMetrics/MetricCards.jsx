@@ -7,7 +7,7 @@ const formatCurrency = (n) =>
   Number(n).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 
 const MetricCards = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, isDemoData } = useContext(KpiContext)
   const navigate = useNavigate()
 
   const profitIcon = (
@@ -53,7 +53,7 @@ const MetricCards = () => {
       target: kpiData?.profit_sum ? Math.ceil(kpiData.profit_sum * 1.2) : 30000,
       change: '—',
       changeType: 'positive',
-      comparison: kpiData ? 'From your uploaded file' : 'Upload a file to see data',
+      comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: profitIcon,
     },
     {
@@ -63,7 +63,7 @@ const MetricCards = () => {
       target: kpiData?.revenue_sum ? Math.ceil(kpiData.revenue_sum * 1.1) : 200000,
       change: '—',
       changeType: 'positive',
-      comparison: kpiData ? 'From your uploaded file' : 'Upload a file to see data',
+      comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: revenueIcon,
     },
     {
@@ -73,7 +73,7 @@ const MetricCards = () => {
       target: kpiData?.orders_sum ? Math.ceil(kpiData.orders_sum * 1.2) : 1500,
       change: '—',
       changeType: 'positive',
-      comparison: kpiData ? 'From your uploaded file' : 'Upload a file to see data',
+      comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: ordersIcon,
     },
     {
@@ -83,7 +83,7 @@ const MetricCards = () => {
       target: kpiData?.expense_sum ? Math.ceil(kpiData.expense_sum * 1.2) : 50000,
       change: '—',
       changeType: 'positive',
-      comparison: kpiData ? 'From your uploaded file' : 'Upload a file to see data',
+      comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: conversionIcon,
     },
     {
@@ -93,7 +93,7 @@ const MetricCards = () => {
       target: kpiData?.customers_sum ? Math.ceil(kpiData.customers_sum * 1.2) : 10000,
       change: '—',
       changeType: 'positive',
-      comparison: kpiData ? 'From your uploaded file (row count)' : 'Upload a file to see data',
+      comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file (row count)') : 'Upload a file to see data',
       icon: customersIcon,
     },
   ]
@@ -113,13 +113,26 @@ const MetricCards = () => {
     <>
       {kpis.map((kpi, index) => {
         const progress = calculateProgress(kpi.current, kpi.target)
-        const isProfitCard = index === 0 // Profit is the first card
+        const isProfitCard = index === 0
+        const isRevenueCard = index === 1
         return (
           <div key={index} className="kpi-card">
             {isProfitCard && (
               <button 
                 className="kpi-more-insights-button"
                 onClick={() => navigate('/profit-insights')}
+                title="More Insights"
+              >
+                More Insights
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            )}
+            {isRevenueCard && (
+              <button 
+                className="kpi-more-insights-button"
+                onClick={() => navigate('/revenue-insights')}
                 title="More Insights"
               >
                 More Insights
