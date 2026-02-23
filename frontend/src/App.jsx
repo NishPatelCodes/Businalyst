@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard'
 import Upload from './pages/Upload'
 import ProfitInsights from './pages/ProfitInsights'
 import RevenueInsights from './pages/RevenueInsights'
+import Orders from './pages/Orders'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/upload" element={<Upload />} />
         <Route path="/profit-insights" element={<ProfitInsights />} />
         <Route path="/revenue-insights" element={<RevenueInsights />} />
+        <Route path="/orders" element={<Orders />} />
         </Routes>
       </Router>
     </KpiProvider>

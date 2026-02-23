@@ -52,6 +52,8 @@ const Upload = () => {
         orders_data: data.orders_data,
         top5_profit: data.top5_profit,
         top5_columns: data.top5_columns,
+        orders_list: data.orders_list,
+        orders_columns: data.orders_columns,
         pie_column: data.pie_column,
         pie_data: data.pie_data,
         map_column: data.map_column,
