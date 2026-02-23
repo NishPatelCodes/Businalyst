@@ -71,11 +71,12 @@
 }
 
 .rbc-bubble {
-  transition: opacity 0.2s;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
 }
 
-.rbc-bubble:hover {
-  opacity: 0.9;
+.rbc-chart g:hover .rbc-bubble {
+  opacity: 1;
 }
 
 .rbc-bubble-label {

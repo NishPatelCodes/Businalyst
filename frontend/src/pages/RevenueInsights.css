@@ -20,13 +20,27 @@
     0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
+/* ── Typography: same font as goal section (Inter, bold titles) ── */
+.ri-page {
+  --ri-font: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+}
+
 /* ── Shell ──────────────────────────────────────────────────── */
 .ri-page {
   display: flex;
   min-height: 100vh;
   background: var(--ri-bg-page);
-  font-family: var(--font-family);
+  font-family: var(--ri-font);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Force same font everywhere on the page (goal-section look) */
+.ri-page *,
+.ri-page *::before,
+.ri-page *::after {
+  font-family: inherit;
 }
 
 .ri-shell {

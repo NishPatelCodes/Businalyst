@@ -2,11 +2,12 @@ import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import DateRangePicker from '../components/DateRangePicker'
-import DonutChart from '../features/DonutChart'
 import RevenueComparisonBarChart from '../features/RevenueComparisonBarChart/RevenueComparisonBarChart'
+import RevenueByPaymentMethod from '../features/RevenueByPaymentMethod/RevenueByPaymentMethod'
 import RevenueByCategoryBubble from '../features/RevenueByCategoryBubble/RevenueByCategoryBubble'
 import RevenueLineChart from '../features/RevenueLineChart/RevenueLineChart'
 import TopProfitTable from '../components/TopProfitTable'
+import GoalsCard from '../features/GoalsCard/GoalsCard'
 import { KpiContext } from '../context/KpiContext'
 import './RevenueInsights.css'
 
@@ -64,21 +65,6 @@ const RevenueInsights = () => {
   }, [kpiData?.map_data])
 
   const maxRegion = Math.max(...regionBars.map((b) => b.value), 1)
-  const insights = useMemo(() => {
-    const pie = kpiData?.pie_data
-    const map = kpiData?.map_data
-    const topCat = pie && pie.length > 0 ? pie[0] : null
-    const topReg = map && map.length > 0 ? map[0] : null
-    const items = []
-    if (topCat?.name) {
-      items.push(`Focus on ${topCat.name} — ${topCat.value}% of revenue. Consider promotions to grow share.`)
-    }
-    if (topReg?.name) {
-      items.push(`${topReg.name} is your top region. Explore similar markets.`)
-    }
-    items.push(`AOV is ${fmtCur(aov)}. Test bundling or upsells to increase order value.`)
-    return items
-  }, [kpiData?.pie_data, kpiData?.map_data, aov])
 
   return (
     <div className="ri-page">
@@ -152,24 +138,13 @@ const RevenueInsights = () => {
               <RevenueComparisonBarChart />
               <RevenueByCategoryBubble />
               <div className="ri-card ri-insights-card">
-                <h3 className="ri-card-title">Actionable Insights</h3>
-                <ul className="ri-drivers-list">
-                  {insights.map((item, i) => (
-                    <li key={i}>
-                      <span className="ri-driver-dot" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                <GoalsCard />
               </div>
             </div>
 
-            {/* Mid row: Revenue by Category + Revenue by Region */}
+            {/* Mid row: Revenue by Payment Method + Revenue by Region */}
             <div className="ri-mid-row">
-                <div className="ri-card ri-breakdown-card">
-                  <h3 className="ri-card-title">Revenue by Category</h3>
-                  <DonutChart />
-                </div>
+                <RevenueByPaymentMethod />
 
                 <div className="ri-card ri-region-card">
                   <h3 className="ri-card-title">Revenue by Region</h3>
