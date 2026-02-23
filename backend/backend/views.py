@@ -128,6 +128,32 @@ def table_component(df):
     return {"top5_profit": rows, "top5_columns": columns}
 
 
+ORDERS_LIST_MAX = 100
+
+
+def orders_list_component(df):
+    """
+    Return a list of order rows (up to ORDERS_LIST_MAX) for the Orders page.
+    Sort by date descending if a date column exists, else by profit descending.
+    """
+    df = df.copy()
+    columns = list(df.columns)
+    date_col = _find_date_col(df)
+    if date_col and date_col in df.columns:
+        df["_sort_date"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
+        df = df.dropna(subset=["_sort_date"]).sort_values(by="_sort_date", ascending=False)
+    elif "profit" in df.columns:
+        df["profit"] = pd.to_numeric(df["profit"], errors="coerce")
+        df = df.dropna(subset=["profit"]).sort_values(by="profit", ascending=False)
+    else:
+        df = df.head(ORDERS_LIST_MAX)
+    df = df.head(ORDERS_LIST_MAX).reset_index(drop=True)
+    rows = []
+    for _, row in df.iterrows():
+        rows.append({col: _to_json_value(row[col]) for col in columns})
+    return {"orders_list": rows, "orders_columns": columns}
+
+
 # Columns we treat as numeric / not categorical for pie
 _NUMERIC_OR_DATE_LIKE = {"profit", "revenue", "orders", "expense", "order date", "date"}
 
@@ -453,6 +479,12 @@ def upload_dataset(request):
             table = table_component(df)
             payload["top5_profit"] = table["top5_profit"]
             payload["top5_columns"] = table["top5_columns"]
+        except Exception:
+            pass
+        try:
+            orders = orders_list_component(df)
+            payload["orders_list"] = orders["orders_list"]
+            payload["orders_columns"] = orders["orders_columns"]
         except Exception:
             pass
         try:
