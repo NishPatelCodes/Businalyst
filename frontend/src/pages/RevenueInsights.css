@@ -237,27 +237,25 @@
   flex-shrink: 0;
 }
 
-/* ── Body: 2-column layout ───────────────────────────────────── */
-.ri-body {
-  display: flex;
-  gap: 18px;
-  align-items: flex-start;
+/* ── Full-width chart (above grid) ─────────────────────────────── */
+.ri-chart-full {
+  width: 100%;
+  margin-bottom: 22px;
 }
 
-.ri-col-main {
-  flex: 1;
-  min-width: 0;
+/* ── Grid below chart ─────────────────────────────────────────── */
+.ri-grid-below {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  width: 100%;
 }
 
-.ri-col-right {
-  width: 300px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.ri-cards-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  width: 100%;
 }
 
 /* ── Cards (Apple-style) ─────────────────────────────────────── */
@@ -293,7 +291,7 @@
   letter-spacing: -0.01em;
 }
 
-/* ── Revenue Trend Hero ──────────────────────────────────────── */
+/* ── Revenue Trend (legacy, kept for card styles) ──────────────── */
 .ri-trend-card {
   padding: 20px 22px;
 }
@@ -545,8 +543,8 @@
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 1200px) {
-  .ri-col-right {
-    width: 260px;
+  .ri-cards-row {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -557,11 +555,8 @@
   .ri-topnav {
     left: 0;
   }
-  .ri-body {
-    flex-direction: column;
-  }
-  .ri-col-right {
-    width: 100%;
+  .ri-cards-row {
+    grid-template-columns: 1fr;
   }
   .ri-mid-row {
     grid-template-columns: 1fr;

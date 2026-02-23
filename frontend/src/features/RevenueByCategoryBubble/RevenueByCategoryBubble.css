@@ -1,0 +1,158 @@
+/* Revenue by Category – bubble chart card */
+.rbc-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px 20px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  width: 100%;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rbc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.rbc-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+}
+
+.rbc-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.rbc-menu-btn:hover {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.rbc-chart {
+  width: 100%;
+  flex: 1;
+  min-height: 220px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rbc-svg {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  max-height: 260px;
+}
+
+.rbc-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rbc-bubble {
+  transition: opacity 0.2s;
+}
+
+.rbc-bubble:hover {
+  opacity: 0.9;
+}
+
+.rbc-bubble-label {
+  fill: #ffffff;
+  font-size: 7px;
+  font-weight: 600;
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+@media (min-width: 360px) {
+  .rbc-bubble-label {
+    font-size: 8px;
+  }
+}
+
+.rbc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 20px;
+  width: 100%;
+}
+
+.rbc-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #000000;
+}
+
+.rbc-legend-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.rbc-legend-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.rbc-legend-name {
+  color: #374151;
+}
+
+/* Hover tooltip */
+.rbc-tooltip {
+  position: fixed;
+  transform: translate(-50%, -100%);
+  margin-top: -10px;
+  padding: 10px 14px;
+  background: #1f2937;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 100;
+  white-space: nowrap;
+}
+
+.rbc-tooltip-name {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.rbc-tooltip-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.rbc-tooltip-pct {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-top: 2px;
+}

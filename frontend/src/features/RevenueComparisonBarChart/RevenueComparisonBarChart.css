@@ -1,0 +1,175 @@
+/* Revenue comparison – double bar chart card (Activity statistics style) */
+.rc-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px 20px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.rc-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  text-align: center;
+}
+
+.rc-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+}
+
+.rc-date {
+  font-size: 12px;
+  color: #000000;
+}
+
+.rc-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.rc-dropdown-wrap {
+  position: relative;
+}
+
+.rc-time-btn,
+.rc-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #000000;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.rc-time-btn:hover,
+.rc-menu-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.rc-menu-btn-text {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rc-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 140px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+  z-index: 50;
+}
+
+.rc-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #000000;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.rc-dropdown-item:hover {
+  background: #f3f4f6;
+}
+
+.rc-dropdown-item.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.rc-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.rc-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #000000;
+}
+
+.rc-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.rc-legend-dot-light {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.rc-chart-wrap {
+  width: 100%;
+  min-height: 260px;
+  display: flex;
+  justify-content: center;
+}
+
+.rc-tooltip {
+  background: #374151;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.rc-tooltip-label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.rc-tooltip-row {
+  margin-top: 2px;
+}

@@ -1,10 +1,12 @@
 import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
-import LineChart from '../features/LineChart'
 import DateRangePicker from '../components/DateRangePicker'
 import DonutChart from '../features/DonutChart'
-import TopRevenueMonthsBarChart from '../features/BarChart/TopRevenueMonthsBarChart'
+import RevenueComparisonBarChart from '../features/RevenueComparisonBarChart/RevenueComparisonBarChart'
+import RevenueByCategoryBubble from '../features/RevenueByCategoryBubble/RevenueByCategoryBubble'
+import RevenueLineChart from '../features/RevenueLineChart/RevenueLineChart'
+import TopProfitTable from '../components/TopProfitTable'
 import { KpiContext } from '../context/KpiContext'
 import './RevenueInsights.css'
 
@@ -43,24 +45,6 @@ const RevenueInsights = () => {
     return rev / ord
   }, [kpiData?.revenue_sum, kpiData?.orders_sum])
 
-  const topProducts = useMemo(() => {
-    const raw = kpiData?.revenue_bar_data
-    if (!raw || !Array.isArray(raw) || raw.length === 0) {
-      return [
-        { name: 'Tablet Stand', revenue: 24500 },
-        { name: 'Tablet Case', revenue: 23800 },
-        { name: 'Bluetooth Adapter', revenue: 22900 },
-        { name: 'USB-C Cable', revenue: 22100 },
-        { name: 'USB-C Adapter', revenue: 20900 },
-      ]
-    }
-    return raw.slice(0, 8).map((d) => ({
-      name: d.name ?? '—',
-      revenue: Number(d.value) ?? 0,
-    }))
-  }, [kpiData?.revenue_bar_data])
-
-  const totalRevenue = topProducts.reduce((s, p) => s + p.revenue, 0) || 1
   const regionBars = useMemo(() => {
     const raw = kpiData?.map_data
     if (!raw || !Array.isArray(raw) || raw.length === 0) {
@@ -144,62 +128,44 @@ const RevenueInsights = () => {
         </header>
 
         <div className="ri-content">
-          <div className="ri-page-header">
-            <h1 className="ri-page-title">Revenue Overview</h1>
-            <div className="ri-page-actions">
-              <div style={{ position: 'relative' }}>
-                <button className="ri-action-btn" onClick={() => setIsDatePickerOpen((v) => !v)}>
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M2 6H14" stroke="currentColor" strokeWidth="1.5" />
-                    <circle cx="5" cy="9" r=".5" fill="currentColor" />
-                    <circle cx="8" cy="9" r=".5" fill="currentColor" />
-                    <circle cx="11" cy="9" r=".5" fill="currentColor" />
-                  </svg>
-                  <span>{dateLabel}</span>
-                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-                <DateRangePicker
-                  isOpen={isDatePickerOpen}
-                  onClose={() => setIsDatePickerOpen(false)}
-                  onApply={(r) => setDateRange(r)}
-                  initialRange={dateRange}
-                />
-              </div>
+          {/* Full-width revenue line chart (match reference image) */}
+          <div className="ri-chart-full">
+            <RevenueLineChart
+              dateLabel={dateLabel}
+              onOpenDatePicker={() => setIsDatePickerOpen(true)}
+              totalRevenue={kpiData?.revenue_sum}
+              changePercent={15}
+            />
+            <div style={{ position: 'relative' }}>
+              <DateRangePicker
+                isOpen={isDatePickerOpen}
+                onClose={() => setIsDatePickerOpen(false)}
+                onApply={(r) => setDateRange(r)}
+                initialRange={dateRange}
+              />
             </div>
           </div>
 
-          <div className="ri-body">
-            <div className="ri-col-main">
-              {/* Revenue Hero Card */}
-              <div className="ri-card ri-trend-card">
-                <div className="ri-trend-header">
-                  <h2 className="ri-card-title">Revenue Trend</h2>
-                </div>
-                <div className="ri-trend-meta">
-                  <span className="ri-trend-date">{dateLabel}</span>
-                  <div className="ri-trend-value">
-                    <span className="ri-trend-amount">
-                      {kpiData ? fmtCur(kpiData.revenue_sum) : '$498,924'}
-                    </span>
-                    <span className="ri-trend-badge">
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                        <path d="M3 9l4-4 3 3 4-4" stroke={ACCENT_SUCCESS} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M12 5h2v2" stroke={ACCENT_SUCCESS} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      +12%
-                    </span>
-                  </div>
-                </div>
-                <div className="ri-trend-chart-area">
-                  <LineChart hideTabs metric="revenue" />
-                </div>
+          {/* Grid below chart: former right panel + main content */}
+          <div className="ri-grid-below">
+            <div className="ri-cards-row">
+              <RevenueComparisonBarChart />
+              <RevenueByCategoryBubble />
+              <div className="ri-card ri-insights-card">
+                <h3 className="ri-card-title">Actionable Insights</h3>
+                <ul className="ri-drivers-list">
+                  {insights.map((item, i) => (
+                    <li key={i}>
+                      <span className="ri-driver-dot" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
+            </div>
 
-              {/* Mid row: Revenue by Category + Revenue by Region */}
-              <div className="ri-mid-row">
+            {/* Mid row: Revenue by Category + Revenue by Region */}
+            <div className="ri-mid-row">
                 <div className="ri-card ri-breakdown-card">
                   <h3 className="ri-card-title">Revenue by Category</h3>
                   <DonutChart />
@@ -227,80 +193,12 @@ const RevenueInsights = () => {
                       )
                     })}
                   </div>
-                </div>
-              </div>
-
-              {/* Top Products by Revenue */}
-              <div className="ri-card ri-table-card">
-                <div className="ri-table-header">
-                  <h3 className="ri-card-title">Top Products by Revenue</h3>
-                </div>
-                <table className="ri-table">
-                  <thead>
-                    <tr>
-                      <th>Product</th>
-                      <th>Revenue</th>
-                      <th>Share</th>
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topProducts.map((p, i) => {
-                      const share = totalRevenue > 0 ? Math.round((p.revenue / totalRevenue) * 100) : 0
-                      return (
-                        <tr key={i}>
-                          <td>
-                            <div className="ri-product-cell">
-                              <span className="ri-product-icon">{String.fromCharCode(65 + (i % 26))}</span>
-                              {p.name}
-                            </div>
-                          </td>
-                          <td>
-                            <b>{fmtCur(p.revenue)}</b>
-                          </td>
-                          <td>{share}%</td>
-                          <td>
-                            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                              <path d="M4 14l4-4 3 3 5-6" stroke={ACCENT} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
               </div>
             </div>
 
-            {/* Right Panel */}
-            <div className="ri-col-right">
-              <div className="ri-card ri-drivers-card">
-                <h3 className="ri-card-title">Top 3 Revenue Months</h3>
-                <p className="ri-insights-description">
-                  Study seasonal peaks to plan inventory and campaigns for stronger performance.
-                </p>
-                <div className="ri-bar-chart-wrapper">
-                  <TopRevenueMonthsBarChart />
-                </div>
-              </div>
-
-              <div className="ri-card ri-avg-card">
-                <h3 className="ri-card-title">Average Order Value</h3>
-                <div className="ri-avg-value">{fmtCur(aov)}</div>
-                <p className="ri-avg-hint">Revenue ÷ Orders in selected period</p>
-              </div>
-
-              <div className="ri-card ri-insights-card">
-                <h3 className="ri-card-title">Actionable Insights</h3>
-                <ul className="ri-drivers-list">
-                  {insights.map((item, i) => (
-                    <li key={i}>
-                      <span className="ri-driver-dot" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {/* Same table as Dashboard: Top 5 by Profit */}
+            <div className="ri-card ri-table-card">
+              <TopProfitTable />
             </div>
           </div>
         </div>
