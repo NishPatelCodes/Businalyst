@@ -114,25 +114,12 @@ const MetricCards = () => {
       {kpis.map((kpi, index) => {
         const progress = calculateProgress(kpi.current, kpi.target)
         const isProfitCard = index === 0
-        const isRevenueCard = index === 1
         return (
           <div key={index} className="kpi-card">
             {isProfitCard && (
               <button 
                 className="kpi-more-insights-button"
                 onClick={() => navigate('/profit-insights')}
-                title="More Insights"
-              >
-                More Insights
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            )}
-            {isRevenueCard && (
-              <button 
-                className="kpi-more-insights-button"
-                onClick={() => navigate('/revenue-insights')}
                 title="More Insights"
               >
                 More Insights
