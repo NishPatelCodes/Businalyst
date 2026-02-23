@@ -128,18 +128,24 @@
 
 .chart-axis-label {
   font-size: 11px;
-  fill: var(--text-secondary);
-  font-weight: 500;
+  fill: #000000;
+  font-weight: 700;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
 }
 
-.chart-y-axis .chart-axis-label { opacity: 0.85; }
-.chart-x-axis .chart-axis-label { opacity: 0.75; }
+.chart-y-axis .chart-axis-label { opacity: 1.0; }
+.chart-x-axis .chart-axis-label { opacity: 1.0; }
 
 .chart-baseline {
   stroke: var(--color-neutral-300);
   stroke-dasharray: 6 4;
+}
+
+.chart-y-axis-line {
+  stroke: #e5e7eb;
+  stroke-width: 1;
+  pointer-events: none;
 }
 
 .chart-boundary {

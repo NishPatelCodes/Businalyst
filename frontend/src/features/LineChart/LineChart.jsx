@@ -615,8 +615,32 @@ const LineChart = ({ hideTabs = false, metric }) => {
 
   const getSharpPath = () => {
     if (points.length < 2) return ''
+    if (points.length === 2) {
+      return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`
+    }
+    
     let path = `M ${points[0].x} ${points[0].y} `
-    for (let i = 1; i < points.length; i++) path += `L ${points[i].x} ${points[i].y} `
+    
+    // Add subtle smoothing with small cubic bezier curves
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i]
+      const p2 = points[i + 1]
+      
+      // Get adjacent points for smooth corner calculation
+      const p0 = i > 0 ? points[i - 1] : p1
+      const p3 = i < points.length - 2 ? points[i + 2] : p2
+      
+      // Small tension value for subtle smoothing (0.15 = very subtle)
+      const t = 0.15
+      const cp1x = p1.x + (p2.x - p0.x) * t
+      const cp1y = p1.y + (p2.y - p0.y) * t
+      const cp2x = p2.x - (p3.x - p1.x) * t
+      const cp2y = p2.y - (p3.y - p1.y) * t
+      
+      // Use cubic Bezier for subtle smooth edges
+      path += `C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y} `
+    }
+    
     return path
   }
 
@@ -761,17 +785,17 @@ const LineChart = ({ hideTabs = false, metric }) => {
               )
             })}
           </g>
-          {/* Boundary lines */}
+          {/* Y-axis vertical line */}
           <line 
             x1={padding.left} 
             y1={padding.top} 
             x2={padding.left} 
             y2={baselineY} 
-            className="chart-boundary" 
-            strokeWidth="0.5" 
-            stroke="rgba(0,0,0,0.05)"
-            strokeDasharray="2,2"
+            className="chart-y-axis-line" 
+            strokeWidth="1" 
+            stroke="#e5e7eb"
           />
+          {/* Boundary lines */}
           <line 
             x1={padding.left} 
             y1={baselineY} 

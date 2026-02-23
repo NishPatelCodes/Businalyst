@@ -6,6 +6,7 @@ import DateRangePicker from '../components/DateRangePicker'
 import ProfitBreakdownChart from '../features/DonutChart/ProfitBreakdownChart'
 import TopMonthsBarChart from '../features/BarChart/TopMonthsBarChart'
 import { KpiContext } from '../context/KpiContext'
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 import './ProfitInsights.css'
 
 /* ── Profit Breakdown stacked bar ─────────────────────────────── */
@@ -25,20 +26,10 @@ const BREAKDOWN_ROWS = [
 
 /* ── Right-panel: Most Profitable Products vertical bar chart ─── */
 const CHANNEL_BARS = [
-  { label: 'Instagram',   value: 85000,  color: '#60a5fa' },
-  { label: 'Website',     value: 126000, color: '#2563eb' },
-  { label: 'Offline',     value: 50000,  color: '#60a5fa' },
-  { label: 'Marketplace', value: 32000,  color: '#93c5fd' },
-]
-
-/* ── Right-panel: Loss Making Products vertical bar chart ──────── */
-const LOSS_BARS = [
-  { label: 'Sun', value: 3000, color: '#2563eb' },
-  { label: 'Tue', value: 1800, color: '#2563eb' },
-  { label: 'Wed', value: 1600, color: '#22d3ee' },
-  { label: 'Thu', value: 1200, color: '#22d3ee' },
-  { label: 'Fri', value: 800,  color: '#22d3ee' },
-  { label: 'Sxt', value: 4443, color: '#06b6d4' },
+  { label: 'Instagram',   value: 85000,  color: '#3b82f6' },
+  { label: 'Website',     value: 126000, color: '#8b5cf6' },
+  { label: 'Offline',     value: 50000,  color: '#f59e0b' },
+  { label: 'Marketplace', value: 32000,  color: '#34d399' },
 ]
 
 /* ── Most Profitable Products table (left col) ───────────────────*/
@@ -46,11 +37,6 @@ const TOP_PRODUCTS = [
   { icon: '🔷', name: 'Widget A', profit: 128962, margin: 42, orders: 1387 },
   { icon: '⚙️',  name: 'Widget B', profit: 99573,  margin: 37, orders: 1165 },
   { icon: '🟦', name: 'Widget C', profit: 52801,  margin: 34, orders: 936  },
-]
-
-const LOSS_PRODUCTS = [
-  { name: 'Widget D', loss: 2586 },
-  { name: 'Widget E', loss: 1743 },
 ]
 
 const ProfitInsights = () => {
@@ -83,9 +69,6 @@ const ProfitInsights = () => {
 
   /* ── bar chart helpers ── */
   const maxChannel = Math.max(...CHANNEL_BARS.map(b => b.value))
-  const maxLoss    = Math.max(...LOSS_BARS.map(b => b.value))
-
-  const fmtK = (n) => n >= 1000 ? `$${(n / 1000).toFixed(0)}k` : `$${n}`
 
   // Calculate top 3 profitable months
   const top3Months = useMemo(() => {
@@ -137,6 +120,21 @@ const ProfitInsights = () => {
   }, [kpiData?.date_data, kpiData?.profit_data])
 
   const maxMonthProfit = Math.max(...top3Months.map(m => m.profit), 1)
+  
+  // Calculate percentage increase for profit trend
+  const profitPercentageIncrease = useMemo(() => {
+    if (!kpiData?.profit_data || kpiData.profit_data.length < 2) {
+      return null
+    }
+    const profits = kpiData.profit_data.map(p => Number(p) || 0)
+    const firstValue = profits[0] || 0
+    const lastValue = profits[profits.length - 1] || 0
+    
+    if (firstValue === 0) return null
+    
+    const change = ((lastValue - firstValue) / firstValue) * 100
+    return change
+  }, [kpiData?.profit_data])
   
   // Calculate Y-axis ticks with nice round numbers
   const yAxisTicks = useMemo(() => {
@@ -256,19 +254,17 @@ const ProfitInsights = () => {
                   <h2 className="pi-card-title">Profit Trend</h2>
                 </div>
 
-                {/* date sub-label + big value */}
+                {/* big value */}
                 <div className="pi-trend-meta">
-                  <span className="pi-trend-date">{dateLabel}</span>
                   <div className="pi-trend-value">
                     <span className="pi-trend-amount">
                       {kpiData ? fmtCur(kpiData.profit_sum) : '$367,857'}
                     </span>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 9l4-4 3 3 4-4" stroke="#2563eb" strokeWidth="2"
-                            strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M12 5h2v2" stroke="#2563eb" strokeWidth="2"
-                            strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                    {profitPercentageIncrease !== null && (
+                      <span className="pi-trend-percentage" style={{ color: '#10b981' }}>
+                        {profitPercentageIncrease >= 0 ? '+' : ''}{profitPercentageIncrease.toFixed(1)}%
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -278,35 +274,94 @@ const ProfitInsights = () => {
                 </div>
               </div>
 
-              {/* ┌ Mid row: Profit Breakdown + Profit Drivers ────────────── */}
+              {/* ┌ Profit Breakdown ────────────── */}
               <div className="pi-mid-row">
-
                 {/* Profit Breakdown */}
                 <div className="pi-card pi-breakdown-card">
                   <h3 className="pi-card-title">Profit Breakdown</h3>
                   <ProfitBreakdownChart />
-                </div>
-
-                {/* Profit Drivers (middle col duplicate) */}
-                <div className="pi-card pi-drivers-sm-card">
-                  <h3 className="pi-card-title">Profit Drivers</h3>
-                  <ul className="pi-drivers-list">
-                    <li><span className="pi-driver-dot blue"/><b>Highest cost:</b> <em>Ad Spend</em></li>
-                    <li><span className="pi-driver-dot blue"/><b>Biggest booster:</b> <em>Reenue from A</em></li>
-                    <li><span className="pi-driver-dot blue"/><b>Lowest profit day:</b> <em>Feb 1</em></li>
-                    <li><span className="pi-driver-dot blue"/>Returns caused a <b>$6.5k loss</b> during this period</li>
-                  </ul>
-
-                  <div className="pi-divider"/>
-                  <h3 className="pi-card-title" style={{ marginTop: 14 }}>Actionable Insights</h3>
-                  <ul className="pi-drivers-list">
-                    <li><span className="pi-driver-dot blue"/>
-                      <b>Consider</b> pausing ads on Platform C.
-                    </li>
-                    <li><span className="pi-driver-dot blue"/>
-                      <b>Reduce:</b> Shipping discounts to Platform D
-                    </li>
-                  </ul>
+                  
+                  {/* PROs and CONs Section */}
+                  <div className="pi-pros-cons-section">
+                    <div className="pi-pros-cons-column">
+                      <h4 className="pi-pros-cons-title pi-pros-title">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M3 8L6 11L13 4" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        PROs
+                      </h4>
+                      <ul className="pi-pros-cons-list">
+                        {(() => {
+                          const pros = []
+                          const revenueSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('revenue'))
+                          const profitSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('profit'))
+                          const costSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('cost'))
+                          
+                          if (revenueSegment && revenueSegment.pct > 50) {
+                            pros.push(`Strong revenue generation (${revenueSegment.pct}% of total)`)
+                          }
+                          if (profitSegment && profitSegment.pct >= 8) {
+                            pros.push(`Healthy profit margin at ${profitSegment.pct}%`)
+                          }
+                          if (costSegment && costSegment.pct < 20) {
+                            pros.push(`Cost management is efficient (${costSegment.pct}%)`)
+                          }
+                          if (kpiData?.profit_sum && kpiData.profit_sum > 300000) {
+                            pros.push(`Total profit exceeds $300k threshold`)
+                          }
+                          if (pros.length === 0) {
+                            pros.push('Revenue streams are diversified')
+                            pros.push('Breakdown shows balanced allocation')
+                          }
+                          return pros.map((pro, i) => (
+                            <li key={i} className="pi-pros-item">
+                              <span className="pi-pros-cons-icon">✓</span>
+                              <span>{pro}</span>
+                            </li>
+                          ))
+                        })()}
+                      </ul>
+                    </div>
+                    
+                    <div className="pi-pros-cons-divider"></div>
+                    
+                    <div className="pi-pros-cons-column">
+                      <h4 className="pi-pros-cons-title pi-cons-title">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M4 4L12 12M12 4L4 12" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                        CONs
+                      </h4>
+                      <ul className="pi-pros-cons-list">
+                        {(() => {
+                          const cons = []
+                          const adSpendSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('ad spend') || s.label.toLowerCase().includes('adspend'))
+                          const profitSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('profit'))
+                          const shippingSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('shipping'))
+                          
+                          if (adSpendSegment && adSpendSegment.pct > 12) {
+                            cons.push(`Ad spend is high (${adSpendSegment.pct}%) - consider optimization`)
+                          }
+                          if (profitSegment && profitSegment.pct < 10) {
+                            cons.push(`Profit margin below 10% (${profitSegment.pct}%) - needs improvement`)
+                          }
+                          if (shippingSegment && shippingSegment.pct > 12) {
+                            cons.push(`Shipping costs are elevated (${shippingSegment.pct}%)`)
+                          }
+                          if (cons.length === 0) {
+                            cons.push('Monitor cost trends closely')
+                            cons.push('Review discount strategies regularly')
+                          }
+                          return cons.map((con, i) => (
+                            <li key={i} className="pi-cons-item">
+                              <span className="pi-pros-cons-icon">✗</span>
+                              <span>{con}</span>
+                            </li>
+                          ))
+                        })()}
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -386,105 +441,70 @@ const ProfitInsights = () => {
                 </div>
               </div>
 
-              {/* Most Profitable Products – vertical bar chart */}
+              {/* Profit by Categories – donut chart */}
               <div className="pi-card pi-bar-card">
-                <h3 className="pi-card-title">Most Profitable Products</h3>
+                <h3 className="pi-card-title">Profit by Categories</h3>
 
-                <div className="pi-vbar-chart">
-                  {/* y-axis labels */}
-                  <div className="pi-vbar-yaxis">
-                    <span>$126k</span>
-                    <span>$50K</span>
-                    <span>$25K</span>
-                  </div>
-
-                  {/* bars */}
-                  <div className="pi-vbar-bars">
-                    {CHANNEL_BARS.map((b, i) => {
-                      const h = Math.round((b.value / maxChannel) * 120)
-                      return (
-                        <div key={i} className="pi-vbar-col">
-                          <div className="pi-vbar-track">
-                            <div className="pi-vbar" style={{ height: h, background: b.color }}/>
-                          </div>
-                          <span className="pi-vbar-label">{b.label}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Loss Making Products – vertical bar chart */}
-              <div className="pi-card pi-bar-card">
-                <h3 className="pi-card-title">Loss Making Products</h3>
-
-                <div className="pi-vbar-chart">
-                  <div className="pi-vbar-yaxis">
-                    <span>$3k</span>
-                    <span>$1k</span>
-                    <span>$6</span>
-                  </div>
-
-                  <div className="pi-vbar-bars">
-                    {LOSS_BARS.map((b, i) => {
-                      const h = Math.round((b.value / maxLoss) * 120)
-                      const isTop = i === LOSS_BARS.length - 1
-                      return (
-                        <div key={i} className="pi-vbar-col">
-                          <div className="pi-vbar-track">
-                            {isTop && (
-                              <span className="pi-vbar-badge">
-                                {fmtK(b.value)}
-                              </span>
-                            )}
-                            <div className="pi-vbar" style={{ height: h, background: b.color }}/>
-                          </div>
-                          <span className="pi-vbar-label">{b.label}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Actionable Insights */}
-              <div className="pi-card pi-insights-card">
-                <h3 className="pi-card-title">Actionable Insights</h3>
-                <ul className="pi-drivers-list">
-                  <li>
-                    <span className="pi-driver-dot blue-outline"/>
-                    <span><b>Consider</b> pausing ads on Platform C.</span>
-                  </li>
-                  <li>
-                    <span className="pi-driver-dot blue-outline"/>
-                    <span><b>Reduce:</b> Shipping discounts to Platform D</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Loss Heaking Products */}
-              <div className="pi-card pi-loss-table-card">
-                <h3 className="pi-card-title">Loss Heaking Products</h3>
-                <div className="pi-loss-rows">
-                  {LOSS_PRODUCTS.map((p, i) => (
-                    <div key={i} className="pi-loss-row">
-                      <span className="pi-loss-name">{p.name}</span>
-                      <span className="pi-loss-amount">-{fmtCur(p.loss)}</span>
-                      <span className="pi-loss-icons">
-                        {/* red down arrow */}
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M7 3v8M4 8l3 3 3-3" stroke="#dc2626" strokeWidth="1.6"
-                                strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        {/* green up arrow */}
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M7 11V3M4 6l3-3 3 3" stroke="#16a34a" strokeWidth="1.6"
-                                strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
+                <div className="pi-pie-chart-container">
+                  {/* Donut chart with center overlay */}
+                  <div className="pi-donut-wrapper">
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={CHANNEL_BARS}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={88}
+                          innerRadius={62}
+                          dataKey="value"
+                          paddingAngle={5}
+                          strokeWidth={0}
+                        >
+                          {CHANNEL_BARS.map((entry, index) => (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={entry.color}
+                              className="pi-donut-segment"
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value) => `$${value.toLocaleString()}`}
+                          contentStyle={{
+                            borderRadius: 8,
+                            border: '1px solid #e5e7eb',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                            backgroundColor: '#fff',
+                            fontSize: '12px'
+                          }}
+                          labelStyle={{ fontWeight: 600, color: '#111827' }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    {/* Center text */}
+                    <div className="pi-donut-center">
+                      <span className="pi-donut-center-label">Total Profit</span>
+                      <span className="pi-donut-center-value">
+                        ${(CHANNEL_BARS.reduce((s, b) => s + b.value, 0) / 1000).toFixed(0)}k
                       </span>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Custom legend */}
+                  <div className="pi-donut-legend">
+                    {CHANNEL_BARS.map((item, i) => {
+                      const total = CHANNEL_BARS.reduce((s, b) => s + b.value, 0)
+                      const pct = Math.round((item.value / total) * 100)
+                      return (
+                        <div key={i} className="pi-donut-legend-item">
+                          <span className="pi-donut-legend-dot" style={{ background: item.color }} />
+                          <span className="pi-donut-legend-name">{item.label}</span>
+                          <span className="pi-donut-legend-pct">{pct}%</span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
 
