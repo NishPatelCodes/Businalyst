@@ -29,11 +29,13 @@
 .ri-page {
   display: flex;
   min-height: 100vh;
+  max-width: 100vw;
   background: var(--ri-bg-page);
   font-family: var(--ri-font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
 /* Force same font everywhere on the page (goal-section look) */
@@ -45,10 +47,12 @@
 
 .ri-shell {
   flex: 1;
+  min-width: 0; /* allow shrink so content doesn't force horizontal scroll */
   margin-left: var(--layout-sidebar-width);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* ── Top Nav (glassmorphism) ─────────────────────────────────── */
@@ -67,6 +71,7 @@
   left: var(--layout-topnav-offset-left);
   right: 0;
   z-index: 90;
+  min-width: 0;
 }
 
 .ri-breadcrumbs {
@@ -197,6 +202,8 @@
   margin-top: var(--layout-content-margin-top);
   padding: 22px 24px;
   flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   box-sizing: border-box;
 }
@@ -254,6 +261,7 @@
 /* ── Full-width chart (above grid) ─────────────────────────────── */
 .ri-chart-full {
   width: 100%;
+  min-width: 0;
   margin-bottom: 22px;
 }
 
@@ -263,6 +271,7 @@
   flex-direction: column;
   gap: 18px;
   width: 100%;
+  min-width: 0;
 }
 
 .ri-cards-row {
@@ -270,6 +279,13 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
   width: 100%;
+  min-width: 0;
+}
+
+/* Let grid items shrink so charts don't force horizontal scroll */
+.ri-cards-row > *,
+.ri-mid-row > * {
+  min-width: 0;
 }
 
 /* ── Cards (Apple-style) ─────────────────────────────────────── */
@@ -365,8 +381,9 @@
 /* ── Mid row ─────────────────────────────────────────────────── */
 .ri-mid-row {
   display: grid;
-  grid-template-columns: 55% 1fr;
+  grid-template-columns: minmax(0, 55%) minmax(0, 1fr);
   gap: 18px;
+  min-width: 0;
 }
 
 .ri-breakdown-card {
@@ -421,6 +438,8 @@
 /* ── Top Products table ──────────────────────────────────────── */
 .ri-table-card {
   padding: 18px 20px;
+  min-width: 0;
+  overflow-x: auto;
 }
 
 .ri-table-header {
