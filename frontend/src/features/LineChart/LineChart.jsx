@@ -795,6 +795,30 @@ const LineChart = ({ hideTabs = false, metric }) => {
             strokeWidth="1" 
             stroke="#e5e7eb"
           />
+          
+          {/* Grid lines - horizontal dashed lines from each Y-axis value */}
+          <g className="grid-lines">
+            {yAxisTicks.map((value) => {
+              const y = value === 0 
+                ? baselineY
+                : valueToY(value)
+              return (
+                <line
+                  key={value}
+                  x1={padding.left}
+                  y1={y}
+                  x2={padding.left + graphWidth}
+                  y2={y}
+                  stroke="#9ca3af"
+                  strokeWidth="1"
+                  strokeDasharray="4,4"
+                  opacity="0.3"
+                  style={{ pointerEvents: 'none' }}
+                />
+              )
+            })}
+          </g>
+          
           {/* Boundary lines */}
           <line 
             x1={padding.left} 
