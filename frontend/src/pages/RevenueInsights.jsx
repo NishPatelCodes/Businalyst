@@ -8,12 +8,9 @@ import RevenueByCategoryBubble from '../features/RevenueByCategoryBubble/Revenue
 import RevenueLineChart from '../features/RevenueLineChart/RevenueLineChart'
 import TopProfitTable from '../components/TopProfitTable'
 import GoalsCard from '../features/GoalsCard/GoalsCard'
+import RevenueInsightsByColumn from '../features/RevenueInsightsByColumn/RevenueInsightsByColumn'
 import { KpiContext } from '../context/KpiContext'
 import './RevenueInsights.css'
-
-/* Apple blue accent */
-const ACCENT = '#007AFF'
-const ACCENT_SUCCESS = '#34C759'
 
 const RevenueInsights = () => {
   const { kpiData } = useContext(KpiContext)
@@ -45,26 +42,6 @@ const RevenueInsights = () => {
     const ord = kpiData?.orders_sum ?? 1
     return rev / ord
   }, [kpiData?.revenue_sum, kpiData?.orders_sum])
-
-  const regionBars = useMemo(() => {
-    const raw = kpiData?.map_data
-    if (!raw || !Array.isArray(raw) || raw.length === 0) {
-      return [
-        { label: 'East', value: 185420, color: ACCENT },
-        { label: 'West', value: 162840, color: '#5AC8FA' },
-        { label: 'South', value: 91820, color: '#AF52DE' },
-        { label: 'North', value: 58844, color: '#34C759' },
-      ]
-    }
-    const colors = [ACCENT, '#5AC8FA', '#AF52DE', '#34C759', '#FF9500']
-    return raw.slice(0, 5).map((d, i) => ({
-      label: d.name ?? '—',
-      value: Number(d.value) ?? 0,
-      color: colors[i % colors.length],
-    }))
-  }, [kpiData?.map_data])
-
-  const maxRegion = Math.max(...regionBars.map((b) => b.value), 1)
 
   return (
     <div className="ri-page">
@@ -146,29 +123,7 @@ const RevenueInsights = () => {
             <div className="ri-mid-row">
                 <RevenueByPaymentMethod />
 
-                <div className="ri-card ri-region-card">
-                  <h3 className="ri-card-title">Revenue by Region</h3>
-                  <div className="ri-region-bars">
-                    {regionBars.map((b, i) => {
-                      const pct = Math.round((b.value / maxRegion) * 100)
-                      return (
-                        <div key={i} className="ri-region-row">
-                          <span className="ri-region-label">{b.label}</span>
-                          <div className="ri-region-track">
-                            <div
-                              className="ri-region-bar"
-                              style={{
-                                width: `${pct}%`,
-                                background: b.color,
-                              }}
-                            />
-                          </div>
-                          <span className="ri-region-value">{fmtCur(b.value)}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-              </div>
+                <RevenueInsightsByColumn />
             </div>
 
             {/* Same table as Dashboard: Top 5 by Profit */}

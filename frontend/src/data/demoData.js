@@ -206,6 +206,43 @@ export const DEMO_KPI_DATA = {
     { name: 'North', value: 58844, coordinates: [-98.0, 47.5] },
   ],
 
+  // Revenue insights by column (for Revenue page donut: category, region, payment_method, product_name, subcategory)
+  revenue_by_column: {
+    category: [
+      { name: 'Electronics', value: 239500 },
+      { name: 'Office Supplies', value: 185200 },
+      { name: 'Accessories', value: 74224 },
+    ],
+    region: [
+      { name: 'East', value: 185420 },
+      { name: 'West', value: 162840 },
+      { name: 'South', value: 91820 },
+      { name: 'North', value: 58844 },
+    ],
+    payment_method: [
+      { name: 'Credit Card', value: 198200 },
+      { name: 'PayPal', value: 152400 },
+      { name: 'Cash on Delivery', value: 98400 },
+      { name: 'Bank Transfer', value: 49924 },
+    ],
+    product_name: [
+      { name: 'Tablet Stand', value: 24500 },
+      { name: 'Tablet Case', value: 23800 },
+      { name: 'Bluetooth Adapter', value: 22900 },
+      { name: 'USB-C Cable', value: 22100 },
+      { name: 'USB-C Adapter', value: 20900 },
+      { name: 'Wireless Headphones', value: 19400 },
+      { name: 'Bluetooth Speaker', value: 19800 },
+    ],
+    subcategory: [
+      { name: 'Phones & Tablets', value: 125000 },
+      { name: 'Computing', value: 98000 },
+      { name: 'Office Furniture', value: 87200 },
+      { name: 'Supplies', value: 65400 },
+      { name: 'Other', value: 123324 },
+    ],
+  },
+
   // Revenue by product (for Revenue Analytics page)
   revenue_bar_data: [
     { name: 'Tablet Stand', value: 24500 },

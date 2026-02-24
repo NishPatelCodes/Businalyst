@@ -1,0 +1,249 @@
+/* Revenue Insights by Column – Transfer history style card */
+.ribc-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04);
+  min-height: 200px;
+}
+
+.ribc-header {
+  margin-bottom: 16px;
+}
+
+.ribc-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ribc-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.01em;
+}
+
+.ribc-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+.ribc-expand-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.ribc-expand-btn:hover {
+  background: #f9fafb;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+.ribc-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ribc-dropdown-wrap {
+  position: relative;
+}
+
+.ribc-column-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.ribc-column-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.ribc-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.ribc-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: #374151;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: inherit;
+}
+.ribc-dropdown-item:hover {
+  background: #f3f4f6;
+}
+.ribc-dropdown-item--active {
+  font-weight: 600;
+  color: #111827;
+  background: #f3f4f6;
+}
+
+/* Time pills: Week | Month | Year */
+.ribc-time-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ribc-pill {
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.ribc-pill:hover {
+  background: #f9fafb;
+  color: #6b7280;
+}
+.ribc-pill--selected {
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+/* Content: legend left, donut right */
+.ribc-content {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-height: 200px;
+}
+
+.ribc-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ribc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: opacity 0.2s;
+}
+.ribc-legend-item--dimmed {
+  opacity: 0.5;
+}
+.ribc-legend-item--active {
+  font-weight: 600;
+}
+
+.ribc-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.ribc-legend-name {
+  font-size: 13px;
+  color: #374151;
+}
+
+.ribc-chart {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.ribc-donut {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.ribc-segment {
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+.ribc-segment--dimmed {
+  opacity: 0.45;
+}
+.ribc-segment--hover {
+  opacity: 1;
+}
+
+.ribc-segment-label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #fff;
+  pointer-events: none;
+}
+.ribc-segment-label--dark {
+  fill: #111827;
+}
+
+.ribc-donut-center {
+  pointer-events: none;
+}
+.ribc-donut-total {
+  font-size: 14px;
+  font-weight: 700;
+  fill: #111827;
+}
+.ribc-donut-sub {
+  font-size: 11px;
+  fill: #6b7280;
+}
