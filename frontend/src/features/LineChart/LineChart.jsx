@@ -536,7 +536,7 @@ const LineChart = ({ hideTabs = false, metric }) => {
   }, [chartData, dateStrategy])
 
   const chartWidth = 1200
-  const chartHeight = 400
+  const chartHeight = 320
   const padding = { top: 20, right: 30, bottom: 60, left: 50 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom

@@ -251,33 +251,7 @@ const ProfitInsights = () => {
 
           {/* ── Page header ── */}
           <div className="pi-page-header">
-            <h1 className="pi-page-title">Profit Overview</h1>
-
-            <div className="pi-page-actions">
-              {/* Date range */}
-              <div style={{ position: 'relative' }}>
-                <button className="pi-action-btn"
-                        onClick={() => setIsDatePickerOpen(v => !v)}>
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <rect x="2" y="3" width="12" height="11" rx="2"
-                          stroke="currentColor" strokeWidth="1.5"/>
-                    <path d="M2 6H14" stroke="currentColor" strokeWidth="1.5"/>
-                    <circle cx="5" cy="9" r=".5" fill="currentColor"/>
-                    <circle cx="8" cy="9" r=".5" fill="currentColor"/>
-                    <circle cx="11" cy="9" r=".5" fill="currentColor"/>
-                  </svg>
-                  <span>{dateLabel}</span>
-                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5"
-                          strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-                <DateRangePicker isOpen={isDatePickerOpen}
-                                 onClose={() => setIsDatePickerOpen(false)}
-                                 onApply={r => setDateRange(r)}
-                                 initialRange={dateRange} />
-              </div>
-            </div>
+            <h1 className="pi-page-title">Profit Growth</h1>
           </div>
 
           {/* ═══ BODY: 2-column layout ════════════════════════════════════ */}
@@ -292,37 +266,62 @@ const ProfitInsights = () => {
                 <div className="pi-card pi-trend-card">
                   <div className="pi-trend-header">
                     <h2 className="pi-card-title">Profit Trend</h2>
-                    <div className="pi-trend-duration-group">
-                      <button 
-                        className={`pi-trend-duration-btn ${profitTrendDuration === '1M' ? 'active' : ''}`}
-                        onClick={() => setProfitTrendDuration('1M')}
-                      >
-                        1M
-                      </button>
-                      <button 
-                        className={`pi-trend-duration-btn ${profitTrendDuration === '3M' ? 'active' : ''}`}
-                        onClick={() => setProfitTrendDuration('3M')}
-                      >
-                        3M
-                      </button>
-                      <button 
-                        className={`pi-trend-duration-btn ${profitTrendDuration === '6M' ? 'active' : ''}`}
-                        onClick={() => setProfitTrendDuration('6M')}
-                      >
-                        6M
-                      </button>
-                      <button 
-                        className={`pi-trend-duration-btn ${profitTrendDuration === '1Y' ? 'active' : ''}`}
-                        onClick={() => setProfitTrendDuration('1Y')}
-                      >
-                        1Y
-                      </button>
-                      <button 
-                        className={`pi-trend-duration-btn ${profitTrendDuration === 'ALL' ? 'active' : ''}`}
-                        onClick={() => setProfitTrendDuration('ALL')}
-                      >
-                        ALL
-                      </button>
+                    <div className="pi-trend-controls-group">
+                      <div className="pi-trend-duration-group">
+                        <button 
+                          className={`pi-trend-duration-btn ${profitTrendDuration === '1M' ? 'active' : ''}`}
+                          onClick={() => setProfitTrendDuration('1M')}
+                        >
+                          1M
+                        </button>
+                        <button 
+                          className={`pi-trend-duration-btn ${profitTrendDuration === '3M' ? 'active' : ''}`}
+                          onClick={() => setProfitTrendDuration('3M')}
+                        >
+                          3M
+                        </button>
+                        <button 
+                          className={`pi-trend-duration-btn ${profitTrendDuration === '6M' ? 'active' : ''}`}
+                          onClick={() => setProfitTrendDuration('6M')}
+                        >
+                          6M
+                        </button>
+                        <button 
+                          className={`pi-trend-duration-btn ${profitTrendDuration === '1Y' ? 'active' : ''}`}
+                          onClick={() => setProfitTrendDuration('1Y')}
+                        >
+                          1Y
+                        </button>
+                        <button 
+                          className={`pi-trend-duration-btn ${profitTrendDuration === 'ALL' ? 'active' : ''}`}
+                          onClick={() => setProfitTrendDuration('ALL')}
+                        >
+                          ALL
+                        </button>
+                      </div>
+                      {/* Date range */}
+                      <div style={{ position: 'relative' }}>
+                        <button className="pi-action-btn"
+                                onClick={() => setIsDatePickerOpen(v => !v)}>
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                            <rect x="2" y="3" width="12" height="11" rx="2"
+                                  stroke="currentColor" strokeWidth="1.5"/>
+                            <path d="M2 6H14" stroke="currentColor" strokeWidth="1.5"/>
+                            <circle cx="5" cy="9" r=".5" fill="currentColor"/>
+                            <circle cx="8" cy="9" r=".5" fill="currentColor"/>
+                            <circle cx="11" cy="9" r=".5" fill="currentColor"/>
+                          </svg>
+                          <span>{dateLabel}</span>
+                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5"
+                                  strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                        <DateRangePicker isOpen={isDatePickerOpen}
+                                         onClose={() => setIsDatePickerOpen(false)}
+                                         onApply={r => setDateRange(r)}
+                                         initialRange={dateRange} />
+                      </div>
                     </div>
                   </div>
 
@@ -343,6 +342,57 @@ const ProfitInsights = () => {
                   {/* Line chart */}
                   <div className="pi-trend-chart-area">
                     <LineChart hideTabs={true} />
+                  </div>
+                </div>
+
+                {/* Top 3 Profitable Months and Average Profit Per Order */}
+                <div className="pi-top-months-row">
+                  {/* Top 3 Profitable Months */}
+                  <div className="pi-card pi-drivers-card">
+                    <h3 className="pi-card-title">Top 3 Profitable Months</h3>
+                    
+                    <p className="pi-insights-description">
+                      Study why these months made more profits and implement it in all months to grow your Business
+                    </p>
+                    
+                    <div className="pi-bar-chart-wrapper">
+                      <TopMonthsBarChart />
+                    </div>
+                  </div>
+
+                  {/* Average Profit Per Order */}
+                  <div className="pi-card pi-drivers-card">
+                    <h3 className="pi-card-title">Average Profit Per Order</h3>
+                    
+                    <div className="pi-average-profit-content">
+                      <div className="pi-average-profit-main">
+                        <div className="pi-average-profit-value">
+                          {kpiData?.profit_sum && kpiData?.orders_sum
+                            ? fmtCur(kpiData.profit_sum / kpiData.orders_sum)
+                            : '$168'}
+                        </div>
+                        <div className="pi-average-profit-stats">
+                          <div className="pi-stat-item">
+                            <div className="pi-stat-label-row">
+                              <span className="pi-stat-glow-circle"></span>
+                              <span className="pi-stat-label">Total Orders</span>
+                            </div>
+                            <span className="pi-stat-value">
+                              {kpiData?.orders_sum ? kpiData.orders_sum.toLocaleString() : '2,187'}
+                            </span>
+                          </div>
+                          <div className="pi-stat-item">
+                            <div className="pi-stat-label-row">
+                              <span className="pi-stat-glow-circle"></span>
+                              <span className="pi-stat-label">Total Profit</span>
+                            </div>
+                            <span className="pi-stat-value">
+                              {kpiData?.profit_sum ? fmtCur(kpiData.profit_sum) : '$367,857'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -438,93 +488,6 @@ const ProfitInsights = () => {
                 </div>
               </div>
 
-              {/* ── RIGHT PANEL ──────────────────────────────────────────────── */}
-              <div className="pi-col-right">
-
-              {/* Top 3 Profitable Months */}
-              <div className="pi-card pi-drivers-card">
-                <h3 className="pi-card-title">Top 3 Profitable Months</h3>
-                
-                <p className="pi-insights-description">
-                  Study why these months made more profits and implement it in all months to grow your Business
-                </p>
-                
-                <div className="pi-bar-chart-wrapper">
-                  <TopMonthsBarChart />
-                </div>
-              </div>
-
-              {/* Profit by Categories – donut chart */}
-              <div className="pi-card pi-bar-card">
-                <h3 className="pi-card-title">Profit by Categories</h3>
-
-                <div className="pi-pie-chart-container">
-                  {/* Donut chart with center overlay */}
-                  <div className="pi-donut-wrapper">
-                    <ResponsiveContainer width="100%" height={200}>
-                      <PieChart>
-                        <Pie
-                          data={CHANNEL_BARS}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          outerRadius={88}
-                          innerRadius={62}
-                          dataKey="value"
-                          paddingAngle={5}
-                          strokeWidth={0}
-                        >
-                          {CHANNEL_BARS.map((entry, index) => (
-                            <Cell 
-                              key={`cell-${index}`} 
-                              fill={entry.color}
-                              className="pi-donut-segment"
-                              onMouseEnter={() => setHoveredSegmentIndex(index)}
-                              onMouseLeave={() => setHoveredSegmentIndex(null)}
-                              style={{ 
-                                cursor: 'pointer',
-                                transition: 'opacity 0.2s ease',
-                                opacity: hoveredSegmentIndex !== null && hoveredSegmentIndex !== index ? 0.5 : 1
-                              }}
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip content={<CustomPieTooltip />} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    {/* Center text */}
-                    <div className="pi-donut-center">
-                      <span className="pi-donut-center-label">Total Profit</span>
-                      <span className="pi-donut-center-value">
-                        ${(CHANNEL_BARS.reduce((s, b) => s + b.value, 0) / 1000).toFixed(0)}k
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Custom legend */}
-                  <div className="pi-donut-legend">
-                    {CHANNEL_BARS.map((item, i) => {
-                      const total = CHANNEL_BARS.reduce((s, b) => s + b.value, 0)
-                      const pct = Math.round((item.value / total) * 100)
-                      const isHovered = hoveredSegmentIndex === i
-                      return (
-                        <div 
-                          key={i} 
-                          className={`pi-donut-legend-item ${isHovered ? 'pi-donut-legend-item-focused' : ''}`}
-                          onMouseEnter={() => setHoveredSegmentIndex(i)}
-                          onMouseLeave={() => setHoveredSegmentIndex(null)}
-                        >
-                          <span className="pi-donut-legend-dot" style={{ background: item.color }} />
-                          <span className="pi-donut-legend-name">{item.label}</span>
-                          <span className="pi-donut-legend-pct">{pct}%</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              </div>{/* /pi-col-right */}
             </div>{/* /pi-cols-wrapper */}
 
             {/* ┌ Most Profitable Products table ─────────────────────────── */}
@@ -578,6 +541,76 @@ const ProfitInsights = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Profit by Categories – donut chart */}
+            <div className="pi-card pi-bar-card">
+              <h3 className="pi-card-title">Profit by Categories</h3>
+
+              <div className="pi-pie-chart-container">
+                {/* Donut chart with center overlay */}
+                <div className="pi-donut-wrapper">
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={CHANNEL_BARS}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={88}
+                        innerRadius={62}
+                        dataKey="value"
+                        paddingAngle={5}
+                        strokeWidth={0}
+                      >
+                        {CHANNEL_BARS.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={entry.color}
+                            className="pi-donut-segment"
+                            onMouseEnter={() => setHoveredSegmentIndex(index)}
+                            onMouseLeave={() => setHoveredSegmentIndex(null)}
+                            style={{ 
+                              cursor: 'pointer',
+                              transition: 'opacity 0.2s ease',
+                              opacity: hoveredSegmentIndex !== null && hoveredSegmentIndex !== index ? 0.5 : 1
+                            }}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomPieTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  {/* Center text */}
+                  <div className="pi-donut-center">
+                    <span className="pi-donut-center-label">Total Profit</span>
+                    <span className="pi-donut-center-value">
+                      ${(CHANNEL_BARS.reduce((s, b) => s + b.value, 0) / 1000).toFixed(0)}k
+                    </span>
+                  </div>
+                </div>
+
+                {/* Custom legend */}
+                <div className="pi-donut-legend">
+                  {CHANNEL_BARS.map((item, i) => {
+                    const total = CHANNEL_BARS.reduce((s, b) => s + b.value, 0)
+                    const pct = Math.round((item.value / total) * 100)
+                    const isHovered = hoveredSegmentIndex === i
+                    return (
+                      <div 
+                        key={i} 
+                        className={`pi-donut-legend-item ${isHovered ? 'pi-donut-legend-item-focused' : ''}`}
+                        onMouseEnter={() => setHoveredSegmentIndex(i)}
+                        onMouseLeave={() => setHoveredSegmentIndex(null)}
+                      >
+                        <span className="pi-donut-legend-dot" style={{ background: item.color }} />
+                        <span className="pi-donut-legend-name">{item.label}</span>
+                        <span className="pi-donut-legend-pct">{pct}%</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           </div>{/* /pi-body */}
         </div>{/* /pi-content */}
