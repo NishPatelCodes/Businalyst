@@ -1,10 +1,13 @@
 /* Top Profit Table - Apple Style */
 .top-profit-table-container {
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
-  border: none;
-  overflow: visible;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
 }
 
 .top-profit-table-container .table-header {

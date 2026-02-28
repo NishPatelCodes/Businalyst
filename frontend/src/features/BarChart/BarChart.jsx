@@ -80,8 +80,8 @@ const BarChart = ({ data: dataProp, title: titleProp }) => {
         <svg className="orders-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="xMidYMid meet">
           <defs>
             <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#34c759" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#34c759" stopOpacity="0.5" />
+              <stop offset="0%" stopColor="#2563eb" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#93c5fd" stopOpacity="0.7" />
             </linearGradient>
           </defs>
           {/* X-axis baseline */}

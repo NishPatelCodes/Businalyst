@@ -517,43 +517,63 @@
   min-height: 0;
 }
 
-/* Charts Row - 50/50 grid, full width from sidebar to right edge (no gaps) */
+/* Charts Row - 50/50 grid, with card styling and gap */
 .charts-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0;
+  gap: 16px;
   margin-top: 16px;
   margin-bottom: 16px;
-  margin-left: calc(-1 * var(--spacing-4));
-  margin-right: calc(-1 * var(--spacing-4));
   padding: 0;
   align-items: stretch;
-  width: calc(100% + 2 * var(--spacing-4));
+  width: 100%;
 }
 
 .chart-left {
   min-width: 0;
   min-height: 320px;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0;
-  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  box-shadow: none;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.chart-left:hover {
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    0 8px 20px rgba(0, 0, 0, 0.07);
 }
 
 .chart-right {
   min-width: 0;
-  min-height: 216px;
+  min-height: 320px;
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0;
-  padding: 12px 16px 16px;
-  box-shadow: none;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.chart-right:hover {
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    0 8px 20px rgba(0, 0, 0, 0.07);
 }
 
 /* Analytics Row - 3 Column Grid (compact, equal height) */
@@ -588,12 +608,12 @@
   width: 100%;
   background: #ffffff;
   border-radius: 14px;
-  padding: 16px;
+  padding: 18px;
   box-shadow:
     0 0 0 0.5px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.02),
-    0 2px 4px rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   animation: cardFadeIn 0.4s ease-out;
@@ -613,10 +633,10 @@
 .analytics-card-wrapper:hover {
   box-shadow:
     0 0 0 0.5px rgba(0, 0, 0, 0.06),
-    0 2px 4px rgba(0, 0, 0, 0.03),
-    0 4px 8px rgba(0, 0, 0, 0.04),
-    0 8px 16px rgba(0, 0, 0, 0.05);
+    0 2px 6px rgba(0, 0, 0, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.07);
   border-color: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 /* ============================================

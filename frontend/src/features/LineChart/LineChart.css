@@ -52,7 +52,7 @@
 }
 
 .line-chart-tab--active {
-  color: #000000;
+  color: #2563eb;
   font-size: 15px;
   font-weight: 700;
   opacity: 1;
@@ -65,8 +65,8 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: #000000;
-  border-radius: 0;
+  background: #2563eb;
+  border-radius: 2px;
   animation: underlineSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -76,7 +76,7 @@
 }
 
 .line-chart-tab:not(.line-chart-tab--active) {
-  color: #9ca3af;
+  color: #94a3b8;
   font-size: 14px;
   font-weight: 500;
   opacity: 1;
@@ -85,6 +85,17 @@
 
 .line-chart-tab:not(.line-chart-tab--active):hover {
   opacity: 0.85;
+  color: #64748b;
+}
+
+.line-chart-current-total {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.03em;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
 }
 
 .chart-current-value {
@@ -130,8 +141,8 @@
 
 .chart-axis-label {
   font-size: 11px;
-  fill: #000000;
-  font-weight: 700;
+  fill: #64748b;
+  font-weight: 500;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
 }
@@ -140,9 +151,9 @@
 .chart-x-axis .chart-axis-label { opacity: 1.0; }
 
 .chart-average-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
-  fill: #6b7280;
+  fill: #94a3b8;
 }
 
 .chart-baseline {

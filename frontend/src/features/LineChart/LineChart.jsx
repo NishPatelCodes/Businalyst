@@ -100,9 +100,18 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
     ...d,
   }))
 
-  const linePath = points.length < 2
-    ? ''
-    : points.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : ` L ${p.x} ${p.y}`)).join('')
+  // Smooth bezier curve path builder
+  const buildSmoothPath = (pts) => {
+    if (pts.length < 2) return ''
+    let d = `M ${pts[0].x} ${pts[0].y}`
+    for (let i = 0; i < pts.length - 1; i++) {
+      const cpx = (pts[i].x + pts[i + 1].x) / 2
+      d += ` C ${cpx} ${pts[i].y} ${cpx} ${pts[i + 1].y} ${pts[i + 1].x} ${pts[i + 1].y}`
+    }
+    return d
+  }
+
+  const linePath = buildSmoothPath(points)
   const areaPath = points.length < 2
     ? ''
     : `${linePath} L ${points[points.length - 1].x} ${pad.top + graphH} L ${points[0].x} ${pad.top + graphH} Z`
@@ -141,7 +150,7 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
 
   return (
     <div className={`line-chart line-chart--wealthsimple ${isTotalSales ? 'line-chart--total-sales' : ''}`}>
-      {!isTotalSales && !hideTabs && (
+      {!hideTabs && (
         <div className="line-chart-header">
           <div className="chart-header-left">
             <div className="line-chart-tabs">
@@ -160,6 +169,9 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
                 Profit
               </button>
             </div>
+            <div className="line-chart-current-total">
+              {formatCurrency(values.reduce((a, b) => a + b, 0))}
+            </div>
           </div>
         </div>
       )}
@@ -175,8 +187,9 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
         >
           <defs>
             <linearGradient id="lineChartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#e5e7eb" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#e5e7eb" stopOpacity="0.05" />
+              <stop offset="0%" stopColor="#2563eb" stopOpacity="0.28" />
+              <stop offset="50%" stopColor="#2563eb" stopOpacity="0.10" />
+              <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
             </linearGradient>
           </defs>
 
@@ -201,7 +214,7 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
             y1={pad.top}
             x2={pad.left}
             y2={pad.top + graphH}
-            stroke="#e5e7eb"
+            stroke="#e2e8f0"
             strokeWidth="1"
           />
 
@@ -213,7 +226,7 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
               y1={valueToY(tick)}
               x2={pad.left + graphW}
               y2={valueToY(tick)}
-              stroke="#e5e7eb"
+              stroke="#e2e8f0"
               strokeWidth="1"
               strokeDasharray="4,4"
             />
@@ -225,40 +238,40 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
             y1={pad.top + graphH}
             x2={pad.left + graphW}
             y2={pad.top + graphH}
-            stroke="#e5e7eb"
+            stroke="#e2e8f0"
             strokeWidth="1"
           />
 
           {/* Horizontal dashed "Average" line */}
-          {values.length > 0 && overallAverage > 0 && overallAverage < yMax && (
+          {values.length > 0 && overallAverage > 0 && (
             <g className="chart-average-line">
               <line
                 x1={pad.left}
                 y1={valueToY(overallAverage)}
                 x2={pad.left + graphW}
                 y2={valueToY(overallAverage)}
-                stroke="#9ca3af"
+                stroke="#94a3b8"
                 strokeWidth="1"
                 strokeDasharray="6,4"
               />
               <text
-                x={pad.left - 8}
-                y={valueToY(overallAverage) + 4}
+                x={pad.left + graphW}
+                y={valueToY(overallAverage) - 5}
                 textAnchor="end"
                 className="chart-average-label"
               >
-                Average
+                Avg
               </text>
             </g>
           )}
 
           {/* Area + primary line */}
-          {!isTotalSales && areaPath && <path d={areaPath} fill="url(#lineChartGradient)" />}
+          {areaPath && <path d={areaPath} fill="url(#lineChartGradient)" />}
           <path
             d={linePath}
             fill="none"
-            stroke="#000"
-            strokeWidth="2"
+            stroke="#2563eb"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -268,7 +281,9 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
               cx={p.x}
               cy={p.y}
               r={hoverIndex === i ? 5 : 3}
-              fill={hoverIndex === i ? '#000' : '#374151'}
+              fill={hoverIndex === i ? '#2563eb' : '#2563eb'}
+              stroke="#fff"
+              strokeWidth={hoverIndex === i ? 2 : 1.5}
               style={{ transition: 'r 0.15s ease' }}
             />
           ))}
@@ -280,9 +295,10 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
               y1={pad.top}
               x2={points[hoverIndex].x}
               y2={pad.top + graphH}
-              stroke="#000"
+              stroke="#2563eb"
               strokeWidth="1"
               strokeDasharray="4,4"
+              strokeOpacity="0.5"
             />
           )}
 

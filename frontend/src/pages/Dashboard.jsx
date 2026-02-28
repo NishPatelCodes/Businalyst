@@ -194,7 +194,7 @@ const Dashboard = () => {
 
           <div className="charts-row">
             <div className="chart-left">
-              <LineChart variant="totalSales" />
+              <LineChart />
             </div>
             <div className="chart-right">
               <OrdersComparisonBarChart />

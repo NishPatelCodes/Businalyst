@@ -134,32 +134,18 @@ const OrdersComparisonBarChart = () => {
                   y={valueToY(currentVal)}
                   width={barWidth}
                   height={currentH}
-                  fill="#374151"
+                  fill="#2563eb"
+                  rx="3"
                   className="ocb-bar"
-                />
-                <line
-                  x1={currentX}
-                  y1={valueToY(currentVal)}
-                  x2={currentX + barWidth}
-                  y2={valueToY(currentVal)}
-                  stroke="#111827"
-                  strokeWidth="1"
                 />
                 <rect
                   x={lastX}
                   y={valueToY(lastVal)}
                   width={barWidth}
                   height={lastH}
-                  fill="#d1d5db"
+                  fill="#bfdbfe"
+                  rx="3"
                   className="ocb-bar"
-                />
-                <line
-                  x1={lastX}
-                  y1={valueToY(lastVal)}
-                  x2={lastX + barWidth}
-                  y2={valueToY(lastVal)}
-                  stroke="#9ca3af"
-                  strokeWidth="1"
                 />
               </g>
             )
