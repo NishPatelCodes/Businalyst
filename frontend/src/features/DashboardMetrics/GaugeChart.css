@@ -2,19 +2,14 @@
    HEALTH METER - COMPACT DESIGN
    ============================================ */
 
+/* Sharp black design: full border, small gap between cards */
 .health-meter {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 0;
   padding: 13px;
-  /* Premium layered shadows for depth - matching KPI cards */
-  box-shadow: 
-    0 0 0 1px rgba(0, 0, 0, 0.04),           /* Hairline border */
-    0 1px 2px rgba(0, 0, 0, 0.03),           /* Tight subtle shadow */
-    0 2px 4px rgba(0, 0, 0, 0.04),           /* Close diffuse shadow */
-    0 4px 8px rgba(0, 0, 0, 0.05),           /* Medium depth */
-    0 8px 16px rgba(0, 0, 0, 0.06);          /* Ambient depth */
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+  transition: background 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -24,34 +19,12 @@
   overflow: hidden;
 }
 
-/* Subtle inner glow for premium feel - matching KPI cards */
 .health-meter::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.6) 20%,
-    rgba(255, 255, 255, 0.6) 80%,
-    transparent 100%
-  );
-  opacity: 0.8;
+  content: none;
 }
 
 .health-meter:hover {
-  /* Enhanced shadow on hover - matching KPI cards */
-  box-shadow: 
-    0 0 0 1px rgba(0, 0, 0, 0.06),
-    0 2px 4px rgba(0, 0, 0, 0.04),
-    0 4px 8px rgba(0, 0, 0, 0.06),
-    0 8px 16px rgba(0, 0, 0, 0.08),
-    0 16px 32px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-  border-color: rgba(0, 0, 0, 0.08);
+  background: #fafafa;
 }
 
 .health-meter-gauge {

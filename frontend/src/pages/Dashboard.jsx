@@ -5,7 +5,7 @@ import Sidebar from '../components/Sidebar'
 import TopNavigation from '../components/TopNavigation'
 import DashboardMetrics from '../features/DashboardMetrics'
 import LineChart from '../features/LineChart'
-import DonutChart from '../features/DonutChart'
+import OrdersComparisonBarChart from '../features/OrdersComparisonBarChart/OrdersComparisonBarChart'
 import SegmentedBarChart from '../features/SegmentedBarChart'
 import BarChart from '../features/BarChart'
 import MapChart from '../features/MapChart'
@@ -194,10 +194,10 @@ const Dashboard = () => {
 
           <div className="charts-row">
             <div className="chart-left">
-              <LineChart />
+              <LineChart variant="totalSales" />
             </div>
             <div className="chart-right">
-              <DonutChart />
+              <OrdersComparisonBarChart />
             </div>
           </div>
           

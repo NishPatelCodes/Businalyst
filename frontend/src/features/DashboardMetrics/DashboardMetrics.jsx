@@ -8,7 +8,6 @@ import { KpiContext } from '../../context/KpiContext'
  */
 const DashboardMetrics = () => {
   const { kpiData } = useContext(KpiContext)
-  // Compute gauge value from profit margin (target 25%) or use default
   const profitMargin = kpiData?.revenue_sum
     ? Math.round((kpiData.profit_sum / kpiData.revenue_sum) * 100)
     : 68
