@@ -10,15 +10,15 @@ const SegmentedBarChart = () => {
       label: 'Prepaid',
       value: 1228,
       total: 1928,
-      color: '#ff3b30',
-      lightColor: '#ffebeb'
+      color: '#2563eb',
+      lightColor: '#dbeafe'
     },
     {
       label: 'Cash On delivery',
       value: 600,
       total: 1928,
-      color: '#007aff',
-      lightColor: '#e5f2ff'
+      color: '#60a5fa',
+      lightColor: '#eff6ff'
     }
   ]
 

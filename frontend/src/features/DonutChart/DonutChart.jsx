@@ -54,7 +54,7 @@ const DonutChart = () => {
     ]
   }, [kpiData?.pie_data])
 
-  const chartTitle = kpiData?.pie_column ? columnTitle(kpiData.pie_column) : 'Expense Sources'
+  const chartTitle = kpiData?.pie_column ? columnTitle(kpiData.pie_column) : 'Category'
   const totalAmount = expenseData ? expenseData.reduce((s, d) => s + (d.amount ?? 0), 0) : 0
   const isCountChart = Array.isArray(kpiData?.pie_data) && kpiData.pie_data.length > 0
 
@@ -273,8 +273,7 @@ const DonutChart = () => {
                 role="listitem"
               >
                 <span className="expense-legend-dot" style={{ backgroundColor: item.color.base }} />
-                <span className="expense-legend-name">{item.name}</span>
-                <span className="expense-legend-percentage">{item.percentage}%</span>
+                <span className="expense-legend-name">{item.name} {item.percentage}%</span>
               </div>
             ))}
           </div>

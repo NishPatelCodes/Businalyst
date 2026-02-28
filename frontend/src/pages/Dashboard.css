@@ -506,7 +506,7 @@
 .dashboard-metrics {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: var(--grid-gap);
+  gap: 10px;
   width: 100%;
   align-items: stretch;
   margin-bottom: var(--grid-gap);
@@ -517,27 +517,63 @@
   min-height: 0;
 }
 
-/* Charts Row - 3 Column Grid */
+/* Charts Row - 50/50 grid, with card styling and gap */
 .charts-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--grid-gap);
-  margin-bottom: var(--grid-gap);
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding: 0;
   align-items: stretch;
+  width: 100%;
 }
 
 .chart-left {
-  grid-column: span 2;
   min-width: 0;
-  background: var(--bg-secondary);
-  border-radius: var(--card-border-radius);
+  min-height: 320px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.chart-left:hover {
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    0 8px 20px rgba(0, 0, 0, 0.07);
 }
 
 .chart-right {
-  grid-column: span 1;
   min-width: 0;
-  min-height: 238px;
+  min-height: 320px;
   display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.chart-right:hover {
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    0 8px 20px rgba(0, 0, 0, 0.07);
 }
 
 /* Analytics Row - 3 Column Grid (compact, equal height) */
@@ -572,12 +608,12 @@
   width: 100%;
   background: #ffffff;
   border-radius: 14px;
-  padding: 16px;
+  padding: 18px;
   box-shadow:
     0 0 0 0.5px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.02),
-    0 2px 4px rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   animation: cardFadeIn 0.4s ease-out;
@@ -597,10 +633,10 @@
 .analytics-card-wrapper:hover {
   box-shadow:
     0 0 0 0.5px rgba(0, 0, 0, 0.06),
-    0 2px 4px rgba(0, 0, 0, 0.03),
-    0 4px 8px rgba(0, 0, 0, 0.04),
-    0 8px 16px rgba(0, 0, 0, 0.05);
+    0 2px 6px rgba(0, 0, 0, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.07);
   border-color: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 /* ============================================
@@ -612,17 +648,12 @@
     grid-template-columns: repeat(3, 1fr);
   }
   
-  .charts-row,
+  .charts-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  
   .analytics-map-row {
     grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .chart-left {
-    grid-column: span 2;
-  }
-  
-  .chart-right {
-    grid-column: span 2;
   }
 }
 

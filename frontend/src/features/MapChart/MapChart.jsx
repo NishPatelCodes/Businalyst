@@ -151,14 +151,14 @@ const MapChart = () => {
                     onMouseMove={(e) => onMarkerMove(e)}
                     onMouseLeave={onMarkerLeave}
                   >
-                    <circle r={16} fill="#34c759" fillOpacity={0.08} />
-                    <circle r={14} fill="#34c759" fillOpacity={0.12} />
-                    <circle r={12} fill="#34c759" fillOpacity={0.18} />
-                    <circle r={10} fill="#34c759" fillOpacity={0.22} />
-                    <circle r={8} fill="#34c759" fillOpacity={0.28} />
+                    <circle r={16} fill="#2563eb" fillOpacity={0.08} />
+                    <circle r={14} fill="#2563eb" fillOpacity={0.12} />
+                    <circle r={12} fill="#2563eb" fillOpacity={0.18} />
+                    <circle r={10} fill="#2563eb" fillOpacity={0.22} />
+                    <circle r={8} fill="#2563eb" fillOpacity={0.28} />
                     <circle
                       r={6}
-                      fill="#34c759"
+                      fill="#2563eb"
                       fillOpacity={0.9}
                       stroke="#ffffff"
                       strokeWidth={1.5}

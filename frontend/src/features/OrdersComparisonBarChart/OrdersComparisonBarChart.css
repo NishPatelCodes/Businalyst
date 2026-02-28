@@ -1,0 +1,117 @@
+.ocb-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+.ocb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: nowrap;
+}
+
+.ocb-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.ocb-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 4px 0;
+}
+
+.ocb-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+.ocb-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ocb-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ocb-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.ocb-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.ocb-legend-dot--current {
+  background: #2563eb;
+}
+
+.ocb-legend-dot--last {
+  background: #bfdbfe;
+}
+
+.ocb-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+  color: #6b7280;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.ocb-chart-wrap {
+  flex: 1;
+  min-height: 144px;
+  width: 100%;
+  min-width: 0;
+}
+
+.ocb-chart {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
+}
+
+.ocb-grid line {
+  pointer-events: none;
+}
+
+.ocb-axis-label {
+  font-size: 11px;
+  fill: #6b7280;
+  font-weight: 500;
+}
+
+.ocb-bar {
+  transition: opacity 0.2s;
+}
+
+.ocb-bar:hover {
+  opacity: 0.9;
+}

@@ -19,8 +19,8 @@ const TIME_RANGES = [
   { key: '24H', label: '24 hours' },
 ]
 
-const THIS_PERIOD_COLOR = '#5856D6'
-const PREVIOUS_PERIOD_COLOR = '#8E8E93'
+const THIS_PERIOD_COLOR = '#2563eb'
+const PREVIOUS_PERIOD_COLOR = '#93c5fd'
 
 const formatCurrency = (n) =>
   new Intl.NumberFormat('en-US', {
