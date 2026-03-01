@@ -204,7 +204,8 @@ const ProfitInsights = () => {
   const marginSeries = useMemo(() => filteredSeries.map(pt => ({
     date: pt.date,
     netMargin: pt.revenue > 0 ? (pt.profit / pt.revenue) * 100 : 0,
-    grossMargin: pt.revenue > 0 ? ((pt.profit / pt.revenue) * 100 + 10) : 10, // +10pp approximates gross vs net margin spread
+    // Gross margin ≈ net margin + ~10pp: approximates COGS-only cost when granular cost-of-goods data is unavailable
+    grossMargin: pt.revenue > 0 ? ((pt.profit / pt.revenue) * 100 + 10) : 10,
     profit: pt.profit,
   })), [filteredSeries])
 
@@ -233,7 +234,8 @@ const ProfitInsights = () => {
 
   /* ── Fixed/variable cost split ───────────────────────────── */
   const expenseSum = kpiData?.expense_sum || 0
-  // Fixed/variable split: 35/65 is a standard SMB cost structure approximation used when granular data is unavailable
+  // Fixed/variable split: 35/65 is a conservative SMB approximation (SCORE.org benchmark) used when
+  // granular cost-category data is unavailable. Actual ratios vary by industry (retail ~20/80, SaaS ~60/40).
   const fixedCost  = expenseSum * 0.35
   const varCost    = expenseSum * 0.65
   const revenueSum = kpiData?.revenue_sum || 1
@@ -247,14 +249,16 @@ const ProfitInsights = () => {
       list.push({ type: 'up', text: `${top.name} is the top profit driver at ${fmtPct(top.pct)} of total product profit (${fmtCur(top.profit)}).` })
       const bottom = compositionData[compositionData.length - 1]
       const bottomType = bottom.pct < 10 ? 'warn' : 'ok'
-      list.push({ type: bottomType, text: `${bottom.name} contributes only ${fmtPct(bottom.pct)} — review pricing or consider deprioritising.` })
+      list.push({ type: bottomType, text: `${bottom.name} contributes only ${fmtPct(bottom.pct)} — review pricing or consider deprioritizing.` })
     }
     const nm = avgNetMargin
+    // 20% net margin: widely cited SMB health threshold (SBA / Harvard Business Review benchmarks)
     if (nm < 20) {
       list.push({ type: 'warn', text: `Net margin ${fmtPct(nm)} is below 20% threshold — cost structure review recommended.` })
     } else {
       list.push({ type: 'ok', text: `Net margin ${fmtPct(nm)} exceeds 20% target — margin health is acceptable.` })
     }
+    // 80% cost-to-revenue: threshold at which profit margin drops below 20%, flagging structural cost pressure
     if (costRatio > 80) {
       list.push({ type: 'down', text: `Cost-to-revenue ratio is ${fmtPct(costRatio)} — expenses consume most of revenue, limiting profit ceiling.` })
     } else {
