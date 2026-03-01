@@ -1,6 +1,56 @@
+import json
+import logging
+import os
+import re
+from datetime import datetime, timezone
+
 import pandas as pd
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
+logger = logging.getLogger(__name__)
+
+EMAILS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "emails.json")
+
+
+@csrf_exempt
+def subscribe_email(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required"}, status=400)
+
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"error": "Invalid JSON body"}, status=400)
+
+    email = (body.get("email") or "").strip().lower()
+    try:
+        validate_email(email)
+    except ValidationError:
+        return JsonResponse({"error": "Invalid email address"}, status=400)
+
+    try:
+        if os.path.exists(EMAILS_FILE):
+            with open(EMAILS_FILE, "r", encoding="utf-8") as f:
+                emails = json.load(f)
+        else:
+            emails = []
+
+        if any(entry.get("email") == email for entry in emails):
+            return JsonResponse({"success": True, "message": "You're already on the list!"})
+
+        emails.append({"email": email, "timestamp": datetime.now(timezone.utc).isoformat()})
+
+        with open(EMAILS_FILE, "w", encoding="utf-8") as f:
+            json.dump(emails, f, indent=2)
+
+        return JsonResponse({"success": True, "message": "You're on the list! We'll notify you soon."})
+
+    except Exception as e:
+        logger.error("Error saving subscription email: %s", e, exc_info=True)
+        return JsonResponse({"error": "Server error, please try again."}, status=500)
 
 
 # 1️⃣ Function: read uploaded CSV/Excel and return DataFrame

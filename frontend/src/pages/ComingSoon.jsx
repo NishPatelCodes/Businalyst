@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import './ComingSoon.css'
+import { subscribeEmail } from '../services/api'
 
 const ComingSoon = () => {
   const [email, setEmail] = useState('')
@@ -20,16 +21,13 @@ const ComingSoon = () => {
     setLoading(true)
     
     try {
-      // TODO: Connect to backend API for email collection
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      console.log('Email submitted:', email)
+      const result = await subscribeEmail(email)
+      console.log('Subscription response:', result)
       setSubmitted(true)
       setEmail('')
       setTimeout(() => setSubmitted(false), 3000)
     } catch (err) {
-      setError('Something went wrong. Please try again.')
+      setError(err.message || 'Something went wrong. Please try again.')
       console.error('Submission error:', err)
     } finally {
       setLoading(false)
