@@ -577,3 +577,17 @@
   .pi-content { padding: 16px; }
   .pil-trend-controls { flex-direction: column; align-items: flex-start; }
 }
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.pil-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+  color: #9ca3af;
+  font-size: 13px;
+  text-align: center;
+  background: #fafafa;
+  border-radius: 6px;
+  border: 1px dashed #e5e7eb;
+}

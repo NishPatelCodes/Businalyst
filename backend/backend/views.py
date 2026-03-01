@@ -43,16 +43,21 @@ def calculate_kpis(df):
     }
 
 def linechart(df):
-    required_cols = ["revenue", "profit", "date"]
-    missing = [col for col in required_cols if col not in df.columns]
-
+    date_col = _find_date_col(df)
+    missing = []
+    if date_col is None:
+        missing.append("date")
+    if "revenue" not in df.columns:
+        missing.append("revenue")
+    if "profit" not in df.columns:
+        missing.append("profit")
     if missing:
         raise ValueError(f"Missing columns: {missing}")
 
     df["revenue"] = pd.to_numeric(df["revenue"], errors="coerce")
     df["profit"] = pd.to_numeric(df["profit"], errors="coerce")
     # Ensure dates are JSON-serializable strings
-    date_series = df["date"].astype(str)
+    date_series = df[date_col].astype(str)
     out = {
         "revenue_data": df["revenue"].tolist(),
         "profit_data": df["profit"].tolist(),
@@ -60,7 +65,7 @@ def linechart(df):
     }
     if "orders" in df.columns:
         df["orders"] = pd.to_numeric(df["orders"], errors="coerce")
-        orders_spark = _aggregate_sparkline(df, value_col="orders", date_col="date")
+        orders_spark = _aggregate_sparkline(df, value_col="orders", date_col=date_col)
         if orders_spark:
             out["orders_data"] = orders_spark
     return out
