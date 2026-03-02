@@ -335,7 +335,7 @@ const Orders = () => {
           <div className="omi-page-header">
             <div>
               <h1 className="omi-page-title">Order Intelligence</h1>
-              <p className="omi-page-subtitle">Order management &amp; fulfillment diagnostic · Current dataset</p>
+              <p className="omi-page-subtitle">Order management & fulfillment diagnostic · Current dataset</p>
             </div>
             <div className="omi-page-actions">
               <button className="omi-btn">
@@ -586,7 +586,7 @@ const Orders = () => {
                   fill="#2563eb"
                   maxBarSize={28}
                   radius={[0, 2, 2, 0]}
-                  label={<PctLabel total={totalProductOrders} />}
+                  label={(props) => <PctLabel {...props} total={totalProductOrders} />}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -666,7 +666,7 @@ const Orders = () => {
             <div className="omi-section-header">
               <div>
                 <p className="omi-section-label">SECTION 05</p>
-                <h2 className="omi-section-title">Insights &amp; Recommendations</h2>
+                <h2 className="omi-section-title">Insights & Recommendations</h2>
                 <p className="omi-section-meta">Auto-generated from current dataset</p>
               </div>
             </div>
