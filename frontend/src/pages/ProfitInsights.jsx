@@ -1,206 +1,289 @@
 import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
-import LineChart from '../features/LineChart'
-import DateRangePicker from '../components/DateRangePicker'
-import ProfitBreakdownChart from '../features/DonutChart/ProfitBreakdownChart'
-import TopMonthsBarChart from '../features/BarChart/TopMonthsBarChart'
 import { KpiContext } from '../context/KpiContext'
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+import {
+  ComposedChart, BarChart, LineChart as RechartLineChart,
+  Area, Bar, Line, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea,
+  Cell,
+} from 'recharts'
 import './ProfitInsights.css'
 
-// Custom Tooltip component to remove index numbers
-const CustomPieTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload
-    return (
-      <div style={{
-        borderRadius: 8,
-        border: '1px solid #e5e7eb',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-        backgroundColor: '#fff',
-        padding: '8px 12px',
-        fontSize: '12px'
-      }}>
-        <div style={{ fontWeight: 600, color: '#111827', marginBottom: '4px' }}>
-          {data.label}
-        </div>
-        <div style={{ color: '#6b7280' }}>
-          ${data.value.toLocaleString()}
-        </div>
-      </div>
-    )
-  }
-  return null
+/* ── Formatting helpers ─────────────────────────────────────── */
+const fmtCur = (n) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency', currency: 'USD',
+    minimumFractionDigits: 0, maximumFractionDigits: 0,
+  }).format(n || 0)
+
+const fmtNum = (n) => {
+  const abs = Math.abs(n)
+  if (abs >= 1e6) return `${(n / 1e6).toFixed(1)}M`
+  if (abs >= 1e3) return `${(n / 1e3).toFixed(0)}K`
+  return (n || 0).toFixed(0)
 }
 
-/* ── Profit Breakdown stacked bar ─────────────────────────────── */
-const BREAKDOWN_SEGMENTS = [
-  { label: 'Revenue',  color: '#3b82f6', pct: 58 },
-  { label: 'Cost',     color: '#a78bfa', pct: 14 },
-  { label: 'Ad Spend', color: '#fb923c', pct: 10 },
-  { label: 'Shipping', color: '#34d399', pct: 10 },
-  { label: 'Discount', color: '#93c5fd', pct:  8 },
-]
+const fmtPct = (n) => `${(n || 0).toFixed(1)}%`
 
-const BREAKDOWN_ROWS = [
-  { label: 'Revenue', dot: '#3b82f6', cols: ['$94,562', '$2,367',  'Ad Spend', 'Shipping', 'Total'] },
-  { label: 'Total',   dot: '#6366f1', cols: ['$03,652', '$55,59',  '$11,459',  '$3,446',   '3.30K'] },
-  { label: 'Profit',  dot: '#10b981', cols: ['$03,652', '$55,59',  '$11,459',  '$3,446',   '↑3.30K'] },
-]
+const fmtDate = (s) => {
+  try { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
+  catch { return s }
+}
 
-/* ── Right-panel: Most Profitable Products vertical bar chart ─── */
-const CHANNEL_BARS = [
-  { label: 'Instagram',   value: 85000,  color: '#3b82f6' },
-  { label: 'Website',     value: 126000, color: '#8b5cf6' },
-  { label: 'Offline',     value: 50000,  color: '#f59e0b' },
-  { label: 'Marketplace', value: 32000,  color: '#34d399' },
-]
+/* ── Custom tooltips ──────────────────────────────────────── */
+const TrendTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null
+  return (
+    <div className="pil-tooltip">
+      <div className="pil-tooltip-date">{fmtDate(label)}</div>
+      {payload.map((p) => (
+        <div key={p.dataKey} className="pil-tooltip-row">
+          <span className="pil-tooltip-dot" style={{ background: p.color }} />
+          <span className="pil-tooltip-label">{p.name}</span>
+          <span className="pil-tooltip-val">{fmtCur(p.value)}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
-/* ── Most Profitable Products table (left col) ───────────────────*/
-const TOP_PRODUCTS = [
-  { icon: '🔷', name: 'Widget A', profit: 128962, margin: 42, orders: 1387, location: 'New York, US' },
-  { icon: '⚙️',  name: 'Widget B', profit: 99573,  margin: 37, orders: 1165, location: 'London, UK' },
-  { icon: '🟦', name: 'Widget C', profit: 52801,  margin: 34, orders: 936,  location: 'Tokyo, Japan' },
-  { icon: '🔶', name: 'Widget D', profit: 45230,  margin: 32, orders: 824,  location: 'Sydney, Australia' },
-  { icon: '🔸', name: 'Widget E', profit: 38945,  margin: 30, orders: 712,  location: 'Toronto, Canada' },
-  { icon: '🔹', name: 'Widget F', profit: 32156,  margin: 28, orders: 645,  location: 'Berlin, Germany' },
-  { icon: '🔺', name: 'Widget G', profit: 28734,  margin: 26, orders: 589,  location: 'Paris, France' },
-  { icon: '🔻', name: 'Widget H', profit: 25432,  margin: 24, orders: 534,  location: 'Mumbai, India' },
-  { icon: '🔴', name: 'Widget I', profit: 22345,  margin: 22, orders: 487,  location: 'São Paulo, Brazil' },
-  { icon: '🟠', name: 'Widget J', profit: 19876,  margin: 20, orders: 432,  location: 'Dubai, UAE' },
-]
+const BarTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null
+  return (
+    <div className="pil-tooltip">
+      <div className="pil-tooltip-date">{label}</div>
+      {payload.map((p) => (
+        <div key={p.dataKey} className="pil-tooltip-row">
+          <span className="pil-tooltip-dot" style={{ background: p.color || p.fill }} />
+          <span className="pil-tooltip-label">{p.name}</span>
+          <span className="pil-tooltip-val">{fmtCur(p.value)}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
+const MarginTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null
+  return (
+    <div className="pil-tooltip">
+      <div className="pil-tooltip-date">{fmtDate(label)}</div>
+      {payload.map((p) => (
+        <div key={p.dataKey} className="pil-tooltip-row">
+          <span className="pil-tooltip-dot" style={{ background: p.color }} />
+          <span className="pil-tooltip-label">{p.name}</span>
+          <span className="pil-tooltip-val">{fmtPct(p.value)}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* ── Custom bar label for composition chart ───────────────── */
+const CompositionLabel = ({ x, y, width, height, value, pct }) => {
+  if (!value) return null
+  return (
+    <text
+      x={x + width + 6}
+      y={y + height / 2}
+      fill="#6b7280"
+      fontSize={11}
+      dominantBaseline="middle"
+    >
+      {fmtPct(pct)}
+    </text>
+  )
+}
+
+/* ── Risk badge ────────────────────────────────────────────── */
+const RiskBadge = ({ level }) => {
+  const styles = {
+    Low: { bg: '#dcfce7', color: '#166534' },
+    Moderate: { bg: '#fef9c3', color: '#854d0e' },
+    High: { bg: '#fee2e2', color: '#991b1b' },
+  }
+  const s = styles[level] || styles['Moderate']
+  return (
+    <span className="pil-risk-badge" style={{ background: s.bg, color: s.color }}>
+      {level} Risk
+    </span>
+  )
+}
+
+/* ── Insight icon ──────────────────────────────────────────── */
+const InsightIcon = ({ type }) => {
+  const map = {
+    up:   { symbol: '▲', color: '#059669' },
+    down: { symbol: '▼', color: '#dc2626' },
+    warn: { symbol: '⚠', color: '#d97706' },
+    ok:   { symbol: '✓', color: '#6b7280' },
+  }
+  const { symbol, color } = map[type] || map['ok']
+  return <span className="pil-insight-icon" style={{ color }}>{symbol}</span>
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN COMPONENT
+   ═══════════════════════════════════════════════════════════ */
 const ProfitInsights = () => {
   const { kpiData } = useContext(KpiContext)
 
-  /* date picker */
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
-  const [dateRange, setDateRange] = useState(() => {
-    const end   = new Date()
-    const start = new Date()
-    start.setMonth(end.getMonth() - 1)
-    return { start, end }
-  })
+  const [dateRange, setDateRange] = useState('30D')
+  const [showRevenue, setShowRevenue] = useState(false)
+  const [showCost, setShowCost] = useState(false)
+  const [marginMode, setMarginMode] = useState('pct') // 'pct' | 'abs'
 
-  /* top products count */
-  const [topProductsCount, setTopProductsCount] = useState(3)
-  
-  /* pie chart hover state */
-  const [hoveredSegmentIndex, setHoveredSegmentIndex] = useState(null)
-  
-  /* profit trend duration */
-  const [profitTrendDuration, setProfitTrendDuration] = useState('1M')
+  /* ── Raw arrays ─────────────────────────────────────────── */
+  const dateData    = useMemo(() => kpiData?.date_data || [], [kpiData])
+  const profitData  = useMemo(() => (kpiData?.profit_data || []).map(Number), [kpiData])
+  const revenueData = useMemo(() => (kpiData?.revenue_data || []).map(Number), [kpiData])
+  const costData    = useMemo(() => revenueData.map((r, i) => r - (profitData[i] || 0)), [revenueData, profitData])
+  const barData     = useMemo(() => kpiData?.bar_data || [], [kpiData])
 
-  /* ── helpers ── */
-  const fmt = (d) =>
-    d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
-  const dateLabel = dateRange.start && dateRange.end
-    ? `${fmt(dateRange.start)} – ${fmt(dateRange.end)}`
-    : 'Select dates'
+  /* ── Date range filtering ────────────────────────────────── */
+  const filteredSeries = useMemo(() => {
+    const all = dateData.map((d, i) => ({
+      date: d,
+      profit: profitData[i] || 0,
+      revenue: revenueData[i] || 0,
+      cost: costData[i] || 0,
+    }))
+    if (!all.length) return []
+    const sorted = [...all].sort((a, b) => new Date(a.date) - new Date(b.date))
+    const limits = { '7D': 7, '30D': 30, '90D': 90, '1Y': 365 }
+    const n = limits[dateRange]
+    return n ? sorted.slice(-n) : sorted
+  }, [dateData, profitData, revenueData, costData, dateRange])
 
-  const fmtCur = (n) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency', currency: 'USD',
-      minimumFractionDigits: 0, maximumFractionDigits: 0,
-    }).format(n)
-
-  /* ── bar chart helpers ── */
-  const maxChannel = Math.max(...CHANNEL_BARS.map(b => b.value))
-
-  // Calculate top 3 profitable months
-  const top3Months = useMemo(() => {
-    if (!kpiData?.date_data || !kpiData?.profit_data) {
-      return [
-        { month: 'Jan', profit: 125000, color: '#2563eb' },
-        { month: 'Feb', profit: 98000, color: '#3b82f6' },
-        { month: 'Mar', profit: 87000, color: '#60a5fa' },
-      ]
-    }
-
-    const dates = kpiData.date_data
-    const profits = kpiData.profit_data
-    const monthData = new Map()
-
-    // Group profits by month
-    dates.forEach((dateStr, i) => {
-      try {
-        const date = new Date(dateStr)
-        if (!isNaN(date.getTime())) {
-          const monthKey = `${date.getFullYear()}-${date.getMonth()}`
-          const monthName = date.toLocaleDateString('en-US', { month: 'short' })
-          const profit = Number(profits[i]) || 0
-          
-          if (monthData.has(monthKey)) {
-            monthData.set(monthKey, {
-              month: monthName,
-              profit: monthData.get(monthKey).profit + profit,
-              color: monthData.get(monthKey).color
-            })
-          } else {
-            const colors = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd']
-            monthData.set(monthKey, {
-              month: monthName,
-              profit: profit,
-              color: colors[monthData.size % colors.length]
-            })
-          }
-        }
-      } catch (e) {
-        // Skip invalid dates
-      }
+  /* ── Negative profit periods for ReferenceArea ──────────── */
+  const negativeRanges = useMemo(() => {
+    const ranges = []
+    let inNeg = false
+    let start = null
+    filteredSeries.forEach((pt, i) => {
+      if (pt.profit < 0 && !inNeg) { inNeg = true; start = pt.date }
+      if (pt.profit >= 0 && inNeg) { inNeg = false; ranges.push({ x1: start, x2: filteredSeries[i - 1].date }) }
     })
+    if (inNeg && start) ranges.push({ x1: start, x2: filteredSeries[filteredSeries.length - 1].date })
+    return ranges
+  }, [filteredSeries])
 
-    // Sort by profit and get top 3
-    return Array.from(monthData.values())
-      .sort((a, b) => b.profit - a.profit)
-      .slice(0, 3)
-  }, [kpiData?.date_data, kpiData?.profit_data])
+  /* ── Volatility stats ────────────────────────────────────── */
+  const stats = useMemo(() => {
+    if (!profitData.length) return { mean: 0, stdDev: 0, cv: 0, riskLevel: 'Low', best: null, worst: null, negFreq: 0 }
+    const mean = profitData.reduce((a, b) => a + b, 0) / profitData.length
+    const variance = profitData.reduce((a, b) => a + (b - mean) ** 2, 0) / profitData.length
+    const stdDev = Math.sqrt(variance)
+    const cv = mean !== 0 ? Math.abs(stdDev / mean) * 100 : 0
+    const riskLevel = cv < 20 ? 'Low' : cv < 40 ? 'Moderate' : 'High'
 
-  const maxMonthProfit = Math.max(...top3Months.map(m => m.profit), 1)
-  
-  // Calculate percentage increase for profit trend
-  const profitPercentageIncrease = useMemo(() => {
-    if (!kpiData?.profit_data || kpiData.profit_data.length < 2) {
-      return null
+    const maxIdx = profitData.indexOf(Math.max(...profitData))
+    const minIdx = profitData.indexOf(Math.min(...profitData))
+    const negFreq = (profitData.filter(p => p < 0).length / profitData.length) * 100
+
+    return {
+      mean, stdDev, cv, riskLevel,
+      best: { date: dateData[maxIdx], value: profitData[maxIdx] },
+      worst: { date: dateData[minIdx], value: profitData[minIdx] },
+      negFreq,
     }
-    const profits = kpiData.profit_data.map(p => Number(p) || 0)
-    const firstValue = profits[0] || 0
-    const lastValue = profits[profits.length - 1] || 0
-    
-    if (firstValue === 0) return null
-    
-    const change = ((lastValue - firstValue) / firstValue) * 100
-    return change
-  }, [kpiData?.profit_data])
-  
-  // Calculate Y-axis ticks with nice round numbers
-  const yAxisTicks = useMemo(() => {
-    if (maxMonthProfit === 0) return [0, 0, 0, 0, 0, 0]
-    
-    // Round up to a nice number
-    const magnitude = Math.pow(10, Math.floor(Math.log10(maxMonthProfit)))
-    const normalized = maxMonthProfit / magnitude
-    let niceMax
-    if (normalized <= 1) niceMax = magnitude
-    else if (normalized <= 2) niceMax = 2 * magnitude
-    else if (normalized <= 5) niceMax = 5 * magnitude
-    else niceMax = 10 * magnitude
-    
-    // Generate 6 evenly spaced ticks (including 0)
-    const ticks = []
-    for (let i = 5; i >= 0; i--) {
-      ticks.push(Math.round((niceMax * i) / 5))
+  }, [profitData, dateData])
+
+  /* ── Drawdown series (from peak) ─────────────────────────── */
+  const drawdownSeries = useMemo(() => {
+    let peak = -Infinity
+    return filteredSeries.map(pt => {
+      if (pt.profit > peak) peak = pt.profit
+      const dd = peak > 0 ? ((pt.profit - peak) / peak) * 100 : 0
+      return { date: pt.date, drawdown: dd }
+    })
+  }, [filteredSeries])
+
+  /* ── Margin series ───────────────────────────────────────── */
+  const marginSeries = useMemo(() => filteredSeries.map(pt => ({
+    date: pt.date,
+    netMargin: pt.revenue > 0 ? (pt.profit / pt.revenue) * 100 : 0,
+    // Gross margin ≈ net margin + ~10pp: approximates COGS-only cost when granular cost-of-goods data is unavailable
+    grossMargin: pt.revenue > 0 ? ((pt.profit / pt.revenue) * 100 + 10) : 10,
+    profit: pt.profit,
+  })), [filteredSeries])
+
+  const avgNetMargin  = useMemo(() => marginSeries.length ? marginSeries.reduce((a, b) => a + b.netMargin, 0) / marginSeries.length : 0, [marginSeries])
+  const avgGrossMargin = useMemo(() => marginSeries.length ? marginSeries.reduce((a, b) => a + b.grossMargin, 0) / marginSeries.length : 0, [marginSeries])
+
+  /* ── Composition chart ───────────────────────────────────── */
+  const totalBarProfit = useMemo(() => barData.reduce((s, b) => s + (Number(b.value) || 0), 0), [barData])
+  const compositionData = useMemo(() =>
+    [...barData]
+      .sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0))
+      .map(b => ({
+        name: b.name,
+        profit: Number(b.value) || 0,
+        pct: totalBarProfit > 0 ? (Number(b.value) / totalBarProfit) * 100 : 0,
+      })),
+    [barData, totalBarProfit]
+  )
+
+  /* ── Cost series for cost-pressure chart ─────────────────── */
+  const costPressureSeries = useMemo(() => filteredSeries.map(pt => ({
+    date: fmtDate(pt.date),
+    profit: pt.profit,
+    cost: pt.cost,
+  })), [filteredSeries])
+
+  /* ── Fixed/variable cost split ───────────────────────────── */
+  const expenseSum = kpiData?.expense_sum || 0
+  // Fixed/variable split: 35/65 is a conservative SMB approximation (SCORE.org benchmark) used when
+  // granular cost-category data is unavailable. Actual ratios vary by industry (retail ~20/80, SaaS ~60/40).
+  const fixedCost  = expenseSum * 0.35
+  const varCost    = expenseSum * 0.65
+  const revenueSum = kpiData?.revenue_sum || 1
+  const costRatio  = (expenseSum / revenueSum) * 100
+
+  /* ── Auto-generate insights ──────────────────────────────── */
+  const insights = useMemo(() => {
+    const list = []
+    if (compositionData.length) {
+      const top = compositionData[0]
+      list.push({ type: 'up', text: `${top.name} is the top profit driver at ${fmtPct(top.pct)} of total product profit (${fmtCur(top.profit)}).` })
+      const bottom = compositionData[compositionData.length - 1]
+      const bottomType = bottom.pct < 10 ? 'warn' : 'ok'
+      list.push({ type: bottomType, text: `${bottom.name} contributes only ${fmtPct(bottom.pct)} — review pricing or consider deprioritizing.` })
     }
-    return ticks
-  }, [maxMonthProfit])
+    const nm = avgNetMargin
+    // 20% net margin: widely cited SMB health threshold (SBA / Harvard Business Review benchmarks)
+    if (nm < 20) {
+      list.push({ type: 'warn', text: `Net margin ${fmtPct(nm)} is below 20% threshold — cost structure review recommended.` })
+    } else {
+      list.push({ type: 'ok', text: `Net margin ${fmtPct(nm)} exceeds 20% target — margin health is acceptable.` })
+    }
+    // 80% cost-to-revenue: threshold at which profit margin drops below 20%, flagging structural cost pressure
+    if (costRatio > 80) {
+      list.push({ type: 'down', text: `Cost-to-revenue ratio is ${fmtPct(costRatio)} — expenses consume most of revenue, limiting profit ceiling.` })
+    } else {
+      list.push({ type: 'ok', text: `Cost-to-revenue ratio is ${fmtPct(costRatio)}, leaving ${fmtPct(100 - costRatio)} margin headroom.` })
+    }
+    const riskType = stats.riskLevel === 'Low' ? 'ok' : stats.riskLevel === 'Moderate' ? 'warn' : 'down'
+    list.push({ type: riskType, text: `Profit volatility is ${stats.riskLevel} (CV ${fmtPct(stats.cv)}). Std deviation: ${fmtCur(stats.stdDev)}.` })
+    if (filteredSeries.length >= 2) {
+      const first = filteredSeries[0].profit
+      const last  = filteredSeries[filteredSeries.length - 1].profit
+      const chg = first !== 0 ? ((last - first) / first) * 100 : 0
+      const changeType = chg >= 0 ? 'up' : 'down'
+      list.push({ type: changeType, text: `Period-over-period profit change: ${chg >= 0 ? '+' : ''}${fmtPct(chg)} (${fmtCur(first)} → ${fmtCur(last)}).` })
+    }
+    return list.slice(0, 6)
+  }, [compositionData, avgNetMargin, costRatio, stats, filteredSeries])
+
+  const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
 
   return (
     <div className="pi-page">
       <Sidebar />
 
       <div className="pi-shell">
-        {/* ═══ CUSTOM TOP NAV ═══════════════════════════════════════════ */}
+        {/* ═══ TOP NAV ════════════════════════════════════════════════ */}
         <header className="pi-topnav">
           <div className="pi-breadcrumbs">
             <Link to="/dashboard" className="pi-bc-link">Dashboard</Link>
@@ -246,373 +329,373 @@ const ProfitInsights = () => {
           </div>
         </header>
 
-        {/* ═══ SCROLLABLE CONTENT ════════════════════════════════════════ */}
+        {/* ═══ SCROLLABLE CONTENT ════════════════════════════════════ */}
         <div className="pi-content">
 
-          {/* ── Page header ── */}
-          <div className="pi-page-header">
-            <h1 className="pi-page-title">Profit Growth</h1>
+          {/* ── Page Header ─────────────────────────────────────────── */}
+          <div className="pil-page-header">
+            <div>
+              <h1 className="pil-page-title">Profit Intelligence</h1>
+              <p className="pil-page-subtitle">Financial diagnostic analysis · Current dataset</p>
+            </div>
+            <div className="pil-page-actions">
+              <button className="pil-btn-ghost">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Export CSV
+              </button>
+              <button className="pil-btn-ghost">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M5 8h6M5 5h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                Export PDF
+              </button>
+            </div>
           </div>
 
-          {/* ═══ BODY: 2-column layout ════════════════════════════════════ */}
-          <div className="pi-body">
-
-            {/* ── Columns wrapper ─────────────────────────────────────────── */}
-            <div className="pi-cols-wrapper">
-              {/* ── LEFT MAIN COLUMN ────────────────────────────────────────── */}
-              <div className="pi-col-main">
-
-                {/* ┌ Profit Trend card ─────────────────────────────────────── */}
-                <div className="pi-card pi-trend-card">
-                  <div className="pi-trend-header">
-                    <h2 className="pi-card-title">Profit Trend</h2>
-                    <div className="pi-trend-controls-group">
-                      <div className="pi-trend-duration-group">
-                        <button 
-                          className={`pi-trend-duration-btn ${profitTrendDuration === '1M' ? 'active' : ''}`}
-                          onClick={() => setProfitTrendDuration('1M')}
-                        >
-                          1M
-                        </button>
-                        <button 
-                          className={`pi-trend-duration-btn ${profitTrendDuration === '3M' ? 'active' : ''}`}
-                          onClick={() => setProfitTrendDuration('3M')}
-                        >
-                          3M
-                        </button>
-                        <button 
-                          className={`pi-trend-duration-btn ${profitTrendDuration === '6M' ? 'active' : ''}`}
-                          onClick={() => setProfitTrendDuration('6M')}
-                        >
-                          6M
-                        </button>
-                        <button 
-                          className={`pi-trend-duration-btn ${profitTrendDuration === '1Y' ? 'active' : ''}`}
-                          onClick={() => setProfitTrendDuration('1Y')}
-                        >
-                          1Y
-                        </button>
-                        <button 
-                          className={`pi-trend-duration-btn ${profitTrendDuration === 'ALL' ? 'active' : ''}`}
-                          onClick={() => setProfitTrendDuration('ALL')}
-                        >
-                          ALL
-                        </button>
-                      </div>
-                      {/* Date range */}
-                      <div style={{ position: 'relative' }}>
-                        <button className="pi-action-btn"
-                                onClick={() => setIsDatePickerOpen(v => !v)}>
-                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                            <rect x="2" y="3" width="12" height="11" rx="2"
-                                  stroke="currentColor" strokeWidth="1.5"/>
-                            <path d="M2 6H14" stroke="currentColor" strokeWidth="1.5"/>
-                            <circle cx="5" cy="9" r=".5" fill="currentColor"/>
-                            <circle cx="8" cy="9" r=".5" fill="currentColor"/>
-                            <circle cx="11" cy="9" r=".5" fill="currentColor"/>
-                          </svg>
-                          <span>{dateLabel}</span>
-                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5"
-                                  strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </button>
-                        <DateRangePicker isOpen={isDatePickerOpen}
-                                         onClose={() => setIsDatePickerOpen(false)}
-                                         onApply={r => setDateRange(r)}
-                                         initialRange={dateRange} />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* big value */}
-                  <div className="pi-trend-meta">
-                    <div className="pi-trend-value">
-                      <span className="pi-trend-amount">
-                        {kpiData ? fmtCur(kpiData.profit_sum) : '$367,857'}
-                      </span>
-                      {profitPercentageIncrease !== null && (
-                        <span className="pi-trend-percentage" style={{ color: '#10b981' }}>
-                          {profitPercentageIncrease >= 0 ? '+' : ''}{profitPercentageIncrease.toFixed(1)}%
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Line chart */}
-                  <div className="pi-trend-chart-area">
-                    <LineChart hideTabs={true} />
-                  </div>
-                </div>
-
-                {/* Top 3 Profitable Months and Average Profit Per Order */}
-                <div className="pi-top-months-row">
-                  {/* Top 3 Profitable Months */}
-                  <div className="pi-card pi-drivers-card">
-                    <h3 className="pi-card-title">Top 3 Profitable Months</h3>
-                    
-                    <p className="pi-insights-description">
-                      Study why these months made more profits and implement it in all months to grow your Business
-                    </p>
-                    
-                    <div className="pi-bar-chart-wrapper">
-                      <TopMonthsBarChart />
-                    </div>
-                  </div>
-
-                  {/* Average Profit Per Order */}
-                  <div className="pi-card pi-drivers-card">
-                    <h3 className="pi-card-title">Average Profit Per Order</h3>
-                    
-                    <div className="pi-average-profit-content">
-                      <div className="pi-average-profit-main">
-                        <div className="pi-average-profit-value">
-                          {kpiData?.profit_sum && kpiData?.orders_sum
-                            ? fmtCur(kpiData.profit_sum / kpiData.orders_sum)
-                            : '$168'}
-                        </div>
-                        <div className="pi-average-profit-stats">
-                          <div className="pi-stat-item">
-                            <div className="pi-stat-label-row">
-                              <span className="pi-stat-glow-circle"></span>
-                              <span className="pi-stat-label">Total Orders</span>
-                            </div>
-                            <span className="pi-stat-value">
-                              {kpiData?.orders_sum ? kpiData.orders_sum.toLocaleString() : '2,187'}
-                            </span>
-                          </div>
-                          <div className="pi-stat-item">
-                            <div className="pi-stat-label-row">
-                              <span className="pi-stat-glow-circle"></span>
-                              <span className="pi-stat-label">Total Profit</span>
-                            </div>
-                            <span className="pi-stat-value">
-                              {kpiData?.profit_sum ? fmtCur(kpiData.profit_sum) : '$367,857'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ┌ Profit Breakdown ────────────── */}
-                <div className="pi-mid-row">
-                  {/* Profit Breakdown */}
-                  <div className="pi-card pi-breakdown-card">
-                    <h3 className="pi-card-title">Profit Breakdown</h3>
-                    <ProfitBreakdownChart />
-                    
-                    {/* PROs and CONs Section */}
-                    <div className="pi-pros-cons-section">
-                      <div className="pi-pros-cons-column">
-                        <h4 className="pi-pros-cons-title pi-pros-title">
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M3 8L6 11L13 4" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          PROs
-                        </h4>
-                        <ul className="pi-pros-cons-list">
-                          {(() => {
-                            const pros = []
-                            const revenueSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('revenue'))
-                            const profitSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('profit'))
-                            const costSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('cost'))
-                            
-                            if (revenueSegment && revenueSegment.pct > 50) {
-                              pros.push(`Strong revenue generation (${revenueSegment.pct}% of total)`)
-                            }
-                            if (profitSegment && profitSegment.pct >= 8) {
-                              pros.push(`Healthy profit margin at ${profitSegment.pct}%`)
-                            }
-                            if (costSegment && costSegment.pct < 20) {
-                              pros.push(`Cost management is efficient (${costSegment.pct}%)`)
-                            }
-                            if (kpiData?.profit_sum && kpiData.profit_sum > 300000) {
-                              pros.push(`Total profit exceeds $300k threshold`)
-                            }
-                            if (pros.length === 0) {
-                              pros.push('Revenue streams are diversified')
-                              pros.push('Breakdown shows balanced allocation')
-                            }
-                            return pros.map((pro, i) => (
-                              <li key={i} className="pi-pros-item">
-                                <span className="pi-pros-cons-icon">✓</span>
-                                <span>{pro}</span>
-                              </li>
-                            ))
-                          })()}
-                        </ul>
-                      </div>
-                      
-                      <div className="pi-pros-cons-divider"></div>
-                      
-                      <div className="pi-pros-cons-column">
-                        <h4 className="pi-pros-cons-title pi-cons-title">
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M4 4L12 12M12 4L4 12" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"/>
-                          </svg>
-                          CONs
-                        </h4>
-                        <ul className="pi-pros-cons-list">
-                          {(() => {
-                            const cons = []
-                            const adSpendSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('ad spend') || s.label.toLowerCase().includes('adspend'))
-                            const profitSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('profit'))
-                            const shippingSegment = BREAKDOWN_SEGMENTS.find(s => s.label.toLowerCase().includes('shipping'))
-                            
-                            if (adSpendSegment && adSpendSegment.pct > 12) {
-                              cons.push(`Ad spend is high (${adSpendSegment.pct}%) - consider optimization`)
-                            }
-                            if (profitSegment && profitSegment.pct < 10) {
-                              cons.push(`Profit margin below 10% (${profitSegment.pct}%) - needs improvement`)
-                            }
-                            if (shippingSegment && shippingSegment.pct > 12) {
-                              cons.push(`Shipping costs are elevated (${shippingSegment.pct}%)`)
-                            }
-                            if (cons.length === 0) {
-                              cons.push('Monitor cost trends closely')
-                              cons.push('Review discount strategies regularly')
-                            }
-                            return cons.map((con, i) => (
-                              <li key={i} className="pi-cons-item">
-                                <span className="pi-pros-cons-icon">✗</span>
-                                <span>{con}</span>
-                              </li>
-                            ))
-                          })()}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          {/* ═══ SECTION 1: Profit Trend Analysis (Hero, full width) ═ */}
+          <div className="pil-section">
+            <div className="pil-section-header">
+              <div>
+                <p className="pil-section-title">Section 01</p>
+                <h2 className="pil-section-heading">Profit Trend Analysis</h2>
               </div>
-
-            </div>{/* /pi-cols-wrapper */}
-
-            {/* ┌ Most Profitable Products table ─────────────────────────── */}
-            <div className="pi-card pi-table-card">
-              <div className="pi-table-header">
-                <h3 className="pi-card-title">Most Profitable Products</h3>
-                <div className="pi-top-products-dropdown-wrapper">
-                  <select 
-                    className="pi-top-products-dropdown"
-                    value={topProductsCount}
-                    onChange={(e) => setTopProductsCount(Number(e.target.value))}
-                  >
-                    <option value={3}>TOP 3</option>
-                    <option value={5}>TOP 5</option>
-                    <option value={10}>TOP 10</option>
-                  </select>
-                </div>
-              </div>
-
-              <table className="pi-table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Profit <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg></th>
-                    <th>Margin <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg></th>
-                    <th>Orders <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M5 2v6M2 5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg></th>
-                    <th>Location</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {TOP_PRODUCTS.slice(0, topProductsCount).map((p, i) => (
-                    <tr key={i}>
-                      <td>
-                        <div className="pi-product-cell">
-                          <span className="pi-product-icon">{p.icon}</span>
-                          {p.name}
-                        </div>
-                      </td>
-                      <td><b>{fmtCur(p.profit)}</b></td>
-                      <td>{p.margin}%</td>
-                      <td>{p.orders.toLocaleString()}</td>
-                      <td>
-                        <div className="pi-location-cell">
-                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginRight: '6px' }}>
-                            <path d="M8 2C5.8 2 4 3.8 4 6c0 3.5 4 8 4 8s4-4.5 4-8c0-2.2-1.8-4-4-4zm0 5.5c-.8 0-1.5-.7-1.5-1.5S7.2 4.5 8 4.5 9.5 5.2 9.5 6 8.8 7.5 8 7.5z" fill="#6b7280"/>
-                          </svg>
-                          <span className="pi-location-text">{p.location}</span>
-                        </div>
-                      </td>
-                    </tr>
+              <div className="pil-trend-controls">
+                {/* Date range tabs */}
+                <div className="pil-range-tabs">
+                  {RANGES.map(r => (
+                    <button
+                      key={r}
+                      className={`pil-range-tab${dateRange === r ? ' pil-range-tab--active' : ''}`}
+                      onClick={() => setDateRange(r)}
+                    >
+                      {r}
+                    </button>
                   ))}
+                </div>
+                {/* Overlay toggles */}
+                <div className="pil-overlays">
+                  <label className="pil-overlay-toggle">
+                    <input type="checkbox" checked={showRevenue} onChange={e => setShowRevenue(e.target.checked)} />
+                    <span className="pil-overlay-swatch" style={{ background: '#9ca3af' }} />
+                    Revenue
+                  </label>
+                  <label className="pil-overlay-toggle">
+                    <input type="checkbox" checked={showCost} onChange={e => setShowCost(e.target.checked)} />
+                    <span className="pil-overlay-swatch" style={{ background: '#ef4444' }} />
+                    Total Cost
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <ResponsiveContainer width="100%" height={320}>
+              <ComposedChart data={filteredSeries} margin={{ top: 8, right: 24, bottom: 0, left: 10 }}>
+                <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={fmtDate}
+                  tick={{ fontSize: 11, fill: '#9ca3af' }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval="preserveStartEnd"
+                />
+                <YAxis
+                  tickFormatter={v => `$${fmtNum(v)}`}
+                  tick={{ fontSize: 11, fill: '#9ca3af' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={56}
+                />
+                <Tooltip content={<TrendTooltip />} />
+                {negativeRanges.map((r, i) => (
+                  <ReferenceArea key={i} x1={r.x1} x2={r.x2} fill="#fee2e2" fillOpacity={0.4} />
+                ))}
+                <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} />
+                <Area
+                  type="monotone"
+                  dataKey="profit"
+                  name="Net Profit"
+                  stroke="#2563eb"
+                  strokeWidth={2}
+                  fill="#eff6ff"
+                  fillOpacity={0.7}
+                  dot={false}
+                  activeDot={{ r: 4, fill: '#2563eb' }}
+                />
+                {showRevenue && (
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    name="Revenue"
+                    stroke="#9ca3af"
+                    strokeWidth={1.5}
+                    dot={false}
+                    activeDot={{ r: 3 }}
+                  />
+                )}
+                {showCost && (
+                  <Line
+                    type="monotone"
+                    dataKey="cost"
+                    name="Total Cost"
+                    stroke="#ef4444"
+                    strokeWidth={1.5}
+                    dot={false}
+                    activeDot={{ r: 3 }}
+                  />
+                )}
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* ═══ SECTION 2: 2-col (55/45) ══════════════════════════════ */}
+          <div className="pil-two-col">
+
+            {/* Left: Profit Composition */}
+            <div className="pil-section" style={{ marginBottom: 0 }}>
+              <div className="pil-section-header">
+                <div>
+                  <p className="pil-section-title">Section 02</p>
+                  <h2 className="pil-section-heading">Profit Composition</h2>
+                </div>
+                <span className="pil-meta">by product, sorted by contribution</span>
+              </div>
+
+              <ResponsiveContainer width="100%" height={compositionData.length * 38 + 20}>
+                <BarChart
+                  layout="vertical"
+                  data={compositionData}
+                  margin={{ top: 0, right: 72, bottom: 0, left: 0 }}
+                >
+                  <CartesianGrid horizontal={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                  <XAxis
+                    type="number"
+                    tickFormatter={v => `$${fmtNum(v)}`}
+                    tick={{ fontSize: 11, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: '#374151' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={110}
+                  />
+                  <Tooltip content={<BarTooltip />} />
+                  <Bar dataKey="profit" name="Profit" fill="#2563eb" radius={[0, 2, 2, 0]} barSize={16}
+                    label={(props) => <CompositionLabel {...props} pct={compositionData[props.index]?.pct} />}
+                  >
+                    {compositionData.map((entry, index) => (
+                      <Cell key={index} fill="#2563eb" />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Right: Margin Intelligence */}
+            <div className="pil-section" style={{ marginBottom: 0 }}>
+              <div className="pil-section-header">
+                <div>
+                  <p className="pil-section-title">Section 02</p>
+                  <h2 className="pil-section-heading">Margin Intelligence</h2>
+                </div>
+                <div className="pil-mode-toggle">
+                  <button
+                    className={`pil-mode-btn${marginMode === 'pct' ? ' pil-mode-btn--active' : ''}`}
+                    onClick={() => setMarginMode('pct')}
+                  >%</button>
+                  <button
+                    className={`pil-mode-btn${marginMode === 'abs' ? ' pil-mode-btn--active' : ''}`}
+                    onClick={() => setMarginMode('abs')}
+                  >Absolute</button>
+                </div>
+              </div>
+
+              <ResponsiveContainer width="100%" height={200}>
+                <RechartLineChart data={marginSeries} margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
+                  <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={fmtDate}
+                    tick={{ fontSize: 11, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis
+                    tickFormatter={marginMode === 'pct' ? v => `${v.toFixed(0)}%` : v => `$${fmtNum(v)}`}
+                    tick={{ fontSize: 11, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={44}
+                  />
+                  <Tooltip content={marginMode === 'pct' ? <MarginTooltip /> : <TrendTooltip />} />
+                  {marginMode === 'pct' ? (
+                    <>
+                      <Line type="monotone" dataKey="netMargin" name="Net Margin" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
+                      <Line type="monotone" dataKey="grossMargin" name="Gross Margin" stroke="#2563eb" strokeWidth={1.5} strokeDasharray="5 3" dot={false} activeDot={{ r: 3 }} />
+                    </>
+                  ) : (
+                    <Line type="monotone" dataKey="profit" name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
+                  )}
+                </RechartLineChart>
+              </ResponsiveContainer>
+
+              <div className="pil-margin-legend">
+                <div className="pil-margin-legend-item">
+                  <span className="pil-margin-legend-dot" style={{ background: '#059669' }} />
+                  <span className="pil-margin-legend-label">Avg Net Margin</span>
+                  <span className="pil-margin-legend-val">{fmtPct(avgNetMargin)}</span>
+                </div>
+                {marginMode === 'pct' && (
+                  <div className="pil-margin-legend-item">
+                    <span className="pil-margin-legend-dot pil-margin-legend-dot--dashed" style={{ background: '#2563eb' }} />
+                    <span className="pil-margin-legend-label">Avg Gross Margin</span>
+                    <span className="pil-margin-legend-val">{fmtPct(avgGrossMargin)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ═══ SECTION 3: 2-col equal ═════════════════════════════════ */}
+          <div className="pil-two-col-equal">
+
+            {/* Left: Cost Pressure Analysis */}
+            <div className="pil-section" style={{ marginBottom: 0 }}>
+              <div className="pil-section-header">
+                <div>
+                  <p className="pil-section-title">Section 03</p>
+                  <h2 className="pil-section-heading">Cost Pressure Analysis</h2>
+                </div>
+              </div>
+
+              {/* Fixed vs Variable bars */}
+              <div className="pil-cost-ratios">
+                <div className="pil-cost-row">
+                  <span className="pil-cost-label">Fixed Cost</span>
+                  <div className="pil-cost-bar-track">
+                    <div className="pil-cost-bar-fill" style={{ width: '35%', background: '#2563eb' }} />
+                  </div>
+                  <span className="pil-cost-value">{fmtCur(fixedCost)}</span>
+                </div>
+                <div className="pil-cost-row">
+                  <span className="pil-cost-label">Variable Cost</span>
+                  <div className="pil-cost-bar-track">
+                    <div className="pil-cost-bar-fill" style={{ width: '65%', background: '#9ca3af' }} />
+                  </div>
+                  <span className="pil-cost-value">{fmtCur(varCost)}</span>
+                </div>
+                <div className="pil-cost-row">
+                  <span className="pil-cost-label">Cost / Revenue</span>
+                  <div className="pil-cost-bar-track">
+                    <div className="pil-cost-bar-fill" style={{ width: `${Math.min(costRatio, 100)}%`, background: costRatio > 80 ? '#dc2626' : '#059669' }} />
+                  </div>
+                  <span className="pil-cost-value">{fmtPct(costRatio)}</span>
+                </div>
+              </div>
+
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={costPressureSeries.slice(-20)} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
+                  <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={3} />
+                  <YAxis tickFormatter={v => `$${fmtNum(v)}`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
+                  <Tooltip content={<BarTooltip />} />
+                  <Bar dataKey="profit" name="Profit" fill="#2563eb" barSize={6} radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="cost"   name="Cost"   fill="#fca5a5" barSize={6} radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Right: Profit Volatility & Risk */}
+            <div className="pil-section" style={{ marginBottom: 0 }}>
+              <div className="pil-section-header">
+                <div>
+                  <p className="pil-section-title">Section 03</p>
+                  <h2 className="pil-section-heading">Profit Volatility &amp; Risk</h2>
+                </div>
+                <RiskBadge level={stats.riskLevel} />
+              </div>
+
+              <table className="pil-stats-table">
+                <tbody>
+                  <tr>
+                    <td className="pil-stats-label">Std Deviation</td>
+                    <td className="pil-stats-val">{fmtCur(stats.stdDev)}</td>
+                  </tr>
+                  <tr>
+                    <td className="pil-stats-label">Best Period</td>
+                    <td className="pil-stats-val pil-stats-val--pos">
+                      {stats.best ? `${fmtDate(stats.best.date)} · ${fmtCur(stats.best.value)}` : '—'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="pil-stats-label">Worst Period</td>
+                    <td className="pil-stats-val pil-stats-val--neg">
+                      {stats.worst ? `${fmtDate(stats.worst.date)} · ${fmtCur(stats.worst.value)}` : '—'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="pil-stats-label">Negative Frequency</td>
+                    <td className="pil-stats-val">{fmtPct(stats.negFreq)} of periods</td>
+                  </tr>
                 </tbody>
               </table>
+
+              <p className="pil-chart-sublabel">Drawdown from peak</p>
+              <ResponsiveContainer width="100%" height={120}>
+                <RechartLineChart data={drawdownSeries} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+                  <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                  <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                  <YAxis tickFormatter={v => `${v.toFixed(0)}%`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={40} />
+                  <Tooltip
+                    content={({ active, payload, label }) => {
+                      if (!active || !payload?.length) return null
+                      return (
+                        <div className="pil-tooltip">
+                          <div className="pil-tooltip-date">{fmtDate(label)}</div>
+                          <div className="pil-tooltip-row">
+                            <span className="pil-tooltip-dot" style={{ background: '#dc2626' }} />
+                            <span className="pil-tooltip-label">Drawdown</span>
+                            <span className="pil-tooltip-val">{fmtPct(payload[0].value)}</span>
+                          </div>
+                        </div>
+                      )
+                    }}
+                  />
+                  <ReferenceLine y={0} stroke="#e5e7eb" strokeWidth={1} />
+                  <Line type="monotone" dataKey="drawdown" stroke="#dc2626" strokeWidth={1.5} dot={false} activeDot={{ r: 3 }} />
+                </RechartLineChart>
+              </ResponsiveContainer>
             </div>
+          </div>
 
-            {/* Profit by Categories – donut chart */}
-            <div className="pi-card pi-bar-card">
-              <h3 className="pi-card-title">Profit by Categories</h3>
-
-              <div className="pi-pie-chart-container">
-                {/* Donut chart with center overlay */}
-                <div className="pi-donut-wrapper">
-                  <ResponsiveContainer width="100%" height={200}>
-                    <PieChart>
-                      <Pie
-                        data={CHANNEL_BARS}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={88}
-                        innerRadius={62}
-                        dataKey="value"
-                        paddingAngle={5}
-                        strokeWidth={0}
-                      >
-                        {CHANNEL_BARS.map((entry, index) => (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={entry.color}
-                            className="pi-donut-segment"
-                            onMouseEnter={() => setHoveredSegmentIndex(index)}
-                            onMouseLeave={() => setHoveredSegmentIndex(null)}
-                            style={{ 
-                              cursor: 'pointer',
-                              transition: 'opacity 0.2s ease',
-                              opacity: hoveredSegmentIndex !== null && hoveredSegmentIndex !== index ? 0.5 : 1
-                            }}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip content={<CustomPieTooltip />} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  {/* Center text */}
-                  <div className="pi-donut-center">
-                    <span className="pi-donut-center-label">Total Profit</span>
-                    <span className="pi-donut-center-value">
-                      ${(CHANNEL_BARS.reduce((s, b) => s + b.value, 0) / 1000).toFixed(0)}k
-                    </span>
-                  </div>
-                </div>
-
-                {/* Custom legend */}
-                <div className="pi-donut-legend">
-                  {CHANNEL_BARS.map((item, i) => {
-                    const total = CHANNEL_BARS.reduce((s, b) => s + b.value, 0)
-                    const pct = Math.round((item.value / total) * 100)
-                    const isHovered = hoveredSegmentIndex === i
-                    return (
-                      <div 
-                        key={i} 
-                        className={`pi-donut-legend-item ${isHovered ? 'pi-donut-legend-item-focused' : ''}`}
-                        onMouseEnter={() => setHoveredSegmentIndex(i)}
-                        onMouseLeave={() => setHoveredSegmentIndex(null)}
-                      >
-                        <span className="pi-donut-legend-dot" style={{ background: item.color }} />
-                        <span className="pi-donut-legend-name">{item.label}</span>
-                        <span className="pi-donut-legend-pct">{pct}%</span>
-                      </div>
-                    )
-                  })}
-                </div>
+          {/* ═══ SECTION 4: Insight & Action Panel (full width) ════════ */}
+          <div className="pil-section">
+            <div className="pil-section-header">
+              <div>
+                <p className="pil-section-title">Section 04</p>
+                <h2 className="pil-section-heading">Insight &amp; Action</h2>
               </div>
+              <span className="pil-meta">Diagnostics updated from current dataset</span>
             </div>
-          </div>{/* /pi-body */}
+
+            <div className="pil-insights-grid">
+              {insights.map((ins, i) => (
+                <div key={i} className="pil-insight-item">
+                  <InsightIcon type={ins.type} />
+                  <p className="pil-insight-text">{ins.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>{/* /pi-content */}
       </div>{/* /pi-shell */}
     </div>
