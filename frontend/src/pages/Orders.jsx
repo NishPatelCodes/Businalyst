@@ -45,6 +45,27 @@ const DEMO_CATEGORY = [
   { name: 'Accessories',    value: 74 },
 ]
 
+const DEMO_BOTTOM_PRODUCTS = [
+  { product: 'Surge Protector',  orders: 28, revenue: 1890 },
+  { product: 'Laptop Sleeve',    orders: 34, revenue: 2100 },
+  { product: 'Desk Lamp',        orders: 41, revenue: 2850 },
+  { product: 'Monitor Stand',    orders: 47, revenue: 3200 },
+  { product: 'Webcam Cover',     orders: 52, revenue: 1650 },
+  { product: 'Cable Organizer',  orders: 58, revenue: 2040 },
+  { product: 'Screen Cleaner',   orders: 63, revenue: 1920 },
+]
+
+const DEMO_FULFILLMENT_TREND = [
+  { date: 'Jan 1',  avgDays: 2.1, latePct: 4.2 },
+  { date: 'Jan 8',  avgDays: 2.4, latePct: 5.1 },
+  { date: 'Jan 15', avgDays: 2.2, latePct: 3.8 },
+  { date: 'Jan 22', avgDays: 2.6, latePct: 6.2 },
+  { date: 'Feb 1',  avgDays: 2.3, latePct: 5.5 },
+  { date: 'Feb 8',  avgDays: 2.8, latePct: 7.1 },
+  { date: 'Feb 15', avgDays: 2.5, latePct: 6.0 },
+  { date: 'Feb 22', avgDays: 2.4, latePct: 5.8 },
+]
+
 /* ── Formatting helpers ─────────────────────────────────────── */
 const fmtOrd = (n) => {
   const abs = Math.abs(n || 0)
@@ -107,6 +128,22 @@ const ProductTooltip = ({ active, payload, label, totalOrders }) => {
   )
 }
 
+const FulfillmentTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null
+  const avgDays = payload[0]?.value || 0
+  const color = avgDays <= 2.5 ? '#059669' : avgDays <= 3 ? '#d97706' : '#dc2626'
+  return (
+    <div className="omi-tooltip">
+      <div className="omi-tooltip-date">{fmtDate(label) || label}</div>
+      <div className="omi-tooltip-row">
+        <span className="omi-tooltip-dot" style={{ background: color }} />
+        <span className="omi-tooltip-label">Avg Fulfillment</span>
+        <span className="omi-tooltip-val">{avgDays.toFixed(1)} days</span>
+      </div>
+    </div>
+  )
+}
+
 /* ── Custom bar label for % share ───────────────────────────── */
 const PctLabel = ({ x, y, width, height, value, total }) => {
   if (!value || !total) return null
@@ -146,9 +183,10 @@ const InsightIcon = ({ type }) => {
 const Orders = () => {
   const { kpiData } = useContext(KpiContext)
 
-  const [range, setRange]           = useState('ALL')
-  const [showRevenue, setShowRevenue] = useState(false)
-  const [productSort, setProductSort] = useState('orders')
+  const [range, setRange]             = useState('ALL')
+  const [showRevenue, setShowRevenue]  = useState(false)
+  const [productSort, setProductSort]  = useState('orders')
+  const [productView, setProductView]  = useState('top')
 
   /* ── Raw data arrays ─────────────────────────────────────── */
   const dateData    = useMemo(() => kpiData?.date_data    || [], [kpiData])
@@ -220,6 +258,28 @@ const Orders = () => {
   const totalProductOrders = useMemo(
     () => topProductsData.reduce((s, d) => s + d.orders, 0),
     [topProductsData]
+  )
+
+  /* ── Bottom (low-performing) products ───────────────────── */
+  const bottomProductsData = useMemo(() => {
+    if (Array.isArray(barData) && barData.length) {
+      const all = barData.map((d) => ({
+        product: d.name || d.product || d.label || 'Unknown',
+        orders:  Math.round(Number(d.value || d.orders || 0)),
+        revenue: Number(d.revenue || d.value || 0),
+      }))
+      return [...all].sort((a, b) =>
+        productSort === 'revenue' ? a.revenue - b.revenue : a.orders - b.orders
+      ).slice(0, 7)
+    }
+    return [...DEMO_BOTTOM_PRODUCTS].sort((a, b) =>
+      productSort === 'revenue' ? a.revenue - b.revenue : a.orders - b.orders
+    )
+  }, [barData, productSort])
+
+  const totalBottomOrders = useMemo(
+    () => bottomProductsData.reduce((s, d) => s + d.orders, 0),
+    [bottomProductsData]
   )
 
   /* ── Category data ───────────────────────────────────────── */
@@ -544,6 +604,37 @@ const Orders = () => {
                 <span className="omi-ontime-label">94% on-time</span>
               </div>
               <p className="omi-late-note">6% late — check carrier SLA</p>
+              <p className="omi-fulfillment-chart-title">Avg Fulfillment Time — 8-Week Trend</p>
+              <ResponsiveContainer width="100%" height={120}>
+                <BarChart data={DEMO_FULFILLMENT_TREND} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                  <CartesianGrid vertical={false} stroke="#f0f0f0" />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 10, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval="preserveStartEnd"
+                    tickFormatter={(v) => (v || '').split(' ')[0] || v}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => `${v}d`}
+                    domain={[0, 4]}
+                    width={28}
+                  />
+                  <Tooltip content={<FulfillmentTooltip />} />
+                  <Bar dataKey="avgDays" maxBarSize={16} radius={[2, 2, 0, 0]}>
+                    {DEMO_FULFILLMENT_TREND.map((entry, i) => (
+                      <Cell
+                        key={i}
+                        fill={entry.avgDays <= 2.5 ? '#059669' : entry.avgDays <= 3 ? '#d97706' : '#dc2626'}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
@@ -552,52 +643,74 @@ const Orders = () => {
             <div className="omi-section-header">
               <div>
                 <p className="omi-section-label">SECTION 03</p>
-                <h2 className="omi-section-title">Top Products by Order Volume</h2>
+                <h2 className="omi-section-title">
+                  {productView === 'top' ? 'Top Products by Order Volume' : 'Low-Performing Products'}
+                </h2>
+                <p className="omi-section-meta">
+                  {productView === 'top' ? 'Highest order volume, current dataset' : 'Lowest order volume — review inventory & marketing'}
+                </p>
               </div>
-              <select
-                className="omi-select"
-                value={productSort}
-                onChange={(e) => setProductSort(e.target.value)}
-              >
-                <option value="orders">Sort by Orders</option>
-                <option value="revenue">Sort by Revenue</option>
-              </select>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="omi-range-group">
+                  <button
+                    className={`omi-range-btn${productView === 'top' ? ' omi-range-btn--active' : ''}`}
+                    onClick={() => setProductView('top')}
+                  >Top</button>
+                  <button
+                    className={`omi-range-btn${productView === 'bottom' ? ' omi-range-btn--active' : ''}`}
+                    onClick={() => setProductView('bottom')}
+                  >Low</button>
+                </div>
+                <select
+                  className="omi-select"
+                  value={productSort}
+                  onChange={(e) => setProductSort(e.target.value)}
+                >
+                  <option value="orders">Sort by Orders</option>
+                  <option value="revenue">Sort by Revenue</option>
+                </select>
+              </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={Math.max(200, topProductsData.length * 40)}>
-              <BarChart
-                data={topProductsData}
-                layout="vertical"
-                margin={{ top: 0, right: 80, left: 8, bottom: 0 }}
-              >
-                <CartesianGrid horizontal={false} stroke="#f0f0f0" />
-                <XAxis
-                  type="number"
-                  tick={{ fontSize: 11, fill: '#9ca3af' }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={fmtOrd}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="product"
-                  tick={{ fontSize: 12, fill: '#374151' }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={120}
-                />
-                <Tooltip
-                  content={<ProductTooltip totalOrders={totalProductOrders} />}
-                />
-                <Bar
-                  dataKey={productSort === 'revenue' ? 'revenue' : 'orders'}
-                  fill="#2563eb"
-                  maxBarSize={28}
-                  radius={[0, 2, 2, 0]}
-                  label={(props) => <PctLabel {...props} total={totalProductOrders} />}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {(() => {
+              const data   = productView === 'top' ? topProductsData : bottomProductsData
+              const total  = productView === 'top' ? totalProductOrders : totalBottomOrders
+              const color  = productView === 'top' ? '#2563eb' : '#6b7280'
+              return (
+                <ResponsiveContainer width="100%" height={Math.max(200, data.length * 40)}>
+                  <BarChart
+                    data={data}
+                    layout="vertical"
+                    margin={{ top: 0, right: 80, left: 8, bottom: 0 }}
+                  >
+                    <CartesianGrid horizontal={false} stroke="#f0f0f0" />
+                    <XAxis
+                      type="number"
+                      tick={{ fontSize: 11, fill: '#9ca3af' }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={fmtOrd}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="product"
+                      tick={{ fontSize: 12, fill: '#374151' }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={120}
+                    />
+                    <Tooltip content={<ProductTooltip totalOrders={total} />} />
+                    <Bar
+                      dataKey={productSort === 'revenue' ? 'revenue' : 'orders'}
+                      fill={color}
+                      maxBarSize={28}
+                      radius={[0, 2, 2, 0]}
+                      label={(props) => <PctLabel {...props} total={total} />}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )
+            })()}
           </div>
 
           {/* ── SECTION 04: Cohort + Category ────────────────────── */}
