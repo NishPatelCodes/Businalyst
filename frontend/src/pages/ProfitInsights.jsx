@@ -391,68 +391,64 @@ const ProfitInsights = () => {
               </div>
             </div>
 
-            {filteredSeries.length === 0 ? (
-              <div className="pil-empty-state">No profit trend data available. Upload a dataset with date, revenue, and profit columns.</div>
-            ) : (
-              <ResponsiveContainer width="100%" height={320}>
-                <ComposedChart data={filteredSeries} margin={{ top: 8, right: 24, bottom: 0, left: 10 }}>
-                  <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={fmtDate}
-                    tick={{ fontSize: 11, fill: '#9ca3af' }}
-                    axisLine={false}
-                    tickLine={false}
-                    interval="preserveStartEnd"
-                  />
-                  <YAxis
-                    tickFormatter={v => `$${fmtNum(v)}`}
-                    tick={{ fontSize: 11, fill: '#9ca3af' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={56}
-                  />
-                  <Tooltip content={<TrendTooltip />} />
-                  {negativeRanges.map((r, i) => (
-                    <ReferenceArea key={i} x1={r.x1} x2={r.x2} fill="#fee2e2" fillOpacity={0.4} />
-                  ))}
-                  <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} />
-                  <Area
+            <ResponsiveContainer width="100%" height={320}>
+              <ComposedChart data={filteredSeries} margin={{ top: 8, right: 24, bottom: 0, left: 10 }}>
+                <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={fmtDate}
+                  tick={{ fontSize: 11, fill: '#9ca3af' }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval="preserveStartEnd"
+                />
+                <YAxis
+                  tickFormatter={v => `$${fmtNum(v)}`}
+                  tick={{ fontSize: 11, fill: '#9ca3af' }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={56}
+                />
+                <Tooltip content={<TrendTooltip />} />
+                {negativeRanges.map((r, i) => (
+                  <ReferenceArea key={i} x1={r.x1} x2={r.x2} fill="#fee2e2" fillOpacity={0.4} />
+                ))}
+                <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} />
+                <Area
+                  type="monotone"
+                  dataKey="profit"
+                  name="Net Profit"
+                  stroke="#2563eb"
+                  strokeWidth={2}
+                  fill="#eff6ff"
+                  fillOpacity={0.7}
+                  dot={false}
+                  activeDot={{ r: 4, fill: '#2563eb' }}
+                />
+                {showRevenue && (
+                  <Line
                     type="monotone"
-                    dataKey="profit"
-                    name="Net Profit"
-                    stroke="#2563eb"
-                    strokeWidth={2}
-                    fill="#eff6ff"
-                    fillOpacity={0.7}
+                    dataKey="revenue"
+                    name="Revenue"
+                    stroke="#9ca3af"
+                    strokeWidth={1.5}
                     dot={false}
-                    activeDot={{ r: 4, fill: '#2563eb' }}
+                    activeDot={{ r: 3 }}
                   />
-                  {showRevenue && (
-                    <Line
-                      type="monotone"
-                      dataKey="revenue"
-                      name="Revenue"
-                      stroke="#9ca3af"
-                      strokeWidth={1.5}
-                      dot={false}
-                      activeDot={{ r: 3 }}
-                    />
-                  )}
-                  {showCost && (
-                    <Line
-                      type="monotone"
-                      dataKey="cost"
-                      name="Total Cost"
-                      stroke="#ef4444"
-                      strokeWidth={1.5}
-                      dot={false}
-                      activeDot={{ r: 3 }}
-                    />
-                  )}
-                </ComposedChart>
-              </ResponsiveContainer>
-            )}
+                )}
+                {showCost && (
+                  <Line
+                    type="monotone"
+                    dataKey="cost"
+                    name="Total Cost"
+                    stroke="#ef4444"
+                    strokeWidth={1.5}
+                    dot={false}
+                    activeDot={{ r: 3 }}
+                  />
+                )}
+              </ComposedChart>
+            </ResponsiveContainer>
           </div>
 
           {/* ═══ SECTION 2: 2-col (55/45) ══════════════════════════════ */}
@@ -468,42 +464,38 @@ const ProfitInsights = () => {
                 <span className="pil-meta">by product, sorted by contribution</span>
               </div>
 
-              {compositionData.length === 0 ? (
-                <div className="pil-empty-state">No product profit data available for this dataset.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={compositionData.length * 38 + 20}>
-                  <BarChart
-                    layout="vertical"
-                    data={compositionData}
-                    margin={{ top: 0, right: 72, bottom: 0, left: 0 }}
+              <ResponsiveContainer width="100%" height={compositionData.length * 38 + 20}>
+                <BarChart
+                  layout="vertical"
+                  data={compositionData}
+                  margin={{ top: 0, right: 72, bottom: 0, left: 0 }}
+                >
+                  <CartesianGrid horizontal={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                  <XAxis
+                    type="number"
+                    tickFormatter={v => `$${fmtNum(v)}`}
+                    tick={{ fontSize: 11, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: '#374151' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={110}
+                  />
+                  <Tooltip content={<BarTooltip />} />
+                  <Bar dataKey="profit" name="Profit" fill="#2563eb" radius={[0, 2, 2, 0]} barSize={16}
+                    label={(props) => <CompositionLabel {...props} pct={compositionData[props.index]?.pct} />}
                   >
-                    <CartesianGrid horizontal={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                    <XAxis
-                      type="number"
-                      tickFormatter={v => `$${fmtNum(v)}`}
-                      tick={{ fontSize: 11, fill: '#9ca3af' }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      type="category"
-                      dataKey="name"
-                      tick={{ fontSize: 11, fill: '#374151' }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={110}
-                    />
-                    <Tooltip content={<BarTooltip />} />
-                    <Bar dataKey="profit" name="Profit" fill="#2563eb" radius={[0, 2, 2, 0]} barSize={16}
-                      label={(props) => <CompositionLabel {...props} pct={compositionData[props.index]?.pct} />}
-                    >
-                      {compositionData.map((entry, index) => (
-                        <Cell key={index} fill="#2563eb" />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
+                    {compositionData.map((entry, index) => (
+                      <Cell key={index} fill="#2563eb" />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
 
             {/* Right: Margin Intelligence */}
@@ -525,39 +517,35 @@ const ProfitInsights = () => {
                 </div>
               </div>
 
-              {marginSeries.length === 0 ? (
-                <div className="pil-empty-state">No margin data available for this dataset.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={200}>
-                  <RechartLineChart data={marginSeries} margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
-                    <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={fmtDate}
-                      tick={{ fontSize: 11, fill: '#9ca3af' }}
-                      axisLine={false}
-                      tickLine={false}
-                      interval="preserveStartEnd"
-                    />
-                    <YAxis
-                      tickFormatter={marginMode === 'pct' ? v => `${v.toFixed(0)}%` : v => `$${fmtNum(v)}`}
-                      tick={{ fontSize: 11, fill: '#9ca3af' }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={44}
-                    />
-                    <Tooltip content={marginMode === 'pct' ? <MarginTooltip /> : <TrendTooltip />} />
-                    {marginMode === 'pct' ? (
-                      <>
-                        <Line type="monotone" dataKey="netMargin" name="Net Margin" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
-                        <Line type="monotone" dataKey="grossMargin" name="Gross Margin" stroke="#2563eb" strokeWidth={1.5} strokeDasharray="5 3" dot={false} activeDot={{ r: 3 }} />
-                      </>
-                    ) : (
-                      <Line type="monotone" dataKey="profit" name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
-                    )}
-                  </RechartLineChart>
-                </ResponsiveContainer>
-              )}
+              <ResponsiveContainer width="100%" height={200}>
+                <RechartLineChart data={marginSeries} margin={{ top: 4, right: 16, bottom: 0, left: 0 }}>
+                  <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={fmtDate}
+                    tick={{ fontSize: 11, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis
+                    tickFormatter={marginMode === 'pct' ? v => `${v.toFixed(0)}%` : v => `$${fmtNum(v)}`}
+                    tick={{ fontSize: 11, fill: '#9ca3af' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={44}
+                  />
+                  <Tooltip content={marginMode === 'pct' ? <MarginTooltip /> : <TrendTooltip />} />
+                  {marginMode === 'pct' ? (
+                    <>
+                      <Line type="monotone" dataKey="netMargin" name="Net Margin" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
+                      <Line type="monotone" dataKey="grossMargin" name="Gross Margin" stroke="#2563eb" strokeWidth={1.5} strokeDasharray="5 3" dot={false} activeDot={{ r: 3 }} />
+                    </>
+                  ) : (
+                    <Line type="monotone" dataKey="profit" name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
+                  )}
+                </RechartLineChart>
+              </ResponsiveContainer>
 
               <div className="pil-margin-legend">
                 <div className="pil-margin-legend-item">
@@ -613,20 +601,16 @@ const ProfitInsights = () => {
                 </div>
               </div>
 
-              {costPressureSeries.length === 0 ? (
-                <div className="pil-empty-state">No cost pressure data available for this dataset.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={180}>
-                  <BarChart data={costPressureSeries.slice(-20)} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
-                    <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={3} />
-                    <YAxis tickFormatter={v => `$${fmtNum(v)}`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
-                    <Tooltip content={<BarTooltip />} />
-                    <Bar dataKey="profit" name="Profit" fill="#2563eb" barSize={6} radius={[2, 2, 0, 0]} />
-                    <Bar dataKey="cost"   name="Cost"   fill="#fca5a5" barSize={6} radius={[2, 2, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={costPressureSeries.slice(-20)} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
+                  <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={3} />
+                  <YAxis tickFormatter={v => `$${fmtNum(v)}`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
+                  <Tooltip content={<BarTooltip />} />
+                  <Bar dataKey="profit" name="Profit" fill="#2563eb" barSize={6} radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="cost"   name="Cost"   fill="#fca5a5" barSize={6} radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
 
             {/* Right: Profit Volatility & Risk */}
@@ -665,34 +649,30 @@ const ProfitInsights = () => {
               </table>
 
               <p className="pil-chart-sublabel">Drawdown from peak</p>
-              {drawdownSeries.length === 0 ? (
-                <div className="pil-empty-state">No volatility data available for this dataset.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={120}>
-                  <RechartLineChart data={drawdownSeries} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-                    <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                    <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-                    <YAxis tickFormatter={v => `${v.toFixed(0)}%`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={40} />
-                    <Tooltip
-                      content={({ active, payload, label }) => {
-                        if (!active || !payload?.length) return null
-                        return (
-                          <div className="pil-tooltip">
-                            <div className="pil-tooltip-date">{fmtDate(label)}</div>
-                            <div className="pil-tooltip-row">
-                              <span className="pil-tooltip-dot" style={{ background: '#dc2626' }} />
-                              <span className="pil-tooltip-label">Drawdown</span>
-                              <span className="pil-tooltip-val">{fmtPct(payload[0].value)}</span>
-                            </div>
+              <ResponsiveContainer width="100%" height={120}>
+                <RechartLineChart data={drawdownSeries} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+                  <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                  <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                  <YAxis tickFormatter={v => `${v.toFixed(0)}%`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={40} />
+                  <Tooltip
+                    content={({ active, payload, label }) => {
+                      if (!active || !payload?.length) return null
+                      return (
+                        <div className="pil-tooltip">
+                          <div className="pil-tooltip-date">{fmtDate(label)}</div>
+                          <div className="pil-tooltip-row">
+                            <span className="pil-tooltip-dot" style={{ background: '#dc2626' }} />
+                            <span className="pil-tooltip-label">Drawdown</span>
+                            <span className="pil-tooltip-val">{fmtPct(payload[0].value)}</span>
                           </div>
-                        )
-                      }}
-                    />
-                    <ReferenceLine y={0} stroke="#e5e7eb" strokeWidth={1} />
-                    <Line type="monotone" dataKey="drawdown" stroke="#dc2626" strokeWidth={1.5} dot={false} activeDot={{ r: 3 }} />
-                  </RechartLineChart>
-                </ResponsiveContainer>
-              )}
+                        </div>
+                      )
+                    }}
+                  />
+                  <ReferenceLine y={0} stroke="#e5e7eb" strokeWidth={1} />
+                  <Line type="monotone" dataKey="drawdown" stroke="#dc2626" strokeWidth={1.5} dot={false} activeDot={{ r: 3 }} />
+                </RechartLineChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
