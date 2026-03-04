@@ -1,7 +1,7 @@
 /* Revenue Insights by Column – Transfer history style card */
 .ribc-card {
   background: #fff;
-  border-radius: 12px;
+  border-radius: var(--card-border-radius);
   padding: 18px 20px;
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -37,7 +37,7 @@
 .ribc-expand-btn {
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: var(--card-border-radius);
   border: 1px solid #e5e7eb;
   background: #fff;
   color: #6b7280;
@@ -72,7 +72,7 @@
   gap: 6px;
   height: 36px;
   padding: 0 12px;
-  border-radius: 10px;
+  border-radius: var(--card-border-radius);
   border: 1px solid #e5e7eb;
   background: #fff;
   font-size: 13px;
@@ -96,7 +96,7 @@
   margin: 0;
   padding: 6px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: var(--card-border-radius);
   border: 1px solid #e5e7eb;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 10;
@@ -112,7 +112,7 @@
   color: #374151;
   text-align: left;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--card-border-radius);
   font-family: inherit;
 }
 .ribc-dropdown-item:hover {
@@ -133,7 +133,7 @@
 
 .ribc-pill {
   padding: 6px 14px;
-  border-radius: 10px;
+  border-radius: var(--card-border-radius);
   border: 1px solid #e5e7eb;
   background: #fff;
   font-size: 13px;
@@ -177,7 +177,7 @@
   gap: 8px;
   padding: 4px 0;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--card-border-radius);
   transition: opacity 0.2s;
 }
 .ribc-legend-item--dimmed {
@@ -190,7 +190,7 @@
 .ribc-legend-swatch {
   width: 12px;
   height: 12px;
-  border-radius: 3px;
+  border-radius: var(--card-border-radius);
   flex-shrink: 0;
 }
 

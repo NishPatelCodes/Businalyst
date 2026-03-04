@@ -124,7 +124,7 @@
   height: 38px;
   padding: 0 12px 0 38px;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: var(--card-border-radius);
   background: #f9fafb;
   font-size: 14px;
   color: #111827;
@@ -156,7 +156,7 @@
   justify-content: center;
   border: none;
   background: transparent;
-  border-radius: 9px;
+  border-radius: var(--card-border-radius);
   color: #6b7280;
   cursor: pointer;
   transition: all 0.2s;
@@ -171,7 +171,7 @@
   align-items: center;
   gap: 9px;
   padding: 4px 10px;
-  border-radius: 9px;
+  border-radius: var(--card-border-radius);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -182,7 +182,7 @@
 .ri-avatar {
   width: 34px;
   height: 34px;
-  border-radius: 50%;
+  border-radius: var(--card-border-radius);
   object-fit: cover;
   border: 1px solid #e5e7eb;
 }
@@ -240,7 +240,7 @@
   padding: 8px 14px;
   background: var(--ri-bg-card);
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: var(--card-border-radius);
   font-size: 13px;
   font-weight: 500;
   color: #374151;
@@ -291,7 +291,7 @@
 /* ── Cards (Apple-style) ─────────────────────────────────────── */
 .ri-card {
   background: var(--ri-bg-card);
-  border-radius: 12px;
+  border-radius: var(--card-border-radius);
   padding: 18px 20px;
   border: 1px solid var(--ri-border);
   box-shadow: var(--ri-shadow);
@@ -367,7 +367,7 @@
   gap: 4px;
   padding: 4px 8px;
   background: rgba(52, 199, 89, 0.12);
-  border-radius: 8px;
+  border-radius: var(--card-border-radius);
   font-size: 12px;
   font-weight: 600;
   color: var(--ri-success);
@@ -416,13 +416,13 @@
   flex: 1;
   height: 10px;
   background: #f3f4f6;
-  border-radius: 5px;
+  border-radius: var(--card-border-radius);
   overflow: hidden;
 }
 
 .ri-region-bar {
   height: 100%;
-  border-radius: 5px;
+  border-radius: var(--card-border-radius);
   transition: width 0.3s ease;
 }
 
@@ -493,7 +493,7 @@
 .ri-product-icon {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: var(--card-border-radius);
   background: rgba(0, 122, 255, 0.1);
   color: var(--ri-accent);
   display: flex;
@@ -568,7 +568,7 @@
 .ri-driver-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--card-border-radius);
   background: var(--ri-accent);
   flex-shrink: 0;
   margin-top: 5px;

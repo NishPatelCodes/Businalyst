@@ -1,10 +1,10 @@
-﻿import React, { useState, useMemo, useContext } from 'react'
+import React, { useState, useMemo, useContext } from 'react'
 import { KpiContext } from '../../context/KpiContext'
 import './OrdersComparisonBarChart.css'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
 
-/** Build year comparison: 2024 vs 2023. Seven groups (JanΓÇôJul). Uses KPI or mock. */
+/** Build year comparison: 2024 vs 2023. Seven groups (Jan–Jul). Uses KPI or mock. */
 function getYearComparisonData(kpiData) {
   const mock2024 = [18, 22, 20, 24, 19, 26, 28]
   const mock2023 = [14, 18, 16, 20, 17, 22, 20]

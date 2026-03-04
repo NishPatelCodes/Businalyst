@@ -1,7 +1,7 @@
 /* Revenue line chart – full width, match reference */
 .ri-chart-card {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: var(--card-border-radius);
   padding: 20px 24px 16px;
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
@@ -73,7 +73,7 @@
   display: flex;
   align-items: center;
   background: #f3f4f6;
-  border-radius: 8px;
+  border-radius: var(--card-border-radius);
   padding: 3px;
   gap: 2px;
 }
@@ -81,7 +81,7 @@
 .ri-chart-pill {
   padding: 6px 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--card-border-radius);
   font-size: 13px;
   font-weight: 500;
   color: #6b7280;
@@ -108,7 +108,7 @@
   padding: 8px 12px;
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: var(--card-border-radius);
   font-size: 13px;
   color: #374151;
   cursor: pointer;
@@ -141,7 +141,7 @@
   background: #374151;
   color: #fff;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: var(--card-border-radius);
   font-size: 13px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   pointer-events: none;
@@ -161,6 +161,6 @@
 .ri-chart-tooltip-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--card-border-radius);
   flex-shrink: 0;
 }

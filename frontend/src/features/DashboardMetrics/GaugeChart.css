@@ -4,7 +4,7 @@
 
 .health-meter {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: var(--card-border-radius);
   padding: 13px;
   /* Premium layered shadows for depth - matching KPI cards */
   box-shadow: 

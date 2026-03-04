@@ -23,8 +23,8 @@
   
   /* Background Colors */
   --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --bg-tertiary: #f3f4f6;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e8edf3;
   
   /* Text Colors */
   --text-primary: #111827;
@@ -78,8 +78,9 @@
   --letter-spacing-normal: -0.01em;
   --letter-spacing-wide: -0.02em;
   
-  /* Card System - Apple-style: hairline border + white glow + soft shadow */
-  --card-border-radius: 11px;
+  /* Card System - sharp square corners */
+  --card-border-radius: 0;
+  --card-radius: 0;
   --card-padding: 18px;
   --card-padding-sm: 13px;
   --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.04);

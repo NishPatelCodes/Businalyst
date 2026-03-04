@@ -320,13 +320,13 @@ const RevenueComparisonBarChart = () => {
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#000000', fontSize: 12 }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
               dy={8}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#000000', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 11 }}
               tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v))}
               domain={[0, (max) => Math.max(max * 1.05, 1)]}
             />

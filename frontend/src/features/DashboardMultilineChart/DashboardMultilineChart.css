@@ -1,0 +1,96 @@
+/* Dashboard multiline chart – 3 lines, sharp corners */
+
+.dashboard-multiline {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.dashboard-multiline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.dashboard-multiline-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.dashboard-multiline-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.dashboard-multiline-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.dashboard-multiline-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--card-border-radius);
+  flex-shrink: 0;
+}
+
+.dashboard-multiline-container {
+  flex: 1;
+  min-height: 180px;
+  position: relative;
+}
+
+.dashboard-multiline-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dashboard-multiline-xlabel {
+  font-size: 10px;
+  fill: #9ca3af;
+  font-weight: 500;
+}
+
+.dashboard-multiline-tooltip {
+  position: absolute;
+  bottom: 100%;
+  margin-bottom: 8px;
+  transform: translateX(-50%);
+  min-width: 120px;
+  padding: 8px 12px;
+  background: #1f2937;
+  color: #fff;
+  font-size: 11px;
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dashboard-multiline-tooltip-date {
+  font-weight: 600;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-multiline-tooltip-row {
+  margin-top: 2px;
+  font-weight: 500;
+}
