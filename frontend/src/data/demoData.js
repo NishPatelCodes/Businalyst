@@ -32,7 +32,18 @@ export const DEMO_KPI_DATA = {
     2700, 4375, 3300, 4850, 2900, 5950, 3700, 4550, 2625, 5400,
     4025, 4775, 3100, 5075, 3425, 4675, 2750, 5725, 3850, 4475,
   ],
-  orders_data: [850, 720, 617],
+
+  // Comparing Bar Chart — current vs previous period sales (by product)
+  comparison_bar_labels: ['Electronics', 'Office Supplies', 'Accessories'],
+  comparison_bar_current: [239500, 185200, 74224],
+  comparison_bar_previous: [198200, 162100, 61500],
+  comparison_bar_has_previous: true,
+
+  // Multi-Line Chart — Revenue, Orders, AOV (server-side aggregated by month)
+  multiline_labels: ['Jan 2024', 'Feb 2024', 'Mar 2024', 'Apr 2024', 'May 2024', 'Jun 2024'],
+  multiline_revenue: [241305, 595510, 320400, 275800, 310200, 289600],
+  multiline_orders: [852, 2229, 1150, 980, 1120, 1040],
+  multiline_aov: [283.22, 267.16, 278.61, 281.43, 277.0, 278.46],
 
   // Top 5 by profit (table)
   top5_profit: [
@@ -197,13 +208,13 @@ export const DEMO_KPI_DATA = {
     { name: 'Office Supplies', value: 43 },
   ],
 
-  // Map: Regional revenue distribution (uses region names with coords in backend)
+  // Geographic Map — Orders by region (order count + percentage of total)
   map_column: 'region',
   map_data: [
-    { name: 'East', value: 185420, coordinates: [-75.5, 43.0] },
-    { name: 'West', value: 162840, coordinates: [-119.4, 36.8] },
-    { name: 'South', value: 91820, coordinates: [-86.9, 32.4] },
-    { name: 'North', value: 58844, coordinates: [-98.0, 47.5] },
+    { name: 'East', value: 994, percentage: 28.6, coordinates: [-75.5, 43.0] },
+    { name: 'West', value: 944, percentage: 27.2, coordinates: [-119.4, 36.8] },
+    { name: 'North', value: 777, percentage: 22.4, coordinates: [-98.0, 47.5] },
+    { name: 'South', value: 756, percentage: 21.8, coordinates: [-86.9, 32.4] },
   ],
 
   // Revenue insights by column (for Revenue page donut: category, region, payment_method, product_name, subcategory)
@@ -254,15 +265,14 @@ export const DEMO_KPI_DATA = {
     { name: 'Bluetooth Speaker', value: 19800 },
   ],
 
-  // Bar chart: Top products by profit
+  // Bar chart: Top 6 products by revenue
   bar_column: 'product_name',
   bar_data: [
-    { name: 'Tablet Case', value: 5950 },
-    { name: 'Tablet Stand', value: 6125 },
-    { name: 'Wireless Headphones', value: 4850 },
-    { name: 'Bluetooth Speaker', value: 4950 },
-    { name: 'USB-C Cable', value: 5525 },
-    { name: 'Smartphone Case', value: 4725 },
-    { name: 'Wireless Mouse', value: 4187 },
+    { name: 'Tablet Stand', value: 24500 },
+    { name: 'Tablet Case', value: 23800 },
+    { name: 'Bluetooth Adapter', value: 22900 },
+    { name: 'USB-C Cable', value: 22100 },
+    { name: 'USB-C Adapter', value: 20900 },
+    { name: 'Wireless Headphones', value: 19400 },
   ],
 }
