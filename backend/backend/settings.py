@@ -31,14 +31,13 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() in ("true", "1", "yes")
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:8000',
-]
+# SECURITY WARNING: restrict to specific hosts in production using the DJANGO_ALLOWED_HOSTS env var.
+# e.g. DJANGO_ALLOWED_HOSTS=yourdomain.com,api.yourdomain.com
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
+
+# SECURITY WARNING: restrict allowed origins in production using CORS_ALLOWED_ORIGINS instead.
+# Allowing all origins enables convenient local development and Postman access.
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Application definition

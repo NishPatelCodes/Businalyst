@@ -6,7 +6,6 @@ Quick guide to get the Businalyst application up and running locally.
 
 - Python 3.8+ installed
 - Node.js 16+ and npm installed
-- PostgreSQL database (or use a cloud database)
 
 ## Backend Setup
 
@@ -17,50 +16,23 @@ cd backend
 pip install -r requirements.txt
 ```
 
-### 2. Create Environment File
-
-Create a `.env` file in the `backend` directory with the following variables:
-
-```env
-# Database
-DATABASE_URL=postgresql://username:password@localhost:5432/businalyst
-
-# Security
-SECRET_KEY=your-secret-key-here-generate-a-random-string
-
-# OAuth (Optional - only if using OAuth)
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-GITHUB_CLIENT_ID=your-github-client-id
-GITHUB_CLIENT_SECRET=your-github-client-secret
-
-# Frontend URL (default)
-FRONTEND_URL=http://localhost:5173
-```
-
-**Note:** Generate a secure `SECRET_KEY` using:
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-### 3. Run Database Migrations
+### 2. Run Database Migrations
 
 ```bash
 cd backend
-alembic upgrade head
+python manage.py migrate
 ```
 
-### 4. Start the Backend Server
+### 3. Start the Backend Server
 
 ```bash
 cd backend
-uvicorn app.main:app --reload
+python manage.py runserver
 ```
 
 The API will be available at: `http://localhost:8000`
 
-- API Documentation: `http://localhost:8000/docs`
-- Health Check: `http://localhost:8000/health`
+- Upload endpoint: `POST http://localhost:8000/upload/`
 
 ## Frontend Setup
 
@@ -87,7 +59,7 @@ The frontend will be available at: `http://localhost:5173`
 **Terminal 1 (Backend):**
 ```bash
 cd backend
-uvicorn app.main:app --reload
+python manage.py runserver
 ```
 
 **Terminal 2 (Frontend):**
@@ -101,25 +73,50 @@ npm run dev
 **Windows PowerShell:**
 ```powershell
 # Start backend
-cd backend; Start-Process powershell -ArgumentList "-NoExit", "-Command", "uvicorn app.main:app --reload"
+cd backend; Start-Process powershell -ArgumentList "-NoExit", "-Command", "python manage.py runserver"
 
 # Start frontend
 cd frontend; Start-Process powershell -ArgumentList "-NoExit", "-Command", "npm run dev"
 ```
 
+## Testing with Postman
+
+The backend exposes a single endpoint:
+
+- **Method**: `POST`
+- **URL**: `http://127.0.0.1:8000/upload/`
+- **Body**: `form-data`
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `file` | File | CSV or Excel file with your business data |
+| `start_date` | Text | (Optional) Filter start date, e.g. `2024-01-01` |
+| `end_date` | Text | (Optional) Filter end date, e.g. `2024-12-31` |
+
+**Example response:**
+```json
+{
+  "message": "File processed successfully",
+  "revenue_sum": 123456.78,
+  "profit_sum": 45678.90,
+  "orders_sum": 500,
+  ...
+}
+```
+
+A sample data file (`demo_chart_data.csv`) is included in the root of the repository for testing.
+
 ## Verify Installation
 
-1. Backend is running: Visit `http://localhost:8000/health`
+1. Backend is running: the terminal shows `Starting development server at http://127.0.0.1:8000/`
 2. Frontend is running: Visit `http://localhost:5173`
-3. API Docs: Visit `http://localhost:8000/docs`
 
 ## Troubleshooting
 
 ### Backend Issues
 
-- **Database connection error**: Check your `DATABASE_URL` in `.env` file
 - **Module not found**: Make sure you're in the `backend` directory and dependencies are installed
-- **Port already in use**: Change the port with `--port 8001` flag
+- **Port already in use**: Change the port with `python manage.py runserver 8001`
 
 ### Frontend Issues
 
@@ -131,7 +128,7 @@ cd frontend; Start-Process powershell -ArgumentList "-NoExit", "-Command", "npm 
 ### Backend
 ```bash
 cd backend
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+python manage.py runserver 0.0.0.0:8000
 ```
 
 ### Frontend
@@ -143,4 +140,5 @@ npm run preview
 
 ---
 
-**Need Help?** Check the main README.md or IMPLEMENTATION_SUMMARY.md for more details.
+**Need Help?** Check the main README.md for more details.
+

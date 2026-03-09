@@ -11,6 +11,25 @@ from .constants import (
 )
 
 
+def filter_df_by_date(df, start_date=None, end_date=None, date_column=None):
+    """
+    Filter DataFrame to rows within the optional date range (inclusive).
+    Returns a copy. If date_column is None, uses find_date_col(df).
+    """
+    if start_date is None and end_date is None:
+        return df.copy()
+    date_col = date_column if (date_column and date_column in df.columns) else find_date_col(df)
+    if date_col is None:
+        return df.copy()
+    df = df.copy()
+    df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
+    if start_date is not None:
+        df = df[df[date_col] >= pd.to_datetime(start_date)]
+    if end_date is not None:
+        df = df[df[date_col] <= pd.to_datetime(end_date)]
+    return df
+
+
 def find_date_col(df):
     """Return the first date-like column name found in df (columns already lowercased)."""
     priority = [

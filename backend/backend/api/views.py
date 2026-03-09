@@ -12,9 +12,11 @@ from backend.analytics import (
     read_uploaded_file,
     calculate_kpis,
     linechart,
-    bar_chart,
+    comparison_bar_chart,
+    multiline_chart,
+    top_products_by_revenue_chart,
     pie_chart_column,
-    map_data,
+    map_orders_by_region,
     table_component,
     orders_list_component,
     orders_trend_daily,
@@ -23,6 +25,7 @@ from backend.analytics import (
     orders_by_region_component,
     top_products_by_orders_component,
 )
+from backend.analytics.utils import find_date_col, filter_df_by_date
 
 logger = logging.getLogger(__name__)
 
@@ -49,16 +52,26 @@ def _merge_component(payload, df, name, fn, merge_keys=None):
 @require_http_methods(["POST"])
 def upload_dataset(request):
     """
-    POST with multipart/form-data and key "file" (CSV or Excel).
-    Returns JSON: KPIs + chart/table data. Missing components are omitted (and logged).
+    POST with multipart/form-data: "file" (CSV or Excel), optional "start_date" and "end_date".
+    When start_date/end_date are provided, KPIs and all charts use only rows in that date range.
     """
     file = request.FILES.get("file")
     if not file:
         return JsonResponse({"error": "No file uploaded"}, status=400)
 
+    start_date = request.POST.get("start_date") or request.GET.get("start_date") or None
+    end_date = request.POST.get("end_date") or request.GET.get("end_date") or None
+    if start_date and isinstance(start_date, str):
+        start_date = start_date.strip() or None
+    if end_date and isinstance(end_date, str):
+        end_date = end_date.strip() or None
+
     try:
         df = read_uploaded_file(file)
-        kpis = calculate_kpis(df)
+        date_col = find_date_col(df)
+        if (start_date or end_date) and date_col:
+            df = filter_df_by_date(df, start_date=start_date, end_date=end_date, date_column=date_col)
+        kpis = calculate_kpis(df, start_date=start_date, end_date=end_date, date_column=date_col or "date")
         payload = {"message": "File processed successfully", **kpis}
 
         # Line chart (revenue, profit, date_data)
@@ -78,8 +91,23 @@ def upload_dataset(request):
         _merge_component(payload, df, "orders_by_region", orders_by_region_component, ["orders_by_region"])
         _merge_component(payload, df, "top_products", top_products_by_orders_component, ["top_products_by_orders"])
         _merge_component(payload, df, "pie", pie_chart_column, ["pie_column", "pie_data"])
-        _merge_component(payload, df, "bar", bar_chart, ["bar_column", "bar_data"])
-        _merge_component(payload, df, "map", map_data, ["map_column", "map_data"])
+        # Comparing Bar Chart — current vs previous period sales
+        _merge_component(
+            payload, df, "comparison_bar",
+            comparison_bar_chart,
+            ["comparison_bar_labels", "comparison_bar_current",
+             "comparison_bar_previous", "comparison_bar_has_previous"],
+        )
+        # Multi-Line Chart — Revenue, Orders, AOV (server-side AOV calculation)
+        _merge_component(
+            payload, df, "multiline",
+            multiline_chart,
+            ["multiline_labels", "multiline_revenue", "multiline_orders", "multiline_aov"],
+        )
+        # Top 6 Products by Revenue bar chart
+        _merge_component(payload, df, "bar", top_products_by_revenue_chart, ["bar_column", "bar_data"])
+        # Geographic Map — Orders by region
+        _merge_component(payload, df, "map", map_orders_by_region, ["map_column", "map_data"])
 
         return JsonResponse(payload)
 
