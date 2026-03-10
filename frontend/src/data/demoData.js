@@ -275,4 +275,15 @@ export const DEMO_KPI_DATA = {
     { name: 'USB-C Adapter', value: 20900 },
     { name: 'Wireless Headphones', value: 19400 },
   ],
+
+  // Profit Composition: Top 6 products by profit (used on Profit Insights page)
+  profit_by_product_column: 'product_name',
+  profit_by_product_data: [
+    { name: 'Tablet Stand', value: 6125 },
+    { name: 'Tablet Case', value: 5950 },
+    { name: 'Bluetooth Adapter', value: 5725 },
+    { name: 'USB-C Cable', value: 5525 },
+    { name: 'USB-C Adapter', value: 5225 },
+    { name: 'Wireless Headphones', value: 4850 },
+  ],
 }

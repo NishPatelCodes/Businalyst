@@ -1,6 +1,7 @@
 import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
+import TopProfitTable from '../components/TopProfitTable'
 import { KpiContext } from '../context/KpiContext'
 import {
   ComposedChart, BarChart, LineChart as RechartLineChart,
@@ -139,7 +140,11 @@ const ProfitInsights = () => {
   const profitData  = useMemo(() => (kpiData?.profit_data || []).map(Number), [kpiData])
   const revenueData = useMemo(() => (kpiData?.revenue_data || []).map(Number), [kpiData])
   const costData    = useMemo(() => revenueData.map((r, i) => r - (profitData[i] || 0)), [revenueData, profitData])
-  const barData     = useMemo(() => kpiData?.bar_data || [], [kpiData])
+  // Prefer profit_by_product_data (actual profit per product) over bar_data (revenue per product)
+  const profitByProductData = useMemo(
+    () => kpiData?.profit_by_product_data || kpiData?.bar_data || [],
+    [kpiData]
+  )
 
   /* ── Date range filtering ────────────────────────────────── */
   const filteredSeries = useMemo(() => {
@@ -201,28 +206,37 @@ const ProfitInsights = () => {
   }, [filteredSeries])
 
   /* ── Margin series ───────────────────────────────────────── */
-  const marginSeries = useMemo(() => filteredSeries.map(pt => ({
-    date: pt.date,
-    netMargin: pt.revenue > 0 ? (pt.profit / pt.revenue) * 100 : 0,
-    // Gross margin ≈ net margin + ~10pp: approximates COGS-only cost when granular cost-of-goods data is unavailable
-    grossMargin: pt.revenue > 0 ? ((pt.profit / pt.revenue) * 100 + 10) : 10,
-    profit: pt.profit,
-  })), [filteredSeries])
+  const marginSeries = useMemo(() => {
+    const series = filteredSeries.map(pt => ({
+      date: pt.date,
+      netMargin: pt.revenue > 0 ? (pt.profit / pt.revenue) * 100 : 0,
+      profit: pt.profit,
+    }))
+    // Compute 7-period rolling average net margin as a smoothed trend line.
+    // 7 periods provides a balance: short enough to follow trends, long enough to smooth daily noise.
+    const WINDOW = 7
+    return series.map((pt, i) => {
+      const start = Math.max(0, i - WINDOW + 1)
+      const slice = series.slice(start, i + 1)
+      const avg = slice.reduce((s, p) => s + p.netMargin, 0) / slice.length
+      return { ...pt, rollingAvgMargin: avg }
+    })
+  }, [filteredSeries])
 
   const avgNetMargin  = useMemo(() => marginSeries.length ? marginSeries.reduce((a, b) => a + b.netMargin, 0) / marginSeries.length : 0, [marginSeries])
-  const avgGrossMargin = useMemo(() => marginSeries.length ? marginSeries.reduce((a, b) => a + b.grossMargin, 0) / marginSeries.length : 0, [marginSeries])
+  const avgRollingMargin = useMemo(() => marginSeries.length ? marginSeries[marginSeries.length - 1].rollingAvgMargin : 0, [marginSeries])
 
   /* ── Composition chart ───────────────────────────────────── */
-  const totalBarProfit = useMemo(() => barData.reduce((s, b) => s + (Number(b.value) || 0), 0), [barData])
+  const totalProductProfit = useMemo(() => profitByProductData.reduce((s, b) => s + (Number(b.value) || 0), 0), [profitByProductData])
   const compositionData = useMemo(() =>
-    [...barData]
+    [...profitByProductData]
       .sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0))
       .map(b => ({
         name: b.name,
         profit: Number(b.value) || 0,
-        pct: totalBarProfit > 0 ? (Number(b.value) / totalBarProfit) * 100 : 0,
+        pct: totalProductProfit > 0 ? (Number(b.value) / totalProductProfit) * 100 : 0,
       })),
-    [barData, totalBarProfit]
+    [profitByProductData, totalProductProfit]
   )
 
   /* ── Cost series for cost-pressure chart ─────────────────── */
@@ -231,6 +245,12 @@ const ProfitInsights = () => {
     profit: pt.profit,
     cost: pt.cost,
   })), [filteredSeries])
+
+  /* ── Mean profit for filtered range (reference line) ────── */
+  const filteredMean = useMemo(() => {
+    if (!filteredSeries.length) return 0
+    return filteredSeries.reduce((s, p) => s + p.profit, 0) / filteredSeries.length
+  }, [filteredSeries])
 
   /* ── Fixed/variable cost split ───────────────────────────── */
   const expenseSum = kpiData?.expense_sum || 0
@@ -414,6 +434,16 @@ const ProfitInsights = () => {
                   <ReferenceArea key={i} x1={r.x1} x2={r.x2} fill="#fee2e2" fillOpacity={0.4} />
                 ))}
                 <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} />
+                {filteredMean !== 0 && (
+                  <ReferenceLine
+                    y={filteredMean}
+                    stroke="#2563eb"
+                    strokeDasharray="5 3"
+                    strokeWidth={1}
+                    strokeOpacity={0.45}
+                    label={{ value: `Avg ${fmtCur(filteredMean)}`, fill: '#2563eb', fontSize: 10, position: 'insideTopRight' }}
+                  />
+                )}
                 <Area
                   type="monotone"
                   dataKey="profit"
@@ -539,7 +569,7 @@ const ProfitInsights = () => {
                   {marginMode === 'pct' ? (
                     <>
                       <Line type="monotone" dataKey="netMargin" name="Net Margin" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
-                      <Line type="monotone" dataKey="grossMargin" name="Gross Margin" stroke="#2563eb" strokeWidth={1.5} strokeDasharray="5 3" dot={false} activeDot={{ r: 3 }} />
+                      <Line type="monotone" dataKey="rollingAvgMargin" name="7-Period Avg" stroke="#2563eb" strokeWidth={1.5} strokeDasharray="5 3" dot={false} activeDot={{ r: 3 }} />
                     </>
                   ) : (
                     <Line type="monotone" dataKey="profit" name="Net Profit" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
@@ -556,8 +586,8 @@ const ProfitInsights = () => {
                 {marginMode === 'pct' && (
                   <div className="pil-margin-legend-item">
                     <span className="pil-margin-legend-dot pil-margin-legend-dot--dashed" style={{ background: '#2563eb' }} />
-                    <span className="pil-margin-legend-label">Avg Gross Margin</span>
-                    <span className="pil-margin-legend-val">{fmtPct(avgGrossMargin)}</span>
+                    <span className="pil-margin-legend-label">Rolling Avg (7-period)</span>
+                    <span className="pil-margin-legend-val">{fmtPct(avgRollingMargin)}</span>
                   </div>
                 )}
               </div>
@@ -694,6 +724,18 @@ const ProfitInsights = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* ═══ SECTION 5: Top 5 Records by Profit ════════════════════ */}
+          <div className="pil-section">
+            <div className="pil-section-header">
+              <div>
+                <p className="pil-section-title">Section 05</p>
+                <h2 className="pil-section-heading">Top 5 Records by Profit</h2>
+              </div>
+              <span className="pil-meta">Highest performing rows in the current dataset</span>
+            </div>
+            <TopProfitTable />
           </div>
 
         </div>{/* /pi-content */}

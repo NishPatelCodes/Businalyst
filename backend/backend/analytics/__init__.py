@@ -13,6 +13,7 @@ from .charts import (
     comparison_bar_chart,
     multiline_chart,
     top_products_by_revenue_chart,
+    profit_by_product_chart,
     pie_chart_column,
     map_orders_by_region,
 )
@@ -32,6 +33,7 @@ __all__ = [
     "comparison_bar_chart",
     "multiline_chart",
     "top_products_by_revenue_chart",
+    "profit_by_product_chart",
     "pie_chart_column",
     "map_orders_by_region",
     "orders_trend_daily",

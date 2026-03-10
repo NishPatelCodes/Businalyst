@@ -15,6 +15,7 @@ from backend.analytics import (
     comparison_bar_chart,
     multiline_chart,
     top_products_by_revenue_chart,
+    profit_by_product_chart,
     pie_chart_column,
     map_orders_by_region,
     table_component,
@@ -106,6 +107,8 @@ def upload_dataset(request):
         )
         # Top 6 Products by Revenue bar chart
         _merge_component(payload, df, "bar", top_products_by_revenue_chart, ["bar_column", "bar_data"])
+        # Top 6 Products by Profit (used by Profit Composition chart)
+        _merge_component(payload, df, "profit_by_product", profit_by_product_chart, ["profit_by_product_column", "profit_by_product_data"])
         # Geographic Map — Orders by region
         _merge_component(payload, df, "map", map_orders_by_region, ["map_column", "map_data"])
 

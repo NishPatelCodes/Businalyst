@@ -65,6 +65,8 @@ const Upload = () => {
         map_data: data.map_data,
         bar_column: data.bar_column,
         bar_data: data.bar_data,
+        profit_by_product_column: data.profit_by_product_column,
+        profit_by_product_data: data.profit_by_product_data,
         comparison_bar_labels: data.comparison_bar_labels,
         comparison_bar_current: data.comparison_bar_current,
         comparison_bar_previous: data.comparison_bar_previous,

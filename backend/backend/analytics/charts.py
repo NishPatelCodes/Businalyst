@@ -271,6 +271,55 @@ def multiline_chart(df, granularity="monthly"):
 # Normal Bar Chart — Top 6 Products by Revenue
 # ---------------------------------------------------------------------------
 
+def profit_by_product_chart(df):
+    """
+    Group by product, aggregate total profit, sort descending, return top 6.
+
+    Products with zero or negative profit are excluded.
+    Duplicate product names are merged (summed) consistently.
+
+    Returns:
+        {"profit_by_product_column": str, "profit_by_product_data": [{"name": str, "value": float}, ...]}
+    or None if no product or profit column found.
+    """
+    # Find product column (same priority order as top_products_by_revenue_chart)
+    product_col = None
+    for c in ("product name", "product_name", "productname", "product"):
+        if c in df.columns:
+            product_col = c
+            break
+    if product_col is None:
+        for c in ("category", "sub-category", "sub_category"):
+            if c in df.columns:
+                product_col = c
+                break
+    if product_col is None:
+        return None
+
+    if "profit" not in df.columns:
+        return None
+
+    df = df.copy()
+    df["profit"] = pd.to_numeric(df["profit"], errors="coerce")
+    df[product_col] = df[product_col].astype(str).str.strip()
+
+    # Drop rows with invalid/null profit or empty product names
+    df = df.dropna(subset=["profit"])
+    df = df[df[product_col].str.lower() != "nan"]
+    df = df[df[product_col] != ""]
+
+    agg = df.groupby(product_col, sort=False)["profit"].sum()
+
+    # Exclude products with zero or negative profit
+    agg = agg[agg > 0]
+    if agg.empty:
+        return None
+
+    # Sort descending; stable sort (mergesort) preserves insertion order for products with equal profit
+    agg = agg.sort_values(ascending=False, kind="mergesort")
+    agg = agg.head(TOP_PRODUCTS_MAX)
+
+
 def top_products_by_revenue_chart(df):
     """
     Group by product, aggregate total revenue, sort descending, return top 6.
