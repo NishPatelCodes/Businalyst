@@ -65,6 +65,14 @@ const Upload = () => {
         map_data: data.map_data,
         bar_column: data.bar_column,
         bar_data: data.bar_data,
+        comparison_bar_labels: data.comparison_bar_labels,
+        comparison_bar_current: data.comparison_bar_current,
+        comparison_bar_previous: data.comparison_bar_previous,
+        comparison_bar_has_previous: data.comparison_bar_has_previous,
+        multiline_labels: data.multiline_labels,
+        multiline_revenue: data.multiline_revenue,
+        multiline_orders: data.multiline_orders,
+        multiline_aov: data.multiline_aov,
       })
       setUploadSuccess(true)
     } catch (err) {

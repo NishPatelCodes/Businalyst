@@ -22,9 +22,7 @@ const DEFAULT_MARKERS = [
 
 const formatValue = (v) => {
   if (v == null || typeof v !== 'number') return ''
-  if (v >= 1e6) return `$${(v / 1e6).toFixed(1)}M`
-  if (v >= 1e3) return `$${(v / 1e3).toFixed(1)}K`
-  return `$${Number(v).toFixed(0)}`
+  return Number(v).toLocaleString()
 }
 
 const MapChart = () => {
@@ -59,7 +57,7 @@ const MapChart = () => {
   }
 
   const onMarkerEnter = (marker, e) => {
-    setTooltip({ name: marker.name, value: marker.value })
+    setTooltip({ name: marker.name, value: marker.value, percentage: marker.percentage })
     setTooltipPos({ x: e.clientX, y: e.clientY })
   }
 
@@ -77,7 +75,7 @@ const MapChart = () => {
         <div className="map-header-content">
           <h2 className="map-title">Geographic Distribution</h2>
           <p className="map-subtitle">
-            {kpiData?.map_data ? `By ${mapColumn}` : 'Revenue by region'}
+            {kpiData?.map_data ? `Orders by ${mapColumn}` : 'Orders by region'}
           </p>
         </div>
       </div>
@@ -91,7 +89,10 @@ const MapChart = () => {
             >
               <span className="map-tooltip-name">{tooltip.name}</span>
               {(tooltip.value != null && tooltip.value !== 0) && (
-                <span className="map-tooltip-value">{formatValue(tooltip.value)}</span>
+                <span className="map-tooltip-value">
+                  {formatValue(tooltip.value)} orders
+                  {tooltip.percentage != null ? ` (${tooltip.percentage}%)` : ''}
+                </span>
               )}
             </div>
           )}
