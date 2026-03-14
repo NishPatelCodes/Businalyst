@@ -63,6 +63,15 @@ const Sidebar = () => {
             <span>Orders</span>
           </Link>
 
+          <Link to="/expense-insights" className={`nav-item ${location.pathname === '/expense-insights' ? 'active' : ''}`}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 2V18M10 2L6 6M10 2L14 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M4 10H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M3 14H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <span>Expenses</span>
+          </Link>
+
           <a href="/products" className="nav-item">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="4" y="4" width="12" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>

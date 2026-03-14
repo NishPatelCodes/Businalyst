@@ -1,0 +1,580 @@
+/* ============================================================
+   EXPENSE INSIGHTS – ei- shell + eil- design system
+   Mirrors ProfitInsights layout exactly with expense-specific
+   color palette (red/amber primary instead of blue).
+   ============================================================ */
+
+/* ── Shell ──────────────────────────────────────────────────── */
+.ei-page {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ei-shell {
+  flex: 1;
+  margin-left: var(--layout-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Custom Top Nav ─────────────────────────────────────────── */
+.ei-topnav {
+  height: var(--layout-topnav-height);
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  padding: 0 26px;
+  gap: 20px;
+  position: fixed;
+  top: 0;
+  left: var(--layout-topnav-offset-left);
+  right: 0;
+  z-index: 90;
+}
+
+.ei-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ei-bc-link {
+  font-size: 14px;
+  color: #6b7280;
+  text-decoration: none;
+  font-weight: 400;
+  transition: color .15s;
+}
+.ei-bc-link:hover { color: #111827; }
+
+.ei-bc-sep {
+  font-size: 14px;
+  color: #d1d5db;
+}
+
+.ei-bc-active {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.ei-topnav-search {
+  flex: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ei-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.ei-search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px 0 38px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  font-size: 14px;
+  color: #111827;
+  font-family: inherit;
+  outline: none;
+  transition: all .2s;
+}
+.ei-search-input::placeholder { color: #9ca3af; }
+.ei-search-input:focus {
+  background: #fff;
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239,68,68,.1);
+}
+
+.ei-topnav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ei-nav-btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 9px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all .2s;
+}
+.ei-nav-btn:hover { background: #f3f4f6; color: #111827; }
+
+.ei-profile {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.ei-profile:hover { background: #f3f4f6; }
+
+.ei-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+}
+
+.ei-profile-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* ── Content area ───────────────────────────────────────────── */
+.ei-content {
+  margin-top: var(--layout-content-margin-top);
+  padding: 28px;
+  flex: 1;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   EIL- DESIGN SYSTEM — Expense Intelligence Lab
+   ============================================================ */
+
+/* ── Page header ────────────────────────────────────────────── */
+.eil-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.eil-page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin: 0 0 3px;
+}
+
+.eil-page-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.eil-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.eil-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.eil-btn-ghost:hover { background: #f9fafb; border-color: #d1d5db; }
+
+/* ── Section wrapper ────────────────────────────────────────── */
+.eil-section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 22px 24px;
+  margin-bottom: 14px;
+}
+
+/* ── Section header ─────────────────────────────────────────── */
+.eil-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.eil-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #9ca3af;
+  margin: 0 0 3px;
+}
+
+.eil-section-heading {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.eil-meta {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+/* ── Grid layouts ───────────────────────────────────────────── */
+.eil-two-col {
+  display: grid;
+  grid-template-columns: 55fr 45fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.eil-two-col-equal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+/* ── Trend controls ─────────────────────────────────────────── */
+.eil-trend-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.eil-range-tabs {
+  display: flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.eil-range-tab {
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  background: #fff;
+  border: none;
+  border-right: 1px solid #e5e7eb;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.eil-range-tab:last-child { border-right: none; }
+.eil-range-tab:hover { background: #f9fafb; color: #111827; }
+.eil-range-tab--active { background: #111827; color: #fff; }
+.eil-range-tab--active:hover { background: #111827; }
+
+/* ── Overlay toggles ────────────────────────────────────────── */
+.eil-overlays {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.eil-overlay-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+}
+
+.eil-overlay-toggle input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  accent-color: #ef4444;
+}
+
+.eil-overlay-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Tooltip ────────────────────────────────────────────────── */
+.eil-tooltip {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  font-size: 12px;
+  min-width: 160px;
+}
+
+.eil-tooltip-date {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.eil-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.eil-tooltip-row:last-child { margin-bottom: 0; }
+
+.eil-tooltip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.eil-tooltip-label {
+  color: #6b7280;
+  flex: 1;
+}
+
+.eil-tooltip-val {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ── Cost pressure rows ─────────────────────────────────────── */
+.eil-cost-ratios {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.eil-cost-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eil-cost-label {
+  font-size: 12px;
+  color: #6b7280;
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.eil-cost-bar-track {
+  flex: 1;
+  height: 6px;
+  background: #f3f4f6;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.eil-cost-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.eil-cost-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
+  width: 72px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Stats table ────────────────────────────────────────────── */
+.eil-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.eil-stats-table tbody tr:nth-child(odd) { background: #f9fafb; }
+
+.eil-stats-label {
+  padding: 7px 10px;
+  color: #6b7280;
+  font-weight: 400;
+  width: 55%;
+}
+
+.eil-stats-val {
+  padding: 7px 10px;
+  color: #111827;
+  font-weight: 600;
+  text-align: right;
+}
+
+.eil-stats-val--pos { color: #059669; }
+.eil-stats-val--neg { color: #dc2626; }
+
+/* ── Chart sublabel ─────────────────────────────────────────── */
+.eil-chart-sublabel {
+  font-size: 11px;
+  color: #9ca3af;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Health / Risk badge ────────────────────────────────────── */
+.eil-risk-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ── Cost Efficiency Metrics grid ────────────────────────────── */
+.eil-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.eil-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 4px;
+}
+
+.eil-metric-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.eil-metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+.eil-metric-indicator {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.eil-metric-indicator--green { color: #059669; }
+.eil-metric-indicator--yellow { color: #d97706; }
+.eil-metric-indicator--red { color: #dc2626; }
+.eil-metric-indicator--neutral { color: #9ca3af; }
+
+/* ── Health insight bar ──────────────────────────────────────── */
+.eil-health-insight {
+  padding: 12px 14px;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 4px;
+}
+
+.eil-health-insight-text {
+  font-size: 13px;
+  color: #92400e;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Insights grid ──────────────────────────────────────────── */
+.eil-insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: #e5e7eb;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.eil-insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #fff;
+}
+
+.eil-insight-icon {
+  font-size: 13px;
+  line-height: 1.5;
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+
+.eil-insight-text {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .eil-two-col,
+  .eil-two-col-equal {
+    grid-template-columns: 1fr;
+  }
+  .eil-insights-grid {
+    grid-template-columns: 1fr;
+  }
+  .eil-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .eil-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ei-content { padding: 16px; }
+  .eil-trend-controls { flex-direction: column; align-items: flex-start; }
+}

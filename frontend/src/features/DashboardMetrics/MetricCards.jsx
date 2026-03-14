@@ -88,7 +88,7 @@ const MetricCards = () => {
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: conversionIcon,
-      insightsRoute: '/profit-insights',
+      insightsRoute: '/expense-insights',
     },
     {
       title: 'Customers',
