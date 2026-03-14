@@ -55,6 +55,7 @@ const MetricCards = () => {
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: profitIcon,
+      insightsRoute: '/profit-insights',
     },
     {
       title: 'Revenue',
@@ -65,6 +66,7 @@ const MetricCards = () => {
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: revenueIcon,
+      insightsRoute: '/revenue-insights',
     },
     {
       title: 'Orders',
@@ -75,6 +77,7 @@ const MetricCards = () => {
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: ordersIcon,
+      insightsRoute: '/orders',
     },
     {
       title: 'Expense',
@@ -85,6 +88,7 @@ const MetricCards = () => {
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: conversionIcon,
+      insightsRoute: '/profit-insights',
     },
     {
       title: 'Customers',
@@ -95,6 +99,7 @@ const MetricCards = () => {
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file (row count)') : 'Upload a file to see data',
       icon: customersIcon,
+      insightsRoute: '/orders',
     },
   ]
 
@@ -113,21 +118,18 @@ const MetricCards = () => {
     <>
       {kpis.map((kpi, index) => {
         const progress = calculateProgress(kpi.current, kpi.target)
-        const isProfitCard = index === 0
         return (
           <div key={index} className="kpi-card">
-            {isProfitCard && (
-              <button 
-                className="kpi-more-insights-button"
-                onClick={() => navigate('/profit-insights')}
-                title="More Insights"
-              >
-                More Insights
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            )}
+            <button
+              className="kpi-more-insights-button"
+              onClick={() => navigate(kpi.insightsRoute)}
+              title="More Insights"
+            >
+              More Insights
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
             <div className="kpi-header">
               <div className="kpi-icon">{kpi.icon}</div>
               <div className="kpi-title">{kpi.title}</div>

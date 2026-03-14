@@ -100,13 +100,64 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
     ...d,
   }))
 
-  // Smooth bezier curve path builder
+  // Monotone cubic interpolation for smooth, data-faithful curves
   const buildSmoothPath = (pts) => {
     if (pts.length < 2) return ''
+    if (pts.length === 2) return `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y}`
+
+    const n = pts.length
+
+    // Compute slopes using Fritsch-Carlson monotone method
+    const deltas = []
+    const slopes = []
+
+    for (let i = 0; i < n - 1; i++) {
+      deltas.push({
+        dx: pts[i + 1].x - pts[i].x,
+        dy: pts[i + 1].y - pts[i].y,
+      })
+      slopes.push(deltas[i].dy / deltas[i].dx)
+    }
+
+    // Assign tangent slopes at each point
+    const tangents = new Array(n)
+    tangents[0] = slopes[0]
+    tangents[n - 1] = slopes[n - 2]
+
+    for (let i = 1; i < n - 1; i++) {
+      if (slopes[i - 1] * slopes[i] <= 0) {
+        tangents[i] = 0
+      } else {
+        tangents[i] = (slopes[i - 1] + slopes[i]) / 2
+      }
+    }
+
+    // Monotonicity adjustment
+    for (let i = 0; i < n - 1; i++) {
+      if (Math.abs(slopes[i]) < 1e-6) {
+        tangents[i] = 0
+        tangents[i + 1] = 0
+      } else {
+        const alpha = tangents[i] / slopes[i]
+        const beta = tangents[i + 1] / slopes[i]
+        const s = alpha * alpha + beta * beta
+        if (s > 9) {
+          const tau = 3 / Math.sqrt(s)
+          tangents[i] = tau * alpha * slopes[i]
+          tangents[i + 1] = tau * beta * slopes[i]
+        }
+      }
+    }
+
+    // Build SVG path with cubic bezier segments
     let d = `M ${pts[0].x} ${pts[0].y}`
-    for (let i = 0; i < pts.length - 1; i++) {
-      const cpx = (pts[i].x + pts[i + 1].x) / 2
-      d += ` C ${cpx} ${pts[i].y} ${cpx} ${pts[i + 1].y} ${pts[i + 1].x} ${pts[i + 1].y}`
+    for (let i = 0; i < n - 1; i++) {
+      const dx = deltas[i].dx / 3
+      const cp1x = pts[i].x + dx
+      const cp1y = pts[i].y + tangents[i] * dx
+      const cp2x = pts[i + 1].x - dx
+      const cp2y = pts[i + 1].y - tangents[i + 1] * dx
+      d += ` C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${pts[i + 1].x} ${pts[i + 1].y}`
     }
     return d
   }
@@ -153,25 +204,25 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
       {!hideTabs && (
         <div className="line-chart-header">
           <div className="chart-header-left">
-            <div className="line-chart-tabs">
-              <button
-                type="button"
-                className={`line-chart-tab ${selectedTab === 'Revenue' ? 'line-chart-tab--active' : ''}`}
-                onClick={() => setSelectedTab('Revenue')}
-              >
-                Revenue
-              </button>
-              <button
-                type="button"
-                className={`line-chart-tab ${selectedTab === 'Profit' ? 'line-chart-tab--active' : ''}`}
-                onClick={() => setSelectedTab('Profit')}
-              >
-                Profit
-              </button>
-            </div>
             <div className="line-chart-current-total">
               {formatCurrency(values.reduce((a, b) => a + b, 0))}
             </div>
+          </div>
+          <div className="line-chart-tabs">
+            <button
+              type="button"
+              className={`line-chart-tab ${selectedTab === 'Revenue' ? 'line-chart-tab--active' : ''}`}
+              onClick={() => setSelectedTab('Revenue')}
+            >
+              Revenue
+            </button>
+            <button
+              type="button"
+              className={`line-chart-tab ${selectedTab === 'Profit' ? 'line-chart-tab--active' : ''}`}
+              onClick={() => setSelectedTab('Profit')}
+            >
+              Profit
+            </button>
           </div>
         </div>
       )}
@@ -280,10 +331,10 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
               key={i}
               cx={p.x}
               cy={p.y}
-              r={hoverIndex === i ? 5 : 3}
-              fill={hoverIndex === i ? '#2563eb' : '#2563eb'}
+              r={hoverIndex === i ? 5 : 0}
+              fill="#2563eb"
               stroke="#fff"
-              strokeWidth={hoverIndex === i ? 2 : 1.5}
+              strokeWidth={2}
               style={{ transition: 'r 0.15s ease' }}
             />
           ))}

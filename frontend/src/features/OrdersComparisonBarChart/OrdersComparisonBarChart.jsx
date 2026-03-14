@@ -27,16 +27,16 @@ const OrdersComparisonBarChart = () => {
   )
 
   const maxVal = Math.max(...currentYear, ...previousYear, 1)
-  const yMax = Math.ceil(maxVal * 1.15) || 10
+  const yMax = Math.ceil(maxVal * 1.2) || 10
   const chartWidth = 560
-  const chartHeight = 180
-  const padding = { top: 12, right: 32, bottom: 36, left: 36 }
+  const chartHeight = 200
+  const padding = { top: 16, right: 40, bottom: 40, left: 12 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom
 
   const groupWidth = graphWidth / labels.length
-  const gap = 8
-  const barWidth = Math.max(10, (groupWidth - gap) / 2)
+  const barGap = 4
+  const barWidth = Math.max(12, (groupWidth * 0.6 - barGap) / 2)
 
   const valueToY = (v) =>
     padding.top + graphHeight - (v / yMax) * graphHeight
@@ -124,8 +124,9 @@ const OrdersComparisonBarChart = () => {
             const lastVal = previousYear[i] || 0
             const currentH = (currentVal / yMax) * graphHeight
             const lastH = (lastVal / yMax) * graphHeight
-            const currentX = groupCenter - barWidth - gap / 2
-            const lastX = groupCenter + gap / 2
+            const pairWidth = barWidth * 2 + barGap
+            const currentX = groupCenter - pairWidth / 2
+            const lastX = currentX + barWidth + barGap
 
             return (
               <g key={label}>
@@ -135,7 +136,7 @@ const OrdersComparisonBarChart = () => {
                   width={barWidth}
                   height={currentH}
                   fill="#2563eb"
-                  rx="3"
+                  rx="4"
                   className="ocb-bar"
                 />
                 <rect
@@ -144,19 +145,28 @@ const OrdersComparisonBarChart = () => {
                   width={barWidth}
                   height={lastH}
                   fill="#bfdbfe"
-                  rx="3"
+                  rx="4"
                   className="ocb-bar"
                 />
               </g>
             )
           })}
+          {/* Baseline */}
+          <line
+            x1={padding.left}
+            y1={padding.top + graphHeight}
+            x2={padding.left + graphWidth}
+            y2={padding.top + graphHeight}
+            stroke="#e5e7eb"
+            strokeWidth="1"
+          />
           {/* X-axis labels */}
           <g className="ocb-x-axis">
             {labels.map((label, i) => (
               <text
                 key={label}
                 x={padding.left + (i + 0.5) * groupWidth}
-                y={chartHeight - 12}
+                y={padding.top + graphHeight + 22}
                 textAnchor="middle"
                 className="ocb-axis-label"
               >

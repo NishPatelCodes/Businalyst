@@ -140,18 +140,12 @@ const BarChart = ({ data: dataProp, title: titleProp }) => {
             const baselineY = padding.top + graphHeight
             // Bar top position (bars grow upward from baseline)
             const barY = baselineY - barHeight
-            const cornerRadius = 6 // Increased corner radius for top corners
-
-            // Create path with rounded top corners only
-            // Bottom of bar is always at baselineY (X-axis)
+            // Straight-edged rectangle path
             const path = `
-              M ${barX + cornerRadius},${barY}
-              L ${barX + barWidth - cornerRadius},${barY}
-              Q ${barX + barWidth},${barY} ${barX + barWidth},${barY + cornerRadius}
+              M ${barX},${barY}
+              L ${barX + barWidth},${barY}
               L ${barX + barWidth},${baselineY}
               L ${barX},${baselineY}
-              L ${barX},${barY + cornerRadius}
-              Q ${barX},${barY} ${barX + cornerRadius},${barY}
               Z
             `
 
