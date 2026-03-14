@@ -81,7 +81,7 @@ const Sidebar = () => {
             <span>Products</span>
           </a>
 
-          <a href="/customers" className="nav-item">
+          <Link to="/analytics/customers" className={`nav-item ${location.pathname === '/analytics/customers' ? 'active' : ''}`}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="7" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
               <circle cx="13" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
@@ -89,7 +89,7 @@ const Sidebar = () => {
               <path d="M9 15C9 12.5 11.5 10.5 13 10.5C14.5 10.5 17 12.5 17 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
             <span>Customers</span>
-          </a>
+          </Link>
 
           <a href="/content" className="nav-item">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
