@@ -37,116 +37,108 @@ const MicrosoftIcon = () => (
   </svg>
 )
 
-/* ---- dashboard mockup inside laptop ---- */
-const DashboardMockup = () => (
-  <div className="mock-dashboard">
-    {/* sidebar */}
-    <div className="mock-sidebar">
-      <div className="mock-sidebar-logo" />
-      <div className="mock-nav-item active" />
-      <div className="mock-nav-item" />
-      <div className="mock-nav-item" />
-      <div className="mock-nav-item" />
-      <div className="mock-nav-item" />
-      <div className="mock-nav-item" />
+/* ---- floating showcase cards (Kezak-style collage) ---- */
+const ShowcaseCards = () => (
+  <div className="showcase-canvas">
+    {/* Card 1 — Revenue Overview (large, back-left) */}
+    <div className="showcase-card showcase-card--revenue">
+      <div className="sc-header">
+        <span className="sc-title">Revenue Overview</span>
+        <span className="sc-badge green">+12.3%</span>
+      </div>
+      <div className="sc-chart">
+        <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="scAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d="M0,45 C20,38 40,42 60,32 C80,22 100,30 120,20 C140,14 160,22 180,16 C190,12 200,10 200,10 V60 H0 Z" fill="url(#scAreaGrad)" />
+          <path d="M0,45 C20,38 40,42 60,32 C80,22 100,30 120,20 C140,14 160,22 180,16 C190,12 200,10 200,10" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </div>
+      <div className="sc-kpi-row">
+        <div className="sc-kpi"><span className="sc-kpi-val">$124.8k</span><span className="sc-kpi-lbl">Revenue</span></div>
+        <div className="sc-kpi"><span className="sc-kpi-val">$42.1k</span><span className="sc-kpi-lbl">Expenses</span></div>
+        <div className="sc-kpi"><span className="sc-kpi-val">$82.7k</span><span className="sc-kpi-lbl">Profit</span></div>
+      </div>
     </div>
 
-    {/* main content */}
-    <div className="mock-main">
-      {/* top bar */}
-      <div className="mock-topbar">
-        <div className="mock-topbar-title" />
-        <div className="mock-topbar-actions">
-          <div className="mock-topbar-dot" />
-          <div className="mock-topbar-dot" />
-          <div className="mock-topbar-dot" />
-        </div>
+    {/* Card 2 — Customer Intelligence (medium, top-right) */}
+    <div className="showcase-card showcase-card--customers">
+      <div className="sc-header">
+        <span className="sc-title">Customer Intelligence</span>
       </div>
-
-      {/* KPI row */}
-      <div className="mock-kpi-row">
+      <div className="sc-table">
+        <div className="sc-table-head">
+          <span>Customer</span><span>Orders</span><span>Revenue</span>
+        </div>
         {[
-          { color: 'blue',   heights: [4,7,5,9,6,10,8] },
-          { color: 'green',  heights: [3,5,8,6,9,7,10] },
-          { color: 'purple', heights: [6,4,7,5,8,10,9] },
-          { color: 'amber',  heights: [5,8,6,9,4,7,10] },
-          { color: 'red',    heights: [7,5,9,6,8,4,10] },
-        ].map((kpi, i) => (
-          <div className="mock-kpi-card" key={i}>
-            <div className="mock-kpi-label" />
-            <div className="mock-kpi-value" />
-            <div className="mock-kpi-sparkline">
-              {kpi.heights.map((h, j) => (
-                <div
-                  className={`mock-spark ${kpi.color}`}
-                  key={j}
-                  style={{ height: `${h}px`, animationDelay: `${0.8 + i * 0.12 + j * 0.04}s` }}
-                />
-              ))}
-            </div>
+          { name: 'Acme Corp',     orders: '142', rev: '$18.4k' },
+          { name: 'Nova Labs',     orders: '98',  rev: '$12.7k' },
+          { name: 'Zenith Inc',    orders: '87',  rev: '$9.8k' },
+          { name: 'Pixel Studio',  orders: '64',  rev: '$7.2k' },
+        ].map((r, i) => (
+          <div className="sc-table-row" key={i}>
+            <span className="sc-customer">
+              <span className="sc-avatar">{r.name[0]}</span>
+              {r.name}
+            </span>
+            <span>{r.orders}</span>
+            <span>{r.rev}</span>
           </div>
         ))}
       </div>
+    </div>
 
-      {/* charts row */}
-      <div className="mock-chart-row">
-        {/* line chart */}
-        <div className="mock-chart-card wide">
-          <div className="mock-chart-title" />
-          <div className="mock-line-chart">
-            <svg viewBox="0 0 200 80" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2563eb" stopOpacity="0.15" />
-                  <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path className="mock-line-path secondary" d="M0,55 Q25,48 50,52 T100,42 T150,50 T200,38" />
-              <path className="mock-line-area" d="M0,45 Q25,30 50,38 T100,22 T150,32 T200,18 V80 H0 Z" fill="url(#areaGrad)" />
-              <path className="mock-line-path primary" d="M0,45 Q25,30 50,38 T100,22 T150,32 T200,18" />
-            </svg>
-          </div>
-        </div>
-
-        {/* bar chart */}
-        <div className="mock-chart-card narrow">
-          <div className="mock-chart-title" />
-          <div className="mock-bar-chart">
-            {[
-              [28,20],[36,26],[22,32],[40,18],[30,24],[38,28]
-            ].map((pair, i) => (
-              <div className="mock-bar-group" key={i}>
-                <div className="mock-bar b1" style={{ height: `${pair[0]}px`, animationDelay: `${1 + i * 0.1}s` }} />
-                <div className="mock-bar b2" style={{ height: `${pair[1]}px`, animationDelay: `${1.05 + i * 0.1}s` }} />
-              </div>
-            ))}
-          </div>
+    {/* Card 3 — Expense Breakdown (small, bottom-right) */}
+    <div className="showcase-card showcase-card--expenses">
+      <div className="sc-header">
+        <span className="sc-title">Expense Breakdown</span>
+      </div>
+      <div className="sc-donut-row">
+        <svg className="sc-donut" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" strokeWidth="3" />
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="42 58" strokeDashoffset="25" strokeLinecap="round" />
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" strokeWidth="3" strokeDasharray="28 72" strokeDashoffset="67" strokeLinecap="round" />
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#22c55e" strokeWidth="3" strokeDasharray="18 82" strokeDashoffset="95" strokeLinecap="round" />
+        </svg>
+        <div className="sc-donut-legend">
+          <div className="sc-legend-item"><span className="sc-dot" style={{background:'#3b82f6'}} />Operations — 42%</div>
+          <div className="sc-legend-item"><span className="sc-dot" style={{background:'#8b5cf6'}} />Marketing — 28%</div>
+          <div className="sc-legend-item"><span className="sc-dot" style={{background:'#22c55e'}} />Payroll — 18%</div>
+          <div className="sc-legend-item"><span className="sc-dot" style={{background:'#e2e8f0'}} />Other — 12%</div>
         </div>
       </div>
+    </div>
 
-      {/* bottom row */}
-      <div className="mock-bottom-row">
-        <div className="mock-bottom-card">
-          <div className="mock-bottom-title" />
-          <div className="mock-bottom-lines">
-            <div className="mock-bottom-line" />
-            <div className="mock-bottom-line" />
-            <div className="mock-bottom-line" />
-          </div>
+    {/* Card 4 — KPI mini card (floating accent, top-left) */}
+    <div className="showcase-card showcase-card--kpi">
+      <div className="sc-kpi-mini">
+        <div className="sc-kpi-mini-icon">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M2 15L6 10L9 13L18 4" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </div>
-        <div className="mock-bottom-card">
-          <div className="mock-bottom-title" />
-          <div className="mock-donut" />
-        </div>
-        <div className="mock-bottom-card">
-          <div className="mock-bottom-title" />
-          <div className="mock-bottom-lines">
-            <div className="mock-bottom-line" />
-            <div className="mock-bottom-line" />
-            <div className="mock-bottom-line" />
-          </div>
+        <div>
+          <div className="sc-kpi-mini-val">3,241</div>
+          <div className="sc-kpi-mini-lbl">Total Orders</div>
         </div>
       </div>
+      <div className="sc-badge green">+8.7%</div>
+    </div>
+
+    {/* Card 5 — Growth mini card (floating accent, bottom-left) */}
+    <div className="showcase-card showcase-card--growth">
+      <div className="sc-kpi-mini">
+        <div className="sc-kpi-mini-icon purple">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="3" stroke="#8b5cf6" strokeWidth="1.5"/><circle cx="13" cy="7" r="3" stroke="#8b5cf6" strokeWidth="1.5"/><path d="M3 16C3 13.5 5 11 7 11C9 11 11 13.5 11 16" stroke="#8b5cf6" strokeWidth="1.5" strokeLinecap="round"/></svg>
+        </div>
+        <div>
+          <div className="sc-kpi-mini-val">2,847</div>
+          <div className="sc-kpi-mini-lbl">Active Customers</div>
+        </div>
+      </div>
+      <div className="sc-badge green">+5.1%</div>
     </div>
   </div>
 )
@@ -154,32 +146,37 @@ const DashboardMockup = () => (
 /* ---- branding panel (shared across auth pages) ---- */
 const BrandPanel = () => (
   <div className="auth-brand-panel">
+    {/* cinematic background layers */}
+    <div className="auth-brand-bg">
+      <div className="auth-brand-glow auth-brand-glow--1" />
+      <div className="auth-brand-glow auth-brand-glow--2" />
+      <div className="auth-brand-grid" />
+    </div>
+
     <div className="auth-brand-inner">
-      <div className="auth-brand-logo">
-        <div className="auth-brand-logo-mark" />
-        <span className="auth-brand-logo-text">businalyst.</span>
-      </div>
+      {/* floating card showcase */}
+      <ShowcaseCards />
 
-      <h2 className="auth-brand-tagline">
-        Smarter analytics for modern businesses.
-      </h2>
-
-      <p className="auth-brand-subtitle">
-        Understand your revenue, expenses, customers, and growth — all from one dashboard built for clarity.
-      </p>
-
-      {/* laptop with dashboard mockup */}
-      <div className="auth-laptop">
-        <div className="auth-laptop-screen">
-          <DashboardMockup />
+      {/* bottom text block */}
+      <div className="auth-brand-text">
+        <div className="auth-brand-logo">
+          <div className="auth-brand-logo-mark" />
+          <span className="auth-brand-logo-text">businalyst.</span>
         </div>
-        <div className="auth-laptop-base" />
-      </div>
 
-      <div className="auth-brand-features">
-        <span className="auth-feature-pill"><span className="auth-feature-dot" />Revenue Insights</span>
-        <span className="auth-feature-pill"><span className="auth-feature-dot" />Expense Tracking</span>
-        <span className="auth-feature-pill"><span className="auth-feature-dot" />Customer Intelligence</span>
+        <h2 className="auth-brand-tagline">
+          A Unified Hub for Smarter<br />Business Decision-Making.
+        </h2>
+
+        <p className="auth-brand-subtitle">
+          Understand revenue, expenses, customers and growth — all in one dashboard.
+        </p>
+
+        <div className="auth-brand-features">
+          <span className="auth-feature-pill">Revenue Insights</span>
+          <span className="auth-feature-pill">Expense Tracking</span>
+          <span className="auth-feature-pill">Customer Intelligence</span>
+        </div>
       </div>
     </div>
   </div>

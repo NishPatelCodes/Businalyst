@@ -23,11 +23,11 @@
 }
 
 /* ============================
-   LEFT — BRANDING PANEL
+   LEFT — BRANDING PANEL (Premium)
    ============================ */
 .auth-brand-panel {
   flex: 1.15;
-  background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 50%, #2563eb 100%);
+  background: #070b18;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -38,37 +38,54 @@
   color: #ffffff;
 }
 
-/* floating background shapes */
-.auth-brand-panel::before,
-.auth-brand-panel::after {
-  content: "";
+/* cinematic background container */
+.auth-brand-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* soft radial glows for depth */
+.auth-brand-glow {
   position: absolute;
   border-radius: 50%;
-  opacity: 0.06;
-  pointer-events: none;
+  filter: blur(100px);
 }
 
-.auth-brand-panel::before {
-  width: 500px;
-  height: 500px;
-  background: #ffffff;
-  top: -120px;
-  right: -160px;
-  animation: authFloat 16s ease-in-out infinite;
+.auth-brand-glow--1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+  top: -15%;
+  right: -10%;
+  animation: glowPulse 12s ease-in-out infinite;
 }
 
-.auth-brand-panel::after {
-  width: 350px;
-  height: 350px;
-  background: #ffffff;
-  bottom: -80px;
-  left: -100px;
-  animation: authFloat 20s ease-in-out infinite reverse;
+.auth-brand-glow--2 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+  bottom: -10%;
+  left: -8%;
+  animation: glowPulse 16s ease-in-out infinite 4s;
 }
 
-@keyframes authFloat {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50%      { transform: translateY(-20px) scale(1.03); }
+@keyframes glowPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.6; transform: scale(1.08); }
+}
+
+/* very subtle grid pattern for texture */
+.auth-brand-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 20%, transparent 70%);
 }
 
 /* branding inner content */
@@ -76,18 +93,29 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 520px;
+  max-width: 560px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  animation: brandFadeIn 0.7s ease-out both;
+  justify-content: flex-end;
+  flex: 1;
+  gap: 0;
+  animation: brandFadeIn 0.8s ease-out both;
 }
 
 @keyframes brandFadeIn {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* bottom text block (logo + tagline + pills) */
+.auth-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 24px;
+}
+
+/* logo */
 .auth-brand-logo {
   display: flex;
   align-items: center;
@@ -95,498 +123,373 @@
 }
 
 .auth-brand-logo-mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  backdrop-filter: blur(8px);
-}
-
-.auth-brand-logo-mark::before,
-.auth-brand-logo-mark::after {
-  content: "";
-  position: absolute;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 .auth-brand-logo-mark::before {
-  width: 18px;
-  height: 18px;
-  opacity: 0.9;
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
 }
 
 .auth-brand-logo-mark::after {
-  width: 10px;
-  height: 10px;
-  opacity: 0.5;
-  transform: translate(3px, 2px);
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 50%;
+  transform: translate(3px, -3px);
+  opacity: 0.8;
 }
 
 .auth-brand-logo-text {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+  font-size: 18px;
+  font-weight: 600;
   color: #ffffff;
-  letter-spacing: var(--letter-spacing-tight);
+  letter-spacing: -0.02em;
   text-transform: lowercase;
 }
 
+/* headline */
 .auth-brand-tagline {
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.35;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
   color: #ffffff;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.025em;
 }
 
+/* subtitle */
 .auth-brand-subtitle {
-  font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.6);
-  line-height: var(--line-height-relaxed);
-  max-width: 380px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.6;
+  max-width: 420px;
+  font-weight: 400;
 }
 
 /* ============================
-   LAPTOP MOCKUP FRAME
+   FLOATING CARD SHOWCASE (Kezak-style)
    ============================ */
-.auth-laptop {
+.showcase-canvas {
   position: relative;
   width: 100%;
-  max-width: 480px;
-  animation: laptopFloat 6s ease-in-out infinite;
-}
-
-@keyframes laptopFloat {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-8px); }
-}
-
-/* screen area */
-.auth-laptop-screen {
-  background: #1a1a2e;
-  border-radius: 10px 10px 0 0;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  border-bottom: none;
-  padding: 6px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.3);
-}
-
-/* camera notch */
-.auth-laptop-screen::before {
-  content: "";
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  z-index: 5;
-}
-
-/* screen glow overlay */
-.auth-laptop-screen::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 3;
-  border-radius: 8px 8px 0 0;
-}
-
-/* laptop base / keyboard */
-.auth-laptop-base {
-  height: 14px;
-  background: linear-gradient(180deg, #2a2a3e 0%, #1a1a2e 100%);
-  border-radius: 0 0 4px 4px;
-  border: 2px solid rgba(255, 255, 255, 0.10);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  position: relative;
-}
-
-/* base hinge detail */
-.auth-laptop-base::before {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 4px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* ============================
-   DASHBOARD MOCKUP (inside laptop)
-   ============================ */
-.mock-dashboard {
-  background: var(--bg-secondary);
-  border-radius: 6px;
-  overflow: hidden;
-  display: flex;
-  height: 280px;
-  animation: mockDashFadeIn 0.8s ease-out 0.3s both;
-}
-
-@keyframes mockDashFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* sidebar mockup */
-.mock-sidebar {
-  width: 48px;
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  padding: 8px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  height: 380px;
   flex-shrink: 0;
 }
 
-.mock-sidebar-logo {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #111827;
-  margin-bottom: 8px;
-  position: relative;
-}
-
-.mock-sidebar-logo::after {
-  content: "";
+/* shared card base */
+.showcase-card {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  border: 1.5px solid #ffffff;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.12),
+    0 1px 4px rgba(0, 0, 0, 0.08);
+  font-family: var(--font-family), -apple-system, BlinkMacSystemFont, sans-serif;
+  animation: cardFloat 0.8s ease-out both;
 }
 
-.mock-nav-item {
-  width: 28px;
-  height: 5px;
-  border-radius: 2px;
-  background: #e5e7eb;
+@keyframes cardFloat {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.mock-nav-item.active {
-  background: #2563eb;
-}
-
-/* main content area */
-.mock-main {
-  flex: 1;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  overflow: hidden;
-}
-
-/* top bar */
-.mock-topbar {
+/* card header shared */
+.sc-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2px;
-  margin-bottom: 2px;
+  margin-bottom: 10px;
 }
 
-.mock-topbar-title {
-  width: 56px;
-  height: 6px;
-  border-radius: 2px;
-  background: #374151;
+.sc-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
 }
 
-.mock-topbar-actions {
-  display: flex;
-  gap: 4px;
+.sc-badge {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 99px;
 }
 
-.mock-topbar-dot {
-  width: 10px;
-  height: 5px;
-  border-radius: 2px;
-  background: #e5e7eb;
+.sc-badge.green {
+  background: #ecfdf5;
+  color: #16a34a;
 }
 
-/* KPI cards row */
-.mock-kpi-row {
-  display: flex;
-  gap: 4px;
+/* ---- Card 1: Revenue Overview (large, center-left, back) ---- */
+.showcase-card--revenue {
+  width: 280px;
+  left: 0;
+  top: 40px;
+  z-index: 1;
+  transform: rotate(-2deg);
+  animation-delay: 0.1s;
 }
 
-.mock-kpi-card {
-  flex: 1;
-  background: #ffffff;
-  border-radius: 4px;
-  padding: 6px 5px;
-  border: 1px solid #f3f4f6;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  animation: kpiSlideUp 0.5s ease-out both;
-}
-
-.mock-kpi-card:nth-child(1) { animation-delay: 0.5s; }
-.mock-kpi-card:nth-child(2) { animation-delay: 0.6s; }
-.mock-kpi-card:nth-child(3) { animation-delay: 0.7s; }
-.mock-kpi-card:nth-child(4) { animation-delay: 0.8s; }
-.mock-kpi-card:nth-child(5) { animation-delay: 0.9s; }
-
-@keyframes kpiSlideUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.mock-kpi-label {
-  width: 70%;
-  height: 3px;
-  border-radius: 1px;
-  background: #d1d5db;
-}
-
-.mock-kpi-value {
-  width: 55%;
-  height: 5px;
-  border-radius: 2px;
-  background: #374151;
-}
-
-.mock-kpi-sparkline {
-  display: flex;
-  align-items: flex-end;
-  gap: 1px;
-  height: 12px;
-  margin-top: 2px;
-}
-
-.mock-spark {
-  flex: 1;
-  border-radius: 1px 1px 0 0;
-  min-width: 2px;
-  animation: sparkGrow 0.8s ease-out both;
-  transform-origin: bottom;
-}
-
-.mock-spark.blue { background: rgba(37, 99, 235, 0.3); }
-.mock-spark.green { background: rgba(22, 163, 74, 0.3); }
-.mock-spark.red { background: rgba(220, 38, 38, 0.25); }
-.mock-spark.purple { background: rgba(139, 92, 246, 0.3); }
-.mock-spark.amber { background: rgba(245, 158, 11, 0.3); }
-
-@keyframes sparkGrow {
-  from { transform: scaleY(0); }
-  to   { transform: scaleY(1); }
-}
-
-/* chart area row */
-.mock-chart-row {
-  display: flex;
-  gap: 4px;
-  flex: 1;
-  min-height: 0;
-}
-
-.mock-chart-card {
-  background: #ffffff;
-  border-radius: 4px;
-  padding: 6px;
-  border: 1px solid #f3f4f6;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.sc-chart {
+  height: 70px;
+  margin-bottom: 10px;
+  border-radius: 6px;
   overflow: hidden;
-  animation: chartFadeIn 0.6s ease-out both;
+  background: #f8fafc;
 }
 
-.mock-chart-card.wide { flex: 1.6; animation-delay: 0.7s; }
-.mock-chart-card.narrow { flex: 1; animation-delay: 0.85s; }
-
-@keyframes chartFadeIn {
-  from { opacity: 0; transform: scale(0.97); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-.mock-chart-title {
-  width: 45%;
-  height: 4px;
-  border-radius: 2px;
-  background: #374151;
-}
-
-/* line chart mockup */
-.mock-line-chart {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-}
-
-.mock-line-chart svg {
+.sc-chart svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-.mock-line-path {
-  fill: none;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 300;
-  stroke-dashoffset: 300;
-  animation: drawLine 2s ease-out forwards;
+.sc-kpi-row {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
 }
 
-.mock-line-path.primary { stroke: #2563eb; animation-delay: 0.9s; }
-.mock-line-path.secondary { stroke: #e5e7eb; stroke-width: 1; animation-delay: 1.1s; }
-
-.mock-line-area {
-  opacity: 0;
-  animation: areaFadeIn 1s ease-out 1.8s forwards;
-}
-
-@keyframes drawLine {
-  to { stroke-dashoffset: 0; }
-}
-
-@keyframes areaFadeIn {
-  to { opacity: 1; }
-}
-
-/* bar chart mockup */
-.mock-bar-chart {
+.sc-kpi {
   flex: 1;
   display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  padding-top: 4px;
-}
-
-.mock-bar-group {
-  flex: 1;
-  display: flex;
+  flex-direction: column;
   gap: 1px;
-  align-items: flex-end;
 }
 
-.mock-bar {
-  flex: 1;
-  border-radius: 2px 2px 0 0;
-  min-width: 3px;
-  transform-origin: bottom;
-  animation: mockBarGrow 0.7s ease-out both;
+.sc-kpi-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
-.mock-bar.b1 { background: #2563eb; }
-.mock-bar.b2 { background: #93c5fd; }
-
-@keyframes mockBarGrow {
-  from { transform: scaleY(0); }
-  to   { transform: scaleY(1); }
+.sc-kpi-lbl {
+  font-size: 8px;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-/* bottom row */
-.mock-bottom-row {
+/* ---- Card 2: Customer Intelligence (medium, top-right, front) ---- */
+.showcase-card--customers {
+  width: 260px;
+  right: 0;
+  top: 0;
+  z-index: 3;
+  transform: rotate(1.5deg);
+  animation-delay: 0.3s;
+}
+
+.sc-table {
+  font-size: 9px;
+}
+
+.sc-table-head {
   display: flex;
+  padding: 4px 0;
+  border-bottom: 1px solid #e2e8f0;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 7px;
+  letter-spacing: 0.05em;
+}
+
+.sc-table-head span { flex: 1; }
+.sc-table-head span:first-child { flex: 1.8; }
+
+.sc-table-row {
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #f8fafc;
+  color: #334155;
+  font-weight: 500;
+}
+
+.sc-table-row span { flex: 1; }
+.sc-table-row span:first-child { flex: 1.8; }
+
+.sc-customer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-avatar {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #ffffff;
+  font-size: 7px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ---- Card 3: Expense Breakdown (small, bottom-right) ---- */
+.showcase-card--expenses {
+  width: 230px;
+  right: 15px;
+  bottom: 10px;
+  z-index: 2;
+  transform: rotate(2deg);
+  animation-delay: 0.5s;
+}
+
+.sc-donut-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sc-donut {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.sc-donut-legend {
+  display: flex;
+  flex-direction: column;
   gap: 4px;
 }
 
-.mock-bottom-card {
-  flex: 1;
-  background: #ffffff;
-  border-radius: 4px;
-  padding: 5px;
-  border: 1px solid #f3f4f6;
+.sc-legend-item {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-  animation: chartFadeIn 0.5s ease-out both;
+  align-items: center;
+  gap: 5px;
+  font-size: 8px;
+  font-weight: 500;
+  color: #475569;
 }
 
-.mock-bottom-card:nth-child(1) { animation-delay: 1s; }
-.mock-bottom-card:nth-child(2) { animation-delay: 1.1s; }
-.mock-bottom-card:nth-child(3) { animation-delay: 1.2s; }
-
-.mock-bottom-title {
-  width: 50%;
-  height: 3px;
-  border-radius: 1px;
-  background: #374151;
-}
-
-.mock-bottom-lines {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.mock-bottom-line {
-  height: 2px;
-  border-radius: 1px;
-  background: #e5e7eb;
-}
-
-.mock-bottom-line:nth-child(1) { width: 90%; }
-.mock-bottom-line:nth-child(2) { width: 70%; }
-.mock-bottom-line:nth-child(3) { width: 80%; }
-
-/* donut mockup */
-.mock-donut {
-  width: 24px;
-  height: 24px;
+.sc-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  border: 4px solid #2563eb;
-  border-top-color: #93c5fd;
-  border-right-color: #dbeafe;
-  align-self: center;
-  margin: 2px 0;
-  animation: donutSpin 8s linear infinite;
+  flex-shrink: 0;
 }
 
-@keyframes donutSpin {
-  to { transform: rotate(360deg); }
+/* ---- Card 4: KPI mini (top-left accent) ---- */
+.showcase-card--kpi {
+  width: 185px;
+  left: 5px;
+  top: -10px;
+  z-index: 4;
+  transform: rotate(-1deg);
+  animation-delay: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
 }
 
-/* feature pills (kept for brand panel) */
+.sc-kpi-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sc-kpi-mini-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #ecfdf5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sc-kpi-mini-icon.purple {
+  background: #f3e8ff;
+}
+
+.sc-kpi-mini-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.sc-kpi-mini-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.sc-kpi-mini-lbl {
+  font-size: 7px;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* ---- Card 5: Growth mini (bottom-left) ---- */
+.showcase-card--growth {
+  width: 195px;
+  left: 10px;
+  bottom: 20px;
+  z-index: 4;
+  transform: rotate(1deg);
+  animation-delay: 0.4s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+}
+
+/* feature pills */
 .auth-brand-features {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .auth-feature-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(6px);
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.01em;
+  font-weight: 500;
   animation: pillFade 0.6s ease-out both;
+  transition: border-color 0.3s, color 0.3s, background 0.3s, box-shadow 0.3s;
+}
+
+.auth-feature-pill:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.1);
 }
 
 .auth-feature-pill:nth-child(1) { animation-delay: 1.2s; }
@@ -594,16 +497,8 @@
 .auth-feature-pill:nth-child(3) { animation-delay: 1.5s; }
 
 @keyframes pillFade {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-.auth-feature-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #34d399;
-  flex-shrink: 0;
 }
 
 /* ============================
@@ -644,8 +539,9 @@
 }
 
 .auth-mobile-brand .auth-brand-logo-mark {
-  background: var(--color-neutral-900);
-  border-color: var(--color-neutral-900);
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  border: none;
+  box-shadow: none;
 }
 
 .auth-mobile-brand .auth-brand-logo-text {
