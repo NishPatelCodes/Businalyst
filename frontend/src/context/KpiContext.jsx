@@ -5,6 +5,8 @@ export const KpiContext = createContext(null)
 
 const DATA_STORAGE_KEY = 'businalyst_kpi_data'
 const CURRENCY_STORAGE_KEY = 'businalyst_currency_code'
+const STORAGE_VERSION_KEY = 'businalyst_kpi_version'
+const CURRENT_VERSION = 2
 
 const CURRENCY_LOCALES = {
   USD: 'en-US',
@@ -41,13 +43,16 @@ const DEFAULT_CURRENCY = CURRENCIES[0]
 const isSupportedCurrency = (code) => CURRENCIES.some((currency) => currency.code === code)
 
 export function KpiProvider({ children }) {
-  // Load data from localStorage on mount; use demo data for first-time visitors
   const [kpiData, setKpiDataState] = useState(() => {
     try {
+      const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
       const stored = localStorage.getItem(DATA_STORAGE_KEY)
-      if (stored) {
+      if (stored && Number(storedVersion) >= CURRENT_VERSION) {
         return JSON.parse(stored)
       }
+      // Stale or missing version — clear and use fresh demo data
+      localStorage.removeItem(DATA_STORAGE_KEY)
+      localStorage.removeItem(STORAGE_VERSION_KEY)
       return DEMO_KPI_DATA
     } catch (error) {
       console.error('Error loading KPI data from localStorage:', error)
@@ -55,7 +60,10 @@ export function KpiProvider({ children }) {
     }
   })
 
-  const [isDemoData, setIsDemoData] = useState(() => !localStorage.getItem(DATA_STORAGE_KEY))
+  const [isDemoData, setIsDemoData] = useState(() => {
+    const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
+    return !localStorage.getItem(DATA_STORAGE_KEY) || Number(storedVersion) < CURRENT_VERSION
+  })
   const [selectedCurrencyCode, setSelectedCurrencyCode] = useState(() => {
     const stored = localStorage.getItem(CURRENCY_STORAGE_KEY)
     if (isSupportedCurrency(stored)) return stored
@@ -135,12 +143,13 @@ export function KpiProvider({ children }) {
         setKpiDataState(normalizedData)
         setIsDemoData(false)
         localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(normalizedData))
-
+        localStorage.setItem(STORAGE_VERSION_KEY, String(CURRENT_VERSION))
         // For newly uploaded data, default UI currency to the dataset currency.
         setSelectedCurrencyCode(sourceCurrency)
         localStorage.setItem(CURRENCY_STORAGE_KEY, sourceCurrency)
       } else {
         localStorage.removeItem(DATA_STORAGE_KEY)
+        localStorage.removeItem(STORAGE_VERSION_KEY)
         setKpiDataState(DEMO_KPI_DATA)
         setIsDemoData(true)
         setSelectedCurrencyCode(DEFAULT_CURRENCY.code)

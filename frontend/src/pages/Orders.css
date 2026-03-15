@@ -28,10 +28,11 @@
 /* ── Page header ────────────────────────────────────────────── */
 .omi-page-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
-  gap: 16px;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .omi-page-title {
@@ -48,32 +49,79 @@
   margin: 0;
 }
 
-.omi-page-actions {
+.omi-page-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   flex-shrink: 0;
 }
 
-/* ── Export buttons ─────────────────────────────────────────── */
-.omi-btn {
+/* ── Export button + dropdown ──────────────────────────────── */
+.omi-export-wrap {
+  position: relative;
+}
+
+.omi-export-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
+  gap: 6px;
+  padding: 6px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
+  background: #fff;
   font-size: 13px;
   font-weight: 500;
   color: #374151;
-  background: #fff;
-  cursor: pointer;
   font-family: inherit;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
 }
-
-.omi-btn:hover {
+.omi-export-btn:hover {
   background: #f9fafb;
   border-color: #d1d5db;
+}
+.omi-export-btn[aria-expanded="true"] {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.omi-export-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 88;
+}
+
+.omi-export-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 140px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  padding: 4px;
+  z-index: 92;
+}
+
+.omi-export-menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s;
+}
+.omi-export-menu-item:hover {
+  background: #f3f4f6;
 }
 
 /* ── Section ────────────────────────────────────────────────── */
@@ -430,11 +478,39 @@
   line-height: 1.5;
 }
 
+/* ── Coming soon ────────────────────────────────────────────── */
+.omi-coming-soon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 32px 24px;
+}
+
+.omi-coming-soon-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #9ca3af;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .omi-two-col,
   .omi-two-col-55,
   .omi-insights-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .omi-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .omi-page-header-actions {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 }

@@ -2,32 +2,53 @@ import React, { useState, useMemo, useContext } from 'react'
 import { KpiContext } from '../../context/KpiContext'
 import './OrdersComparisonBarChart.css'
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-
-/** Build year comparison: 2024 vs 2023. Seven groups (Jan–Jul). Uses KPI or mock. */
-function getYearComparisonData(kpiData) {
-  const mock2024 = [18, 22, 20, 24, 19, 26, 28]
-  const mock2023 = [14, 18, 16, 20, 17, 22, 20]
-  const total2024 = mock2024.reduce((a, b) => a + b, 0)
-  return {
-    labels: MONTHS,
-    currentYear: mock2024,
-    previousYear: mock2023,
-    totalCurrent: total2024,
-  }
-}
-
 const OrdersComparisonBarChart = () => {
   const { kpiData } = useContext(KpiContext)
   const [yearDropdownOpen, setYearDropdownOpen] = useState(false)
 
-  const { labels, currentYear, previousYear, totalCurrent } = useMemo(
-    () => getYearComparisonData(kpiData),
-    [kpiData]
-  )
+  const { labels, currentValues, previousValues, hasComparison, totalCurrent } = useMemo(() => {
+    const backendLabels = kpiData?.comparison_bar_labels
+    const backendCurrent = kpiData?.comparison_bar_current
+    const backendPrevious = kpiData?.comparison_bar_previous
+    const backendHasPrevious = kpiData?.comparison_bar_has_previous ?? false
 
-  const maxVal = Math.max(...currentYear, ...previousYear, 1)
-  const yMax = Math.ceil(maxVal * 1.2) || 10
+    if (
+      Array.isArray(backendLabels) && backendLabels.length > 0 &&
+      Array.isArray(backendCurrent) && backendCurrent.length > 0
+    ) {
+      const total = backendCurrent.reduce((a, b) => a + b, 0)
+      return {
+        labels: backendLabels,
+        currentValues: backendCurrent,
+        previousValues: backendHasPrevious && Array.isArray(backendPrevious) ? backendPrevious : null,
+        hasComparison: backendHasPrevious && Array.isArray(backendPrevious),
+        totalCurrent: Math.round(total),
+      }
+    }
+
+    // Demo / fallback data
+    const demoLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+    const demoCurrent = [18, 22, 20, 24, 19, 26, 28]
+    const demoPrevious = [14, 18, 16, 20, 17, 22, 20]
+    return {
+      labels: demoLabels,
+      currentValues: demoCurrent,
+      previousValues: demoPrevious,
+      hasComparison: true,
+      totalCurrent: demoCurrent.reduce((a, b) => a + b, 0),
+    }
+  }, [
+    kpiData?.comparison_bar_labels,
+    kpiData?.comparison_bar_current,
+    kpiData?.comparison_bar_previous,
+    kpiData?.comparison_bar_has_previous,
+  ])
+
+  const allSeries = hasComparison && previousValues
+    ? [...currentValues, ...previousValues]
+    : [...currentValues]
+  const maxVal = Math.max(...allSeries, 1)
+  const yMax = Math.ceil(maxVal * 1.15) || 10
   const chartWidth = 560
   const chartHeight = 200
   const padding = { top: 16, right: 40, bottom: 40, left: 12 }
@@ -35,8 +56,10 @@ const OrdersComparisonBarChart = () => {
   const graphHeight = chartHeight - padding.top - padding.bottom
 
   const groupWidth = graphWidth / labels.length
-  const barGap = 4
-  const barWidth = Math.max(12, (groupWidth * 0.6 - barGap) / 2)
+  const gap = 8
+  const barWidth = Math.max(10, hasComparison
+    ? (groupWidth - gap) / 2
+    : groupWidth * 0.6)
 
   const valueToY = (v) =>
     padding.top + graphHeight - (v / yMax) * graphHeight
@@ -54,18 +77,20 @@ const OrdersComparisonBarChart = () => {
       <div className="ocb-header">
         <div className="ocb-title-wrap">
           <h3 className="ocb-title">Number of sales</h3>
-          <div className="ocb-value">{totalCurrent}</div>
+          <div className="ocb-value">{totalCurrent.toLocaleString()}</div>
         </div>
         <div className="ocb-controls">
           <div className="ocb-legend">
             <span className="ocb-legend-item">
               <span className="ocb-legend-dot ocb-legend-dot--current" />
-              2024
+              Current
             </span>
-            <span className="ocb-legend-item">
-              <span className="ocb-legend-dot ocb-legend-dot--last" />
-              2023
-            </span>
+            {hasComparison && (
+              <span className="ocb-legend-item">
+                <span className="ocb-legend-dot ocb-legend-dot--last" />
+                Previous
+              </span>
+            )}
           </div>
           <div className="ocb-dropdown-wrap">
             <button
@@ -74,7 +99,7 @@ const OrdersComparisonBarChart = () => {
               onClick={() => setYearDropdownOpen((o) => !o)}
               aria-expanded={yearDropdownOpen}
             >
-              Year
+              Period
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -113,20 +138,26 @@ const OrdersComparisonBarChart = () => {
                 textAnchor="start"
                 className="ocb-axis-label"
               >
-                {tick}
+                {tick >= 1e6
+                  ? `${(tick / 1e6).toFixed(1)}M`
+                  : tick >= 1e3
+                    ? `${(tick / 1e3).toFixed(0)}k`
+                    : tick}
               </text>
             ))}
           </g>
           {/* Bars */}
           {labels.map((label, i) => {
             const groupCenter = padding.left + (i + 0.5) * groupWidth
-            const currentVal = currentYear[i] || 0
-            const lastVal = previousYear[i] || 0
+            const currentVal = currentValues[i] || 0
             const currentH = (currentVal / yMax) * graphHeight
-            const lastH = (lastVal / yMax) * graphHeight
-            const pairWidth = barWidth * 2 + barGap
-            const currentX = groupCenter - pairWidth / 2
-            const lastX = currentX + barWidth + barGap
+            const currentX = hasComparison
+              ? groupCenter - barWidth - gap / 2
+              : groupCenter - barWidth / 2
+
+            const prevVal = hasComparison && previousValues ? (previousValues[i] || 0) : null
+            const prevH = prevVal != null ? (prevVal / yMax) * graphHeight : 0
+            const prevX = groupCenter + gap / 2
 
             return (
               <g key={label}>
@@ -139,15 +170,17 @@ const OrdersComparisonBarChart = () => {
                   rx="4"
                   className="ocb-bar"
                 />
-                <rect
-                  x={lastX}
-                  y={valueToY(lastVal)}
-                  width={barWidth}
-                  height={lastH}
-                  fill="#bfdbfe"
-                  rx="4"
-                  className="ocb-bar"
-                />
+                {hasComparison && prevVal != null && (
+                  <rect
+                    x={prevX}
+                    y={valueToY(prevVal)}
+                    width={barWidth}
+                    height={prevH}
+                    fill="#bfdbfe"
+                    rx="3"
+                    className="ocb-bar"
+                  />
+                )}
               </g>
             )
           })}
@@ -170,7 +203,7 @@ const OrdersComparisonBarChart = () => {
                 textAnchor="middle"
                 className="ocb-axis-label"
               >
-                {label}
+                {String(label).length > 8 ? String(label).slice(0, 7) + '…' : label}
               </text>
             ))}
           </g>

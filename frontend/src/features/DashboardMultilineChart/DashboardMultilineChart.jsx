@@ -4,15 +4,8 @@ import './DashboardMultilineChart.css'
 
 const COLORS = {
   revenue: '#2563eb',
-  profit: '#16a34a',
   orders: '#dc2626',
-}
-
-function formatDateShort(str) {
-  if (!str) return ''
-  const d = new Date(str)
-  if (isNaN(d.getTime())) return String(str)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  aov: '#16a34a',
 }
 
 function buildSmoothPath(pts) {
@@ -44,38 +37,28 @@ const DashboardMultilineChart = () => {
     return () => observer.disconnect()
   }, [])
 
-  const { chartData, paths, pad, valueToY, indexToX, n, yTicks, xLabelIndices, maxVal } = useMemo(() => {
-    const dates = kpiData?.date_data || []
-    const revenue = kpiData?.revenue_data || []
-    const profit = kpiData?.profit_data || []
-    const ordersRaw = kpiData?.orders_data || [850, 720, 617]
-    const len = Math.min(dates.length, revenue.length, profit.length) || 1
-    let ordersSeries
-    if (ordersRaw.length >= len) {
-      ordersSeries = ordersRaw.slice(0, len).map(Number)
-    } else if (ordersRaw.length > 0) {
-      ordersSeries = Array.from({ length: len }, (_, i) => {
-        const t = len > 1 ? i / (len - 1) : 0
-        const pos = t * (ordersRaw.length - 1)
-        const lo = Math.floor(pos)
-        const hi = Math.min(lo + 1, ordersRaw.length - 1)
-        const frac = pos - lo
-        const a = Number(ordersRaw[lo]) || 0
-        const b = Number(ordersRaw[hi]) || 0
-        return Math.round(a + frac * (b - a))
-      })
-    } else {
-      ordersSeries = revenue.map((r, i) => Math.round(Number(r) / 20 + 500 - i * 2))
-    }
+  const { chartData, paths, pad, valueToY, indexToX, n, yTicks, xLabelIndices } = useMemo(() => {
+    // Consume clean backend arrays; fall back to demo data if unavailable
+    const labels = kpiData?.multiline_labels || kpiData?.date_data || []
+    const revenue = kpiData?.multiline_revenue || kpiData?.revenue_data || []
+    const orders = kpiData?.multiline_orders || []
+    const aov = kpiData?.multiline_aov || []
 
-    const chartData = Array.from({ length: len }, (_, i) => ({
-      date: dates[i],
+    const len = Math.min(
+      labels.length || 1,
+      revenue.length || 1,
+      Math.max(orders.length, 1),
+    ) || 1
+    const safelen = Math.min(len, labels.length, revenue.length) || 1
+
+    const chartData = Array.from({ length: safelen }, (_, i) => ({
+      label: labels[i] ?? '',
       revenue: Number(revenue[i]) || 0,
-      profit: Number(profit[i]) || 0,
-      orders: Number(ordersSeries[i]) || 0,
+      orders: Number(orders[i]) || 0,
+      aov: Number(aov[i]) || 0,
     }))
 
-    const allValues = chartData.flatMap((d) => [d.revenue, d.profit, d.orders])
+    const allValues = chartData.flatMap((d) => [d.revenue, d.orders, d.aov])
     const maxVal = Math.max(1, ...allValues)
     const yMax = maxVal * 1.08
 
@@ -84,67 +67,58 @@ const DashboardMultilineChart = () => {
     if (width <= 0 || height <= 0) {
       return {
         chartData: [],
-        paths: { revenue: '', profit: '', orders: '' },
+        paths: { revenue: '', orders: '', aov: '' },
         pad: { top: 12, right: 12, bottom: 28, left: 36 },
         valueToY: () => 0,
         indexToX: () => 0,
         n: 0,
         yTicks: [0],
         xLabelIndices: [0],
-        maxVal: 1,
       }
     }
 
-    const pad = {
-      top: 12,
-      right: 12,
-      bottom: 28,
-      left: 40,
-    }
+    const pad = { top: 12, right: 12, bottom: 28, left: 40 }
     const graphW = width - pad.left - pad.right
     const graphH = height - pad.top - pad.bottom
 
-    const n = chartData.length
+    const nPts = chartData.length
     const valueToY = (v) => pad.top + graphH - (Number(v) / yMax) * graphH
-    const indexToX = (i) => (n <= 1 ? pad.left : pad.left + (i / (n - 1)) * graphW)
+    const indexToX = (i) => (nPts <= 1 ? pad.left : pad.left + (i / (nPts - 1)) * graphW)
 
     const pts = (key) =>
-      chartData.map((d, i) => ({
-        x: pad.left + (n <= 1 ? 0 : (i / (n - 1)) * graphW),
-        y: valueToY(d[key]),
-      }))
+      chartData.map((d, i) => ({ x: indexToX(i), y: valueToY(d[key]) }))
 
     const paths = {
       revenue: buildSmoothPath(pts('revenue')),
-      profit: buildSmoothPath(pts('profit')),
       orders: buildSmoothPath(pts('orders')),
+      aov: buildSmoothPath(pts('aov')),
     }
 
     const yStep = yMax / 4
     const yTicks = [0, yStep, yStep * 2, yStep * 3, yMax].map((v) => Math.round(v))
     const xLabelIndices =
-      n <= 2
-        ? [...Array(n).keys()]
-        : [0, Math.round((n - 1) / 4), Math.round((n - 1) / 2), Math.round((3 * (n - 1)) / 4), n - 1].filter(
-            (v, i, a) => a.indexOf(v) === i
-          )
+      nPts <= 2
+        ? [...Array(nPts).keys()]
+        : [0, Math.round((nPts - 1) / 4), Math.round((nPts - 1) / 2), Math.round((3 * (nPts - 1)) / 4), nPts - 1]
+            .filter((v, i, a) => a.indexOf(v) === i)
 
     return {
       chartData,
       paths,
       pad,
       valueToY,
-      indexToX: (i) => pad.left + (n <= 1 ? 0 : (i / (n - 1)) * graphW),
-      n,
+      indexToX,
+      n: nPts,
       yTicks,
       xLabelIndices,
-      maxVal: yMax,
     }
   }, [
+    kpiData?.multiline_labels,
+    kpiData?.multiline_revenue,
+    kpiData?.multiline_orders,
+    kpiData?.multiline_aov,
     kpiData?.date_data,
     kpiData?.revenue_data,
-    kpiData?.profit_data,
-    kpiData?.orders_data,
     size.width,
     size.height,
   ])
@@ -180,12 +154,12 @@ const DashboardMultilineChart = () => {
             Revenue
           </span>
           <span className="dashboard-multiline-legend-item">
-            <span className="dashboard-multiline-legend-dot" style={{ background: COLORS.profit }} />
-            Profit
-          </span>
-          <span className="dashboard-multiline-legend-item">
             <span className="dashboard-multiline-legend-dot" style={{ background: COLORS.orders }} />
             Orders
+          </span>
+          <span className="dashboard-multiline-legend-item">
+            <span className="dashboard-multiline-legend-dot" style={{ background: COLORS.aov }} />
+            AOV
           </span>
         </div>
       </div>
@@ -216,8 +190,8 @@ const DashboardMultilineChart = () => {
             ))}
             {/* Lines */}
             <path d={paths.revenue} fill="none" stroke={COLORS.revenue} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d={paths.profit} fill="none" stroke={COLORS.profit} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             <path d={paths.orders} fill="none" stroke={COLORS.orders} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d={paths.aov} fill="none" stroke={COLORS.aov} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             {/* X labels */}
             {xLabelIndices.map((i) => (
               <text
@@ -227,10 +201,10 @@ const DashboardMultilineChart = () => {
                 textAnchor="middle"
                 className="dashboard-multiline-xlabel"
               >
-                {formatDateShort(chartData[i]?.date)}
+                {chartData[i]?.label ?? ''}
               </text>
             ))}
-            {/* Hover vertical line + tooltip area */}
+            {/* Hover vertical line */}
             {hoverIndex != null && chartData[hoverIndex] && (
               <line
                 x1={indexToX(hoverIndex)}
@@ -247,19 +221,17 @@ const DashboardMultilineChart = () => {
       {point && hoverIndex != null && hasSize && (
         <div
           className="dashboard-multiline-tooltip"
-          style={{
-            left: `${(indexToX(hoverIndex) / size.width) * 100}%`,
-          }}
+          style={{ left: `${(indexToX(hoverIndex) / size.width) * 100}%` }}
         >
-          <div className="dashboard-multiline-tooltip-date">{formatDateShort(point.date)}</div>
+          <div className="dashboard-multiline-tooltip-date">{point.label}</div>
           <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.revenue }}>
             Revenue: {formatCurrency(point.revenue)}
           </div>
-          <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.profit }}>
-            Profit: {formatCurrency(point.profit)}
-          </div>
           <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.orders }}>
             Orders: {Number(point.orders).toLocaleString()}
+          </div>
+          <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.aov }}>
+            AOV: ${Number(point.aov).toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </div>
         </div>
       )}
