@@ -37,108 +37,67 @@ const MicrosoftIcon = () => (
   </svg>
 )
 
-/* ---- floating showcase cards (Kezak-style collage) ---- */
-const ShowcaseCards = () => (
-  <div className="showcase-canvas">
-    {/* Card 1 — Revenue Overview (large, back-left) */}
-    <div className="showcase-card showcase-card--revenue">
-      <div className="sc-header">
-        <span className="sc-title">Revenue Overview</span>
-        <span className="sc-badge green">+12.3%</span>
+/* ---- floating dashboard mockup (premium hero) ---- */
+const DashboardMockup = () => (
+  <div className="showcase-device">
+    <div className="showcase-device-glow" />
+    <div className="showcase-screen">
+      {/* top bar */}
+      <div className="sc-topbar">
+        <div className="sc-topbar-left">
+          <div className="sc-topbar-dot" />
+          <span className="sc-topbar-brand">businalyst.</span>
+        </div>
+        <div className="sc-topbar-nav">
+          <span className="sc-topbar-link active">Dashboard</span>
+          <span className="sc-topbar-link">Revenue</span>
+          <span className="sc-topbar-link">Expenses</span>
+          <span className="sc-topbar-link">Customers</span>
+        </div>
       </div>
-      <div className="sc-chart">
-        <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+
+      {/* KPI row */}
+      <div className="sc-kpi-strip">
+        <div className="sc-kpi-card">
+          <span className="sc-kpi-label">Total Revenue</span>
+          <span className="sc-kpi-value">$124.8k</span>
+          <span className="sc-kpi-change up">+12.3%</span>
+        </div>
+        <div className="sc-kpi-card">
+          <span className="sc-kpi-label">Net Profit</span>
+          <span className="sc-kpi-value">$82.7k</span>
+          <span className="sc-kpi-change up">+8.1%</span>
+        </div>
+        <div className="sc-kpi-card">
+          <span className="sc-kpi-label">Customers</span>
+          <span className="sc-kpi-value">2,847</span>
+          <span className="sc-kpi-change up">+5.1%</span>
+        </div>
+      </div>
+
+      {/* chart area */}
+      <div className="sc-chart-area">
+        <div className="sc-chart-header">
+          <span className="sc-chart-title">Revenue Overview</span>
+          <div className="sc-chart-legend">
+            <span className="sc-legend-dot blue" />
+            <span className="sc-legend-text">Revenue</span>
+            <span className="sc-legend-dot purple" />
+            <span className="sc-legend-text">Expenses</span>
+          </div>
+        </div>
+        <svg className="sc-chart-svg" viewBox="0 0 320 80" preserveAspectRatio="none">
           <defs>
-            <linearGradient id="scAreaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+            <linearGradient id="scFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.18" />
               <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
             </linearGradient>
           </defs>
-          <path d="M0,45 C20,38 40,42 60,32 C80,22 100,30 120,20 C140,14 160,22 180,16 C190,12 200,10 200,10 V60 H0 Z" fill="url(#scAreaGrad)" />
-          <path d="M0,45 C20,38 40,42 60,32 C80,22 100,30 120,20 C140,14 160,22 180,16 C190,12 200,10 200,10" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
+          <path d="M0,62 C30,55 55,58 80,48 C110,36 140,42 170,32 C200,24 230,30 260,22 C285,16 310,12 320,10 V80 H0 Z" fill="url(#scFill)" />
+          <path d="M0,62 C30,55 55,58 80,48 C110,36 140,42 170,32 C200,24 230,30 260,22 C285,16 310,12 320,10" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
+          <path d="M0,58 C30,60 55,55 80,58 C110,62 140,56 170,60 C200,57 230,62 260,58 C285,60 310,56 320,58" fill="none" stroke="#8b5cf6" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3" opacity="0.6" />
         </svg>
       </div>
-      <div className="sc-kpi-row">
-        <div className="sc-kpi"><span className="sc-kpi-val">$124.8k</span><span className="sc-kpi-lbl">Revenue</span></div>
-        <div className="sc-kpi"><span className="sc-kpi-val">$42.1k</span><span className="sc-kpi-lbl">Expenses</span></div>
-        <div className="sc-kpi"><span className="sc-kpi-val">$82.7k</span><span className="sc-kpi-lbl">Profit</span></div>
-      </div>
-    </div>
-
-    {/* Card 2 — Customer Intelligence (medium, top-right) */}
-    <div className="showcase-card showcase-card--customers">
-      <div className="sc-header">
-        <span className="sc-title">Customer Intelligence</span>
-      </div>
-      <div className="sc-table">
-        <div className="sc-table-head">
-          <span>Customer</span><span>Orders</span><span>Revenue</span>
-        </div>
-        {[
-          { name: 'Acme Corp',     orders: '142', rev: '$18.4k' },
-          { name: 'Nova Labs',     orders: '98',  rev: '$12.7k' },
-          { name: 'Zenith Inc',    orders: '87',  rev: '$9.8k' },
-          { name: 'Pixel Studio',  orders: '64',  rev: '$7.2k' },
-        ].map((r, i) => (
-          <div className="sc-table-row" key={i}>
-            <span className="sc-customer">
-              <span className="sc-avatar">{r.name[0]}</span>
-              {r.name}
-            </span>
-            <span>{r.orders}</span>
-            <span>{r.rev}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    {/* Card 3 — Expense Breakdown (small, bottom-right) */}
-    <div className="showcase-card showcase-card--expenses">
-      <div className="sc-header">
-        <span className="sc-title">Expense Breakdown</span>
-      </div>
-      <div className="sc-donut-row">
-        <svg className="sc-donut" viewBox="0 0 36 36">
-          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray="42 58" strokeDashoffset="25" strokeLinecap="round" />
-          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#8b5cf6" strokeWidth="3" strokeDasharray="28 72" strokeDashoffset="67" strokeLinecap="round" />
-          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#22c55e" strokeWidth="3" strokeDasharray="18 82" strokeDashoffset="95" strokeLinecap="round" />
-        </svg>
-        <div className="sc-donut-legend">
-          <div className="sc-legend-item"><span className="sc-dot" style={{background:'#3b82f6'}} />Operations — 42%</div>
-          <div className="sc-legend-item"><span className="sc-dot" style={{background:'#8b5cf6'}} />Marketing — 28%</div>
-          <div className="sc-legend-item"><span className="sc-dot" style={{background:'#22c55e'}} />Payroll — 18%</div>
-          <div className="sc-legend-item"><span className="sc-dot" style={{background:'#e2e8f0'}} />Other — 12%</div>
-        </div>
-      </div>
-    </div>
-
-    {/* Card 4 — KPI mini card (floating accent, top-left) */}
-    <div className="showcase-card showcase-card--kpi">
-      <div className="sc-kpi-mini">
-        <div className="sc-kpi-mini-icon">
-          <svg viewBox="0 0 20 20" fill="none"><path d="M2 15L6 10L9 13L18 4" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </div>
-        <div>
-          <div className="sc-kpi-mini-val">3,241</div>
-          <div className="sc-kpi-mini-lbl">Total Orders</div>
-        </div>
-      </div>
-      <div className="sc-badge green">+8.7%</div>
-    </div>
-
-    {/* Card 5 — Growth mini card (floating accent, bottom-left) */}
-    <div className="showcase-card showcase-card--growth">
-      <div className="sc-kpi-mini">
-        <div className="sc-kpi-mini-icon purple">
-          <svg viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="3" stroke="#8b5cf6" strokeWidth="1.5"/><circle cx="13" cy="7" r="3" stroke="#8b5cf6" strokeWidth="1.5"/><path d="M3 16C3 13.5 5 11 7 11C9 11 11 13.5 11 16" stroke="#8b5cf6" strokeWidth="1.5" strokeLinecap="round"/></svg>
-        </div>
-        <div>
-          <div className="sc-kpi-mini-val">2,847</div>
-          <div className="sc-kpi-mini-lbl">Active Customers</div>
-        </div>
-      </div>
-      <div className="sc-badge green">+5.1%</div>
     </div>
   </div>
 )
@@ -150,33 +109,33 @@ const BrandPanel = () => (
     <div className="auth-brand-bg">
       <div className="auth-brand-glow auth-brand-glow--1" />
       <div className="auth-brand-glow auth-brand-glow--2" />
-      <div className="auth-brand-grid" />
     </div>
 
     <div className="auth-brand-inner">
-      {/* floating card showcase */}
-      <ShowcaseCards />
+      {/* logo */}
+      <div className="auth-brand-logo">
+        <div className="auth-brand-logo-mark" />
+        <span className="auth-brand-logo-text">businalyst.</span>
+      </div>
 
-      {/* bottom text block */}
+      {/* headline block */}
       <div className="auth-brand-text">
-        <div className="auth-brand-logo">
-          <div className="auth-brand-logo-mark" />
-          <span className="auth-brand-logo-text">businalyst.</span>
-        </div>
-
         <h2 className="auth-brand-tagline">
-          A Unified Hub for Smarter<br />Business Decision-Making.
+          Smarter Analytics for<br />Modern Businesses.
         </h2>
-
         <p className="auth-brand-subtitle">
-          Understand revenue, expenses, customers and growth — all in one dashboard.
+          Understand revenue, expenses, customers and growth — all from one intelligent dashboard.
         </p>
+      </div>
 
-        <div className="auth-brand-features">
-          <span className="auth-feature-pill">Revenue Insights</span>
-          <span className="auth-feature-pill">Expense Tracking</span>
-          <span className="auth-feature-pill">Customer Intelligence</span>
-        </div>
+      {/* hero: floating dashboard mockup */}
+      <DashboardMockup />
+
+      {/* feature pills */}
+      <div className="auth-brand-features">
+        <span className="auth-feature-pill">Revenue Insights</span>
+        <span className="auth-feature-pill">Expense Tracking</span>
+        <span className="auth-feature-pill">Customer Intelligence</span>
       </div>
     </div>
   </div>
