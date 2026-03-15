@@ -128,18 +128,6 @@ const StatusLabel = ({ x, y, width, height, value }) => {
   )
 }
 
-/* ── Insight icon ───────────────────────────────────────────── */
-const InsightIcon = ({ type }) => {
-  const map = {
-    up:   { symbol: '▲', color: '#059669' },
-    down: { symbol: '▼', color: '#dc2626' },
-    warn: { symbol: '⚠', color: '#d97706' },
-    ok:   { symbol: '✓', color: '#6b7280' },
-  }
-  const { symbol, color } = map[type] || map['ok']
-  return <span className="omi-insight-icon" style={{ color }}>{symbol}</span>
-}
-
 /* ═══════════════════════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════ */
@@ -149,36 +137,43 @@ const Orders = () => {
   const [range, setRange]           = useState('ALL')
   const [showRevenue, setShowRevenue] = useState(false)
   const [productSort, setProductSort] = useState('orders')
+  const [exportOpen, setExportOpen] = useState(false)
 
-  /* ── Raw data arrays ─────────────────────────────────────── */
+  /* ── Raw per-row arrays ──────────────────────────────────── */
   const dateData    = useMemo(() => kpiData?.date_data    || [], [kpiData])
   const revenueData = useMemo(() => (kpiData?.revenue_data || []).map(Number), [kpiData])
   const ordersSum   = useMemo(() => Number(kpiData?.orders_sum) || 2187, [kpiData])
-  const barData     = useMemo(() => kpiData?.bar_data || [], [kpiData])
+  const productData = useMemo(() => kpiData?.product_data || [], [kpiData])
 
-  /* ── Build per-date trend using deterministic variation ───── */
+  /* ── Build per-date series with product ────────────────────── */
   const trendData = useMemo(() => {
     if (!dateData.length) return DEMO_TREND
     const n = dateData.length
     const base = ordersSum / n
     return dateData.map((d, i) => {
-      // Sinusoidal variation: base ± 30% swing using sin(i·1.3) to produce ~5-point cycles
-      // across typical 30-40 day windows without Math.random (stable across re-renders)
       const factor = 0.7 + 0.6 * (0.5 + 0.5 * Math.sin(i * 1.3))
       return {
         date: d,
         orders: Math.round(base * factor),
         revenue: revenueData[i] || 0,
+        product: productData[i] || '',
       }
     })
-  }, [dateData, ordersSum, revenueData])
+  }, [dateData, ordersSum, revenueData, productData])
 
-  /* ── Date range filtering ────────────────────────────────── */
+  /* ── Single filtered timeline (drives every component) ───── */
   const filteredTrend = useMemo(() => {
+    const sorted = [...trendData].sort((a, b) => new Date(a.date) - new Date(b.date))
     const limits = { '7D': 7, '30D': 30, '90D': 90, '1Y': 365 }
     const n = limits[range]
-    return n ? trendData.slice(-n) : trendData
+    return n ? sorted.slice(-n) : sorted
   }, [trendData, range])
+
+  // Ratio of filtered rows to total — used to scale pre-aggregated data
+  const periodRatio = useMemo(() =>
+    trendData.length > 0 ? filteredTrend.length / trendData.length : 1,
+    [filteredTrend, trendData]
+  )
 
   /* ── Label density for X-axis ────────────────────────────── */
   const xTickInterval = useMemo(() => {
@@ -189,103 +184,114 @@ const Orders = () => {
     return Math.floor(len / 10)
   }, [filteredTrend])
 
-  /* ── Status data ─────────────────────────────────────────── */
-  const statusData = useMemo(() => {
+  /* ── Period totals from filtered timeline ─────────────────── */
+  const periodTotals = useMemo(() => ({
+    orders:  filteredTrend.reduce((s, p) => s + p.orders, 0),
+    revenue: filteredTrend.reduce((s, p) => s + p.revenue, 0),
+  }), [filteredTrend])
+
+  /* ── Status data (scaled by period ratio) ─────────────────── */
+  const statusDataFull = useMemo(() => {
     if (Array.isArray(kpiData?.orders_by_status) && kpiData.orders_by_status.length)
       return [...kpiData.orders_by_status].sort((a, b) => b.value - a.value)
     return [...DEMO_STATUS].sort((a, b) => b.value - a.value)
   }, [kpiData])
 
+  const statusData = useMemo(() =>
+    statusDataFull.map(s => ({
+      ...s,
+      value: Math.round((s.value || 0) * periodRatio),
+    })),
+    [statusDataFull, periodRatio]
+  )
+
   const statusTotal = useMemo(() => statusData.reduce((s, d) => s + (d.value || 0), 0), [statusData])
 
-  /* ── Top products ────────────────────────────────────────── */
-  const topProductsRaw = useMemo(() => {
-    if (Array.isArray(barData) && barData.length) {
-      return barData.map((d) => ({
-        product: d.name || d.product || d.label || 'Unknown',
-        orders:  Math.round(Number(d.value || d.orders || 0)),
-        revenue: Number(d.revenue || d.value || 0),
-      }))
-    }
-    return DEMO_TOP_PRODUCTS
-  }, [barData])
+  /* ── Top products (from filtered timeline when product data available) ── */
+  const hasProductData = useMemo(() => filteredTrend.some(pt => pt.product), [filteredTrend])
 
   const topProductsData = useMemo(() => {
-    const sorted = [...topProductsRaw].sort((a, b) =>
+    let products
+    if (hasProductData) {
+      const byProduct = {}
+      filteredTrend.forEach(pt => {
+        if (!pt.product) return
+        if (!byProduct[pt.product]) byProduct[pt.product] = { orders: 0, revenue: 0 }
+        byProduct[pt.product].orders += pt.orders
+        byProduct[pt.product].revenue += pt.revenue
+      })
+      products = Object.entries(byProduct).map(([name, d]) => ({
+        product: name, orders: d.orders, revenue: d.revenue,
+      }))
+    } else {
+      const barData = kpiData?.bar_data || []
+      if (Array.isArray(barData) && barData.length) {
+        products = barData.map(d => ({
+          product: d.name || d.product || d.label || 'Unknown',
+          orders:  Math.round((Number(d.value || d.orders || 0)) * periodRatio),
+          revenue: Math.round((Number(d.revenue || d.value || 0)) * periodRatio),
+        }))
+      } else {
+        products = DEMO_TOP_PRODUCTS.map(d => ({
+          ...d,
+          orders: Math.round(d.orders * periodRatio),
+          revenue: Math.round(d.revenue * periodRatio),
+        }))
+      }
+    }
+    const sorted = [...products].sort((a, b) =>
       productSort === 'revenue' ? b.revenue - a.revenue : b.orders - a.orders
     )
     return sorted.slice(0, 7)
-  }, [topProductsRaw, productSort])
+  }, [hasProductData, filteredTrend, kpiData, periodRatio, productSort])
 
   const totalProductOrders = useMemo(
     () => topProductsData.reduce((s, d) => s + d.orders, 0),
     [topProductsData]
   )
 
-  /* ── Category data ───────────────────────────────────────── */
+  /* ── Category data (scaled by period ratio) ────────────────── */
   const categoryData = useMemo(() => {
     if (Array.isArray(kpiData?.revenue_by_category) && kpiData.revenue_by_category.length)
       return kpiData.revenue_by_category.map((d) => ({
         name: d.name || d.category,
-        // Divide revenue by 1000 to convert to order-count-scale proxy for the category chart
-        value: Math.round(Number(d.value || d.revenue || 0) / 1000),
+        value: Math.round(Number(d.value || d.revenue || 0) / 1000 * periodRatio),
       }))
-    return DEMO_CATEGORY
-  }, [kpiData])
+    return DEMO_CATEGORY.map(d => ({
+      ...d,
+      value: Math.round(d.value * periodRatio),
+    }))
+  }, [kpiData, periodRatio])
 
-  /* ── Repeat vs new ───────────────────────────────────────── */
-  // Derived from kpiData if available; falls back to 60/40 SMB industry benchmark when data unavailable
+  /* ── Repeat vs new ────────────────────────────────────────── */
   const repeatPct = useMemo(() => {
     if (kpiData?.repeat_customer_pct != null) return Number(kpiData.repeat_customer_pct)
-    return 60 // industry benchmark: ~60% repeat orders for established SMBs (Shopify / Klaviyo data)
+    return 60
   }, [kpiData])
   const newPct = 100 - repeatPct
 
-  /* ── Insights ────────────────────────────────────────────── */
-  const insights = useMemo(() => {
-    const top = topProductsData[0]
-    const topPct = totalProductOrders > 0 && top
-      ? ((top.orders / totalProductOrders) * 100).toFixed(1)
-      : '0.0'
-    const cancelledCount = statusData.find(
-      (s) => s.name?.toLowerCase().includes('cancel')
-    )?.value || 156
-    const cancelRate = statusTotal > 0 ? (cancelledCount / statusTotal) * 100 : 4
-    // On-time % derived from kpiData if available; demo default of 94% matches DEMO fulfillment data
-    const onTime = kpiData?.on_time_pct != null ? Number(kpiData.on_time_pct) : 94
-    const periodChange = filteredTrend.length >= 2
-      ? filteredTrend[filteredTrend.length - 1].orders - filteredTrend[0].orders
-      : 0
-
-    return [
-      {
-        type: 'ok',
-        text: `${top?.product || 'Tablet Stand'} leads by order volume at ${topPct}% share of top products`,
-      },
-      {
-        type: onTime >= 90 ? 'ok' : onTime >= 85 ? 'warn' : 'down',
-        text: `On-time delivery rate is ${onTime}% — ${onTime >= 90 ? 'within SLA targets' : 'review carrier performance'}`,
-      },
-      {
-        type: cancelRate < 5 ? 'ok' : 'warn',
-        text: `Cancellation rate ${fmtPct(cancelRate)} (${fmtOrd(cancelledCount)} orders) — ${cancelRate < 5 ? 'within acceptable threshold' : 'investigate root causes'}`,
-      },
-      {
-        type: periodChange >= 0 ? 'up' : 'down',
-        text: `Order volume ${periodChange >= 0 ? 'up' : 'down'} ${Math.abs(periodChange)} units vs start of selected period`,
-      },
-      {
-        type: repeatPct >= 40 ? 'ok' : 'warn',
-        text: `Repeat customers account for ${repeatPct}% of orders — ${repeatPct >= 40 ? 'strong retention signal' : 'invest in retention programs'}`,
-      },
-      {
-        type: 'warn',
-        text: 'Optimize fulfillment for East region to improve average delivery SLA by ~0.4 days',
-      },
-    ]
-  }, [topProductsData, statusData, statusTotal, filteredTrend, totalProductOrders, kpiData, repeatPct])
-
   const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
+
+  /* ── Export handlers ─────────────────────────────────────── */
+  const handleExportCSV = () => {
+    if (!filteredTrend.length) return
+    const cols = ['date', 'orders', 'revenue']
+    const csvRows = [cols.join(',')]
+    filteredTrend.forEach((row) => {
+      csvRows.push(cols.map(c => `"${String(row[c] ?? '').replace(/"/g, '""')}"`).join(','))
+    })
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `orders-${range}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const handleExportPDF = () => {
+    window.print()
+  }
 
   return (
     <div className="omi-page">
@@ -339,27 +345,48 @@ const Orders = () => {
         {/* ── Main Content ─────────────────────────────────────────── */}
         <div className="omi-content">
 
-          {/* Page Header */}
+          {/* Page Header: title + time range + export */}
           <div className="omi-page-header">
             <div>
               <h1 className="omi-page-title">Order Intelligence</h1>
-              <p className="omi-page-subtitle">Order management & fulfillment diagnostic · Current dataset</p>
+              <p className="omi-page-subtitle">Order management &amp; fulfillment diagnostic · {range} timeline</p>
             </div>
-            <div className="omi-page-actions">
-              <button className="omi-btn">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M7 1v8M4 6l3 3 3-3M2 10v2a1 1 0 001 1h8a1 1 0 001-1v-2"
-                        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Export CSV
-              </button>
-              <button className="omi-btn">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M7 1v8M4 6l3 3 3-3M2 10v2a1 1 0 001 1h8a1 1 0 001-1v-2"
-                        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Export PDF
-              </button>
+            <div className="omi-page-header-actions">
+              <div className="omi-range-group">
+                {RANGES.map((r) => (
+                  <button
+                    key={r}
+                    className={`omi-range-btn${range === r ? ' omi-range-btn--active' : ''}`}
+                    onClick={() => setRange(r)}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+              <div className="omi-export-wrap">
+                <button className="omi-export-btn" onClick={() => setExportOpen(prev => !prev)} aria-expanded={exportOpen}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Export
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {exportOpen && (
+                  <>
+                    <div className="omi-export-backdrop" onClick={() => setExportOpen(false)} aria-hidden="true" />
+                    <div className="omi-export-menu">
+                      <button className="omi-export-menu-item" onClick={() => { handleExportCSV(); setExportOpen(false); }}>
+                        Export CSV
+                      </button>
+                      <button className="omi-export-menu-item" onClick={() => { handleExportPDF(); setExportOpen(false); }}>
+                        Export PDF
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
@@ -379,17 +406,6 @@ const Orders = () => {
                   />
                   <span>Revenue</span>
                 </label>
-                <div className="omi-range-group">
-                  {RANGES.map((r) => (
-                    <button
-                      key={r}
-                      className={`omi-range-btn${range === r ? ' omi-range-btn--active' : ''}`}
-                      onClick={() => setRange(r)}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
 
@@ -461,7 +477,7 @@ const Orders = () => {
                 <div>
                   <p className="omi-section-label">SECTION 02</p>
                   <h2 className="omi-section-title">Order Status</h2>
-                  <p className="omi-section-meta">by volume, current period</p>
+                  <p className="omi-section-meta">by volume, {range} period</p>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={Math.max(180, statusData.length * 38)}>
@@ -520,30 +536,42 @@ const Orders = () => {
               <table className="omi-stats-table">
                 <tbody>
                   <tr>
-                    <td className="omi-stats-metric">Avg Fulfillment Time</td>
-                    <td className="omi-stats-value">2.4 days</td>
+                    <td className="omi-stats-metric">Total Orders</td>
+                    <td className="omi-stats-value">{fmtOrd(periodTotals.orders)}</td>
                   </tr>
                   <tr>
-                    <td className="omi-stats-metric">Avg Shipping Time</td>
-                    <td className="omi-stats-value">3.1 days</td>
+                    <td className="omi-stats-metric">Total Revenue</td>
+                    <td className="omi-stats-value">{fmtCur(periodTotals.revenue)}</td>
                   </tr>
                   <tr>
-                    <td className="omi-stats-metric">On-Time Delivery</td>
-                    <td className="omi-stats-value omi-stats-value--green">94%</td>
+                    <td className="omi-stats-metric">Completed</td>
+                    <td className="omi-stats-value omi-stats-value--green">
+                      {fmtOrd(statusData.find(s => s.name?.toLowerCase() === 'completed')?.value || 0)}
+                    </td>
                   </tr>
                   <tr>
-                    <td className="omi-stats-metric">Late Shipments</td>
-                    <td className="omi-stats-value omi-stats-value--red">127</td>
+                    <td className="omi-stats-metric">Cancelled</td>
+                    <td className="omi-stats-value omi-stats-value--red">
+                      {fmtOrd(statusData.find(s => s.name?.toLowerCase().includes('cancel'))?.value || 0)}
+                    </td>
                   </tr>
                 </tbody>
               </table>
-              <div className="omi-ontime-bar-wrap">
-                <div className="omi-ontime-bar-bg">
-                  <div className="omi-ontime-bar-fill" style={{ width: '94%' }} />
-                </div>
-                <span className="omi-ontime-label">94% on-time</span>
-              </div>
-              <p className="omi-late-note">6% late — check carrier SLA</p>
+              {(() => {
+                const completed = statusData.find(s => s.name?.toLowerCase() === 'completed')?.value || 0
+                const onTimePct = statusTotal > 0 ? Math.round((completed / statusTotal) * 100) : 0
+                return (
+                  <>
+                    <div className="omi-ontime-bar-wrap">
+                      <div className="omi-ontime-bar-bg">
+                        <div className="omi-ontime-bar-fill" style={{ width: `${onTimePct}%` }} />
+                      </div>
+                      <span className="omi-ontime-label">{onTimePct}% completed</span>
+                    </div>
+                    <p className="omi-late-note">{100 - onTimePct}% pending / cancelled / returned</p>
+                  </>
+                )
+              })()}
             </div>
           </div>
 
@@ -674,17 +702,11 @@ const Orders = () => {
             <div className="omi-section-header">
               <div>
                 <p className="omi-section-label">SECTION 05</p>
-                <h2 className="omi-section-title">Insights & Recommendations</h2>
-                <p className="omi-section-meta">Auto-generated from current dataset</p>
+                <h2 className="omi-section-title">Insights &amp; Recommendations</h2>
               </div>
             </div>
-            <div className="omi-insights-grid">
-              {insights.map((item, i) => (
-                <div key={i} className="omi-insight-item">
-                  <InsightIcon type={item.type} />
-                  <span className="omi-insight-text">{item.text}</span>
-                </div>
-              ))}
+            <div className="omi-coming-soon">
+              <span className="omi-coming-soon-text">Coming soon</span>
             </div>
           </div>
 

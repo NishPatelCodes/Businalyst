@@ -8,7 +8,15 @@ Import from submodules, e.g.:
 
 from .io import read_uploaded_file
 from .kpis import calculate_kpis
-from .charts import linechart, bar_chart, pie_chart_column, map_data
+from .charts import (
+    linechart,
+    comparison_bar_chart,
+    multiline_chart,
+    top_products_by_revenue_chart,
+    profit_by_product_chart,
+    pie_chart_column,
+    map_orders_by_region,
+)
 from .orders import (
     orders_trend_daily,
     orders_by_status_component,
@@ -22,9 +30,12 @@ __all__ = [
     "read_uploaded_file",
     "calculate_kpis",
     "linechart",
-    "bar_chart",
+    "comparison_bar_chart",
+    "multiline_chart",
+    "top_products_by_revenue_chart",
+    "profit_by_product_chart",
     "pie_chart_column",
-    "map_data",
+    "map_orders_by_region",
     "orders_trend_daily",
     "orders_by_status_component",
     "orders_by_channel_component",

@@ -4,15 +4,20 @@ import { DEMO_KPI_DATA } from '../data/demoData'
 export const KpiContext = createContext(null)
 
 const STORAGE_KEY = 'businalyst_kpi_data'
+const STORAGE_VERSION_KEY = 'businalyst_kpi_version'
+const CURRENT_VERSION = 2
 
 export function KpiProvider({ children }) {
-  // Load data from localStorage on mount; use demo data for first-time visitors
   const [kpiData, setKpiDataState] = useState(() => {
     try {
+      const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
       const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
+      if (stored && Number(storedVersion) >= CURRENT_VERSION) {
         return JSON.parse(stored)
       }
+      // Stale or missing version — clear and use fresh demo data
+      localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem(STORAGE_VERSION_KEY)
       return DEMO_KPI_DATA
     } catch (error) {
       console.error('Error loading KPI data from localStorage:', error)
@@ -20,7 +25,10 @@ export function KpiProvider({ children }) {
     }
   })
 
-  const [isDemoData, setIsDemoData] = useState(() => !localStorage.getItem(STORAGE_KEY))
+  const [isDemoData, setIsDemoData] = useState(() => {
+    const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
+    return !localStorage.getItem(STORAGE_KEY) || Number(storedVersion) < CURRENT_VERSION
+  })
 
   const setKpiData = (data) => {
     try {
@@ -28,8 +36,10 @@ export function KpiProvider({ children }) {
         setKpiDataState(data)
         setIsDemoData(false)
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+        localStorage.setItem(STORAGE_VERSION_KEY, String(CURRENT_VERSION))
       } else {
         localStorage.removeItem(STORAGE_KEY)
+        localStorage.removeItem(STORAGE_VERSION_KEY)
         setKpiDataState(DEMO_KPI_DATA)
         setIsDemoData(true)
       }
