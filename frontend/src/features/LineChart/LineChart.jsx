@@ -21,16 +21,8 @@ function formatDateShort(str) {
   return `${month} ${year}`
 }
 
-function formatCurrency(value) {
-  const n = Number(value)
-  if (Number.isNaN(n)) return '—'
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`
-  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}k`
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
-}
-
 const LineChart = ({ hideTabs = false, metric, variant }) => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
   const [selectedTab, setSelectedTab] = useState(hideTabs ? (metric === 'revenue' ? 'Revenue' : 'Profit') : 'Revenue')
   const [hoverIndex, setHoverIndex] = useState(null)
   const containerRef = useRef(null)
@@ -254,7 +246,7 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
                 textAnchor="end"
                 className="chart-axis-label"
               >
-                {formatCurrency(tick)}
+                {formatCompactCurrency(tick)}
               </text>
             ))}
           </g>

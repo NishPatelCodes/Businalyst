@@ -59,7 +59,11 @@ def upload_dataset(request):
     try:
         df = read_uploaded_file(file)
         kpis = calculate_kpis(df)
-        payload = {"message": "File processed successfully", **kpis}
+        payload = {
+            "message": "File processed successfully",
+            "source_currency": df.attrs.get("source_currency", "USD"),
+            **kpis,
+        }
 
         # Line chart (revenue, profit, date_data)
         try:

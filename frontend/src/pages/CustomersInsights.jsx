@@ -19,14 +19,6 @@ import {
 } from 'recharts'
 import './ProfitInsights.css'
 
-const fmtCur = (n) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(n || 0)
-
 const fmtNum = (n) => {
   const abs = Math.abs(n)
   if (abs >= 1e6) return `${(n / 1e6).toFixed(1)}M`
@@ -103,7 +95,7 @@ const metricState = (value, healthy, moderate) => {
 }
 
 const CustomersInsights = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency } = useContext(KpiContext)
 
   const [dateRange, setDateRange] = useState('30D')
   const [showAverage, setShowAverage] = useState(true)
@@ -279,7 +271,7 @@ const CustomersInsights = () => {
 
     items.push({
       type: healthMetrics.arpc >= 1000 ? 'positive' : 'opportunity',
-      text: `Average revenue per customer is ${fmtCur(healthMetrics.arpc)} with room to grow through upsell and loyalty bundles.`,
+      text: `Average revenue per customer is ${formatCurrency(healthMetrics.arpc)} with room to grow through upsell and loyalty bundles.`,
     })
 
     items.push({
@@ -293,7 +285,7 @@ const CustomersInsights = () => {
     })
 
     return items.slice(0, 6)
-  }, [healthMetrics, acquisitionRates, engagementPanel])
+  }, [healthMetrics, acquisitionRates, engagementPanel, formatCurrency])
 
   const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
 
@@ -526,7 +518,7 @@ const CustomersInsights = () => {
                   </tr>
                   <tr>
                     <td className="pil-stats-label">Avg Revenue / Customer</td>
-                    <td className="pil-stats-val" style={{ color: arpcState.color }}>{fmtCur(healthMetrics.arpc)}</td>
+                    <td className="pil-stats-val" style={{ color: arpcState.color }}>{formatCurrency(healthMetrics.arpc)}</td>
                   </tr>
                   <tr>
                     <td className="pil-stats-label">Customer Growth Rate</td>

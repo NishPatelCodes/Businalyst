@@ -3,6 +3,7 @@ File I/O: read uploaded CSV/Excel and return a normalized DataFrame.
 """
 
 import pandas as pd
+from .currency import detect_source_currency, normalize_money_columns
 
 
 def read_uploaded_file(file):
@@ -25,4 +26,7 @@ def read_uploaded_file(file):
         raise ValueError("Unsupported file type")
 
     df.columns = df.columns.str.lower().str.strip()
+    source_currency = detect_source_currency(df)
+    df = normalize_money_columns(df)
+    df.attrs['source_currency'] = source_currency
     return df

@@ -11,12 +11,6 @@ import {
 import './ExpenseInsights.css'
 
 /* ── Formatting helpers ─────────────────────────────────────── */
-const fmtCur = (n) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency', currency: 'USD',
-    minimumFractionDigits: 0, maximumFractionDigits: 0,
-  }).format(n || 0)
-
 const fmtNum = (n) => {
   const abs = Math.abs(n)
   if (abs >= 1e6) return `${(n / 1e6).toFixed(1)}M`
@@ -32,7 +26,7 @@ const fmtDate = (s) => {
 }
 
 /* ── Custom tooltips ──────────────────────────────────────── */
-const TrendTooltip = ({ active, payload, label }) => {
+const TrendTooltip = ({ active, payload, label, formatCurrency }) => {
   if (!active || !payload || !payload.length) return null
   return (
     <div className="eil-tooltip">
@@ -41,14 +35,14 @@ const TrendTooltip = ({ active, payload, label }) => {
         <div key={p.dataKey} className="eil-tooltip-row">
           <span className="eil-tooltip-dot" style={{ background: p.color }} />
           <span className="eil-tooltip-label">{p.name}</span>
-          <span className="eil-tooltip-val">{fmtCur(p.value)}</span>
+          <span className="eil-tooltip-val">{formatCurrency(p.value)}</span>
         </div>
       ))}
     </div>
   )
 }
 
-const BarTooltip = ({ active, payload, label }) => {
+const BarTooltip = ({ active, payload, label, formatCurrency }) => {
   if (!active || !payload || !payload.length) return null
   return (
     <div className="eil-tooltip">
@@ -57,7 +51,7 @@ const BarTooltip = ({ active, payload, label }) => {
         <div key={p.dataKey} className="eil-tooltip-row">
           <span className="eil-tooltip-dot" style={{ background: p.color || p.fill }} />
           <span className="eil-tooltip-label">{p.name}</span>
-          <span className="eil-tooltip-val">{fmtCur(p.value)}</span>
+          <span className="eil-tooltip-val">{formatCurrency(p.value)}</span>
         </div>
       ))}
     </div>
@@ -127,7 +121,7 @@ const InsightIcon = ({ type }) => {
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════ */
 const ExpenseInsights = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
 
   const [dateRange, setDateRange] = useState('30D')
   const [showTotal, setShowTotal] = useState(true)
@@ -267,9 +261,9 @@ const ExpenseInsights = () => {
     // Marketing spend insight
     const marketingSpend = expenseSum * 0.12
     if (marketingRatio > 10) {
-      list.push({ type: 'warning', text: `Marketing spend increased to ${fmtCur(marketingSpend)} (${fmtPct(marketingRatio)} of revenue) \u2014 review campaign ROI.` })
+      list.push({ type: 'warning', text: `Marketing spend increased to ${formatCurrency(marketingSpend)} (${fmtPct(marketingRatio)} of revenue) \u2014 review campaign ROI.` })
     } else {
-      list.push({ type: 'positive', text: `Marketing spend is ${fmtCur(marketingSpend)} (${fmtPct(marketingRatio)} of revenue) \u2014 within healthy benchmark.` })
+      list.push({ type: 'positive', text: `Marketing spend is ${formatCurrency(marketingSpend)} (${fmtPct(marketingRatio)} of revenue) \u2014 within healthy benchmark.` })
     }
 
     // Shipping costs
@@ -279,7 +273,7 @@ const ExpenseInsights = () => {
     }
 
     // Fixed costs
-    list.push({ type: 'warning', text: `Fixed costs represent ${fmtPct(35)} of expenses (${fmtCur(fixedCost)}) \u2014 reducing operational overhead may improve margins.` })
+    list.push({ type: 'warning', text: `Fixed costs represent ${fmtPct(35)} of expenses (${formatCurrency(fixedCost)}) \u2014 reducing operational overhead may improve margins.` })
 
     // Expense-to-revenue ratio
     const grossMargin = 100 - costToRevenueRatio
@@ -305,7 +299,7 @@ const ExpenseInsights = () => {
     }
 
     return list.slice(0, 6)
-  }, [expenseSum, marketingRatio, fixedCost, costToRevenueRatio, expenseGrowthRate])
+  }, [expenseSum, marketingRatio, fixedCost, costToRevenueRatio, expenseGrowthRate, formatCurrency])
 
   const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
 
@@ -439,13 +433,13 @@ const ExpenseInsights = () => {
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tickFormatter={v => `$${fmtNum(v)}`}
+                  tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
                   tick={{ fontSize: 11, fill: '#9ca3af' }}
                   axisLine={false}
                   tickLine={false}
                   width={56}
                 />
-                <Tooltip content={<TrendTooltip />} />
+                <Tooltip content={<TrendTooltip formatCurrency={formatCurrency} />} />
                 <ReferenceLine y={avgExpense} stroke="#9ca3af" strokeDasharray="6 4" strokeWidth={1} label={{ value: 'Avg', position: 'right', fill: '#9ca3af', fontSize: 10 }} />
                 {showTotal && (
                   <Area
@@ -508,7 +502,7 @@ const ExpenseInsights = () => {
                   <CartesianGrid horizontal={false} stroke="#f0f0f0" strokeDasharray="3 0" />
                   <XAxis
                     type="number"
-                    tickFormatter={v => `$${fmtNum(v)}`}
+                    tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
                     tick={{ fontSize: 11, fill: '#9ca3af' }}
                     axisLine={false}
                     tickLine={false}
@@ -521,7 +515,7 @@ const ExpenseInsights = () => {
                     tickLine={false}
                     width={130}
                   />
-                  <Tooltip content={<BarTooltip />} />
+                  <Tooltip content={<BarTooltip formatCurrency={formatCurrency} />} />
                   <Bar dataKey="expense" name="Expense" fill="#ef4444" radius={[0, 2, 2, 0]} barSize={16}
                     label={(props) => <CompositionLabel {...props} pct={compositionData[props.index]?.pct} />}
                   >
@@ -560,7 +554,7 @@ const ExpenseInsights = () => {
                 </div>
                 <div className="eil-metric-card">
                   <span className="eil-metric-label">Average Daily Expense</span>
-                  <span className="eil-metric-value">{fmtCur(avgDailyExpense)}</span>
+                  <span className="eil-metric-value">{formatCurrency(avgDailyExpense)}</span>
                   <span className="eil-metric-indicator eil-metric-indicator--neutral">
                     per day across period
                   </span>
@@ -604,14 +598,14 @@ const ExpenseInsights = () => {
                   <div className="eil-cost-bar-track">
                     <div className="eil-cost-bar-fill" style={{ width: '35%', background: '#2563eb' }} />
                   </div>
-                  <span className="eil-cost-value">{fmtCur(fixedCost)}</span>
+                  <span className="eil-cost-value">{formatCurrency(fixedCost)}</span>
                 </div>
                 <div className="eil-cost-row">
                   <span className="eil-cost-label">Variable Costs</span>
                   <div className="eil-cost-bar-track">
                     <div className="eil-cost-bar-fill" style={{ width: '65%', background: '#f59e0b' }} />
                   </div>
-                  <span className="eil-cost-value">{fmtCur(varCost)}</span>
+                  <span className="eil-cost-value">{formatCurrency(varCost)}</span>
                 </div>
                 <div className="eil-cost-row">
                   <span className="eil-cost-label">Marketing Spend</span>
@@ -627,8 +621,8 @@ const ExpenseInsights = () => {
                 <BarChart data={dailyExpenseVsRevenue.slice(-20)} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
                   <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={3} />
-                  <YAxis tickFormatter={v => `$${fmtNum(v)}`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
-                  <Tooltip content={<BarTooltip />} />
+                  <YAxis tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
+                  <Tooltip content={<BarTooltip formatCurrency={formatCurrency} />} />
                   <Bar dataKey="expense" name="Expense" fill="#ef4444" barSize={6} radius={[2, 2, 0, 0]} />
                   <Bar dataKey="revenue" name="Revenue" fill="#2563eb" barSize={6} radius={[2, 2, 0, 0]} />
                 </BarChart>
@@ -649,18 +643,18 @@ const ExpenseInsights = () => {
                 <tbody>
                   <tr>
                     <td className="eil-stats-label">Expense Std Deviation</td>
-                    <td className="eil-stats-val">{fmtCur(volatilityStats.stdDev)}</td>
+                    <td className="eil-stats-val">{formatCurrency(volatilityStats.stdDev)}</td>
                   </tr>
                   <tr>
                     <td className="eil-stats-label">Highest Expense Day</td>
                     <td className="eil-stats-val eil-stats-val--neg">
-                      {volatilityStats.highest ? `${fmtDate(volatilityStats.highest.date)} · ${fmtCur(volatilityStats.highest.value)}` : '\u2014'}
+                      {volatilityStats.highest ? `${fmtDate(volatilityStats.highest.date)} · ${formatCurrency(volatilityStats.highest.value)}` : '\u2014'}
                     </td>
                   </tr>
                   <tr>
                     <td className="eil-stats-label">Lowest Expense Day</td>
                     <td className="eil-stats-val eil-stats-val--pos">
-                      {volatilityStats.lowest ? `${fmtDate(volatilityStats.lowest.date)} · ${fmtCur(volatilityStats.lowest.value)}` : '\u2014'}
+                      {volatilityStats.lowest ? `${fmtDate(volatilityStats.lowest.date)} · ${formatCurrency(volatilityStats.lowest.value)}` : '\u2014'}
                     </td>
                   </tr>
                   <tr>

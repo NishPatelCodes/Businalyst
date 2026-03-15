@@ -22,14 +22,6 @@ const TIME_RANGES = [
 const THIS_PERIOD_COLOR = '#2563eb'
 const PREVIOUS_PERIOD_COLOR = '#93c5fd'
 
-const formatCurrency = (n) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(n)
-
 const formatDateLabel = (d) => {
   if (!d) return ''
   const date = typeof d === 'string' ? new Date(d) : d
@@ -99,7 +91,7 @@ function buildChartData(kpiData, rangeKey) {
   return result.slice(-12)
 }
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload, formatCurrency }) => {
   if (!active || !payload?.length) return null
   const p1 = payload.find((p) => p.dataKey === 'thisPeriod')
   const p2 = payload.find((p) => p.dataKey === 'previousPeriod')
@@ -123,7 +115,7 @@ const CustomTooltip = ({ active, payload }) => {
 }
 
 const RevenueLineChart = ({ dateLabel, onOpenDatePicker, totalRevenue, changePercent = 15 }) => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency } = useContext(KpiContext)
   const [timeRange, setTimeRange] = useState('12M')
 
   const chartData = useMemo(
@@ -194,7 +186,7 @@ const RevenueLineChart = ({ dateLabel, onOpenDatePicker, totalRevenue, changePer
               hide
               domain={['auto', 'auto']}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e5e5ea', strokeWidth: 1 }} />
+            <Tooltip content={<CustomTooltip formatCurrency={formatCurrency} />} cursor={{ stroke: '#e5e5ea', strokeWidth: 1 }} />
             <Legend
               layout="horizontal"
               align="right"

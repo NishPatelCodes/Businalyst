@@ -8,9 +8,14 @@ const SortIcon = () => (
   </svg>
 )
 
-const formatCell = (value, key) => {
+const MONEY_COLUMN_PATTERN = /(profit|revenue|sales|amount|cost|price|expense|total)/i
+
+const formatCell = (value, key, formatCurrency) => {
   if (value == null || value === '') return '—'
   if (typeof value === 'number') {
+    if (MONEY_COLUMN_PATTERN.test(String(key))) {
+      return formatCurrency(value)
+    }
     if (Number.isInteger(value)) return value.toLocaleString()
     return Number(value).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
   }
@@ -25,7 +30,7 @@ const columnLabel = (key) => {
 }
 
 const TopProfitTable = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency } = useContext(KpiContext)
   const rows = Array.isArray(kpiData?.top5_profit) ? kpiData.top5_profit : []
   const columns = Array.isArray(kpiData?.top5_columns) && kpiData.top5_columns.length > 0
     ? kpiData.top5_columns
@@ -94,7 +99,7 @@ const TopProfitTable = () => {
               <tr key={index}>
                 {columns.map((col) => (
                   <td key={col} className="data-cell">
-                    {formatCell(row[col], col)}
+                    {formatCell(row[col], col, formatCurrency)}
                   </td>
                 ))}
               </tr>

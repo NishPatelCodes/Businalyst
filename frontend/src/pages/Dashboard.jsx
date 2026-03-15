@@ -14,21 +14,10 @@ import { KpiContext } from '../context/KpiContext'
 import DateRangePicker from '../components/DateRangePicker'
 import './Dashboard.css'
 
-const CURRENCIES = [
-  { code: 'USD', symbol: '$', name: 'US Dollar' },
-  { code: 'EUR', symbol: '€', name: 'Euro' },
-  { code: 'GBP', symbol: '£', name: 'British Pound' },
-  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
-  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
-  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
-  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
-]
-
 const Dashboard = () => {
-  const { kpiData, isDemoData } = useContext(KpiContext)
+  const { kpiData, isDemoData, currencies, selectedCurrency, setSelectedCurrency } = useContext(KpiContext)
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
-  const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0])
   const [dateRange, setDateRange] = useState(() => {
     const end = new Date()
     const start = new Date()
@@ -89,8 +78,8 @@ const Dashboard = () => {
     }
   }, [isCurrencyDropdownOpen])
 
-  const handleCurrencySelect = (currency) => {
-    setSelectedCurrency(currency)
+  const handleCurrencySelect = (currencyCode) => {
+    setSelectedCurrency(currencyCode)
     setIsCurrencyDropdownOpen(false)
   }
 
@@ -163,11 +152,11 @@ const Dashboard = () => {
                       overflowX: 'hidden'
                     }}
                   >
-                    {CURRENCIES.map((currency) => (
+                    {currencies.map((currency) => (
                       <button
                         key={currency.code}
                         className={`currency-option ${selectedCurrency.code === currency.code ? 'active' : ''}`}
-                        onClick={() => handleCurrencySelect(currency)}
+                        onClick={() => handleCurrencySelect(currency.code)}
                       >
                         <span className="currency-symbol">{currency.symbol}</span>
                         <span className="currency-code">{currency.code}</span>

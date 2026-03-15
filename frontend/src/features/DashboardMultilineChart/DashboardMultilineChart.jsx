@@ -26,7 +26,7 @@ function buildSmoothPath(pts) {
 }
 
 const DashboardMultilineChart = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency } = useContext(KpiContext)
   const containerRef = useRef(null)
   const [size, setSize] = useState({ width: 0, height: 0 })
   const [hoverIndex, setHoverIndex] = useState(null)
@@ -253,10 +253,10 @@ const DashboardMultilineChart = () => {
         >
           <div className="dashboard-multiline-tooltip-date">{formatDateShort(point.date)}</div>
           <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.revenue }}>
-            Revenue: ${Number(point.revenue).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            Revenue: {formatCurrency(point.revenue)}
           </div>
           <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.profit }}>
-            Profit: ${Number(point.profit).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            Profit: {formatCurrency(point.profit)}
           </div>
           <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.orders }}>
             Orders: {Number(point.orders).toLocaleString()}

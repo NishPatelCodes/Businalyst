@@ -34,7 +34,7 @@ function luminance(hex) {
 }
 
 const RevenueInsightsByColumn = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency } = useContext(KpiContext)
   const [selectedColumn, setSelectedColumn] = useState('category')
   const [timeRange, setTimeRange] = useState('month')
   const [columnDropdownOpen, setColumnDropdownOpen] = useState(false)
@@ -132,9 +132,6 @@ const RevenueInsightsByColumn = () => {
     const largeArc = segmentAngle > 180 ? 1 : 0
     return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} L ${innerX2} ${innerY2} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${innerX1} ${innerY1} Z`
   }
-
-  const formatCurrency = (n) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n ?? 0)
 
   return (
     <div className="ribc-card">

@@ -51,11 +51,6 @@ const fmtOrd = (n) => {
   if (abs >= 1000) return `${((n || 0) / 1000).toFixed(1)}K`
   return String(Math.round(n || 0))
 }
-const fmtCur = (n) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency', currency: 'USD',
-    minimumFractionDigits: 0, maximumFractionDigits: 0,
-  }).format(n || 0)
 const fmtPct = (n) => `${(n || 0).toFixed(1)}%`
 const fmtDate = (s) => {
   try { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
@@ -63,7 +58,7 @@ const fmtDate = (s) => {
 }
 
 /* ── Custom tooltips ────────────────────────────────────────── */
-const TrendTooltip = ({ active, payload, label, showRevenue }) => {
+const TrendTooltip = ({ active, payload, label, showRevenue, formatCurrency }) => {
   if (!active || !payload || !payload.length) return null
   return (
     <div className="omi-tooltip">
@@ -73,7 +68,7 @@ const TrendTooltip = ({ active, payload, label, showRevenue }) => {
           <span className="omi-tooltip-dot" style={{ background: p.color || p.stroke }} />
           <span className="omi-tooltip-label">{p.name}</span>
           <span className="omi-tooltip-val">
-            {p.dataKey === 'revenue' ? fmtCur(p.value) : fmtOrd(p.value)}
+            {p.dataKey === 'revenue' ? formatCurrency(p.value) : fmtOrd(p.value)}
           </span>
         </div>
       ))}
@@ -81,7 +76,7 @@ const TrendTooltip = ({ active, payload, label, showRevenue }) => {
   )
 }
 
-const ProductTooltip = ({ active, payload, label, totalOrders }) => {
+const ProductTooltip = ({ active, payload, label, totalOrders, formatCurrency }) => {
   if (!active || !payload || !payload.length) return null
   const orders = payload[0]?.value || 0
   const revenue = payload[0]?.payload?.revenue || 0
@@ -97,7 +92,7 @@ const ProductTooltip = ({ active, payload, label, totalOrders }) => {
       <div className="omi-tooltip-row">
         <span className="omi-tooltip-dot" style={{ background: '#9ca3af' }} />
         <span className="omi-tooltip-label">Revenue</span>
-        <span className="omi-tooltip-val">{fmtCur(revenue)}</span>
+        <span className="omi-tooltip-val">{formatCurrency(revenue)}</span>
       </div>
       <div className="omi-tooltip-row">
         <span className="omi-tooltip-label">Share</span>
@@ -144,7 +139,7 @@ const InsightIcon = ({ type }) => {
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════ */
 const Orders = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
 
   const [range, setRange]           = useState('ALL')
   const [showRevenue, setShowRevenue] = useState(false)
@@ -420,12 +415,12 @@ const Orders = () => {
                     tick={{ fontSize: 11, fill: '#9ca3af' }}
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(v) => `$${fmtOrd(v)}`}
+                    tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
                     width={48}
                   />
                 )}
                 <ReferenceLine yAxisId="orders" y={0} stroke="#e5e7eb" />
-                <Tooltip content={<TrendTooltip showRevenue={showRevenue} />} />
+                <Tooltip content={<TrendTooltip showRevenue={showRevenue} formatCurrency={formatCurrency} />} />
                 <Area
                   yAxisId="orders"
                   type="monotone"
@@ -587,7 +582,7 @@ const Orders = () => {
                   width={120}
                 />
                 <Tooltip
-                  content={<ProductTooltip totalOrders={totalProductOrders} />}
+                  content={<ProductTooltip totalOrders={totalProductOrders} formatCurrency={formatCurrency} />}
                 />
                 <Bar
                   dataKey={productSort === 'revenue' ? 'revenue' : 'orders'}

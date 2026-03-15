@@ -3,11 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { KpiContext } from '../../context/KpiContext'
 import './MetricCards.css'
 
-const formatCurrency = (n) =>
-  Number(n).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-
 const MetricCards = () => {
-  const { kpiData, isDemoData } = useContext(KpiContext)
+  const { kpiData, isDemoData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
   const navigate = useNavigate()
 
   const profitIcon = (
@@ -103,7 +100,10 @@ const MetricCards = () => {
     },
   ]
 
-  const formatTarget = (current, target) => {
+  const formatTarget = (title, current, target) => {
+    if (['Profit', 'Revenue', 'Expense'].includes(title)) {
+      return `${formatCompactCurrency(current)} / ${formatCompactCurrency(target)}`
+    }
     if (target >= 1000000) return `${(current / 1000000).toFixed(1)}M / ${(target / 1000000).toFixed(1)}M`
     if (target >= 1000) return `${(current / 1000).toFixed(0)}k / ${(target / 1000).toFixed(0)}k`
     return `${current.toFixed(1)}% / ${target.toFixed(1)}%`
@@ -139,7 +139,7 @@ const MetricCards = () => {
               <div className="kpi-progress-bar">
                 <div className="kpi-progress-fill" style={{ width: `${progress}%` }}></div>
               </div>
-              <div className="kpi-target-text">{formatTarget(kpi.current, kpi.target)}</div>
+              <div className="kpi-target-text">{formatTarget(kpi.title, kpi.current, kpi.target)}</div>
             </div>
             <div className="kpi-footer">
             </div>

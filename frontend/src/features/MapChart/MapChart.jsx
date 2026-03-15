@@ -20,15 +20,8 @@ const DEFAULT_MARKERS = [
   { name: 'Australia', value: 0, coordinates: [120, -25] },
 ]
 
-const formatValue = (v) => {
-  if (v == null || typeof v !== 'number') return ''
-  if (v >= 1e6) return `$${(v / 1e6).toFixed(1)}M`
-  if (v >= 1e3) return `$${(v / 1e3).toFixed(1)}K`
-  return `$${Number(v).toFixed(0)}`
-}
-
 const MapChart = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCompactCurrency } = useContext(KpiContext)
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
   const [tooltip, setTooltip] = useState(null)
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
@@ -91,7 +84,7 @@ const MapChart = () => {
             >
               <span className="map-tooltip-name">{tooltip.name}</span>
               {(tooltip.value != null && tooltip.value !== 0) && (
-                <span className="map-tooltip-value">{formatValue(tooltip.value)}</span>
+                <span className="map-tooltip-value">{formatCompactCurrency(tooltip.value)}</span>
               )}
             </div>
           )}

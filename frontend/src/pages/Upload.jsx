@@ -41,6 +41,7 @@ const Upload = () => {
         return
       }
       setKpiData({
+        source_currency: data.source_currency,
         profit_sum: data.profit_sum,
         revenue_sum: data.revenue_sum,
         orders_sum: data.orders_sum,

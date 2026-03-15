@@ -11,12 +11,6 @@ import {
 import './ProfitInsights.css'
 
 /* ── Formatting helpers ─────────────────────────────────────── */
-const fmtCur = (n) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency', currency: 'USD',
-    minimumFractionDigits: 0, maximumFractionDigits: 0,
-  }).format(n || 0)
-
 const fmtNum = (n) => {
   const abs = Math.abs(n)
   if (abs >= 1e6) return `${(n / 1e6).toFixed(1)}M`
@@ -32,7 +26,7 @@ const fmtDate = (s) => {
 }
 
 /* ── Custom tooltips ──────────────────────────────────────── */
-const TrendTooltip = ({ active, payload, label }) => {
+const TrendTooltip = ({ active, payload, label, formatCurrency }) => {
   if (!active || !payload || !payload.length) return null
   return (
     <div className="pil-tooltip">
@@ -41,14 +35,14 @@ const TrendTooltip = ({ active, payload, label }) => {
         <div key={p.dataKey} className="pil-tooltip-row">
           <span className="pil-tooltip-dot" style={{ background: p.color }} />
           <span className="pil-tooltip-label">{p.name}</span>
-          <span className="pil-tooltip-val">{fmtCur(p.value)}</span>
+          <span className="pil-tooltip-val">{formatCurrency(p.value)}</span>
         </div>
       ))}
     </div>
   )
 }
 
-const BarTooltip = ({ active, payload, label }) => {
+const BarTooltip = ({ active, payload, label, formatCurrency }) => {
   if (!active || !payload || !payload.length) return null
   return (
     <div className="pil-tooltip">
@@ -57,7 +51,7 @@ const BarTooltip = ({ active, payload, label }) => {
         <div key={p.dataKey} className="pil-tooltip-row">
           <span className="pil-tooltip-dot" style={{ background: p.color || p.fill }} />
           <span className="pil-tooltip-label">{p.name}</span>
-          <span className="pil-tooltip-val">{fmtCur(p.value)}</span>
+          <span className="pil-tooltip-val">{formatCurrency(p.value)}</span>
         </div>
       ))}
     </div>
@@ -127,7 +121,7 @@ const InsightIcon = ({ type }) => {
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════ */
 const ProfitInsights = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
 
   const [dateRange, setDateRange] = useState('30D')
   const [showRevenue, setShowRevenue] = useState(false)
@@ -246,7 +240,7 @@ const ProfitInsights = () => {
     const list = []
     if (compositionData.length) {
       const top = compositionData[0]
-      list.push({ type: 'up', text: `${top.name} is the top profit driver at ${fmtPct(top.pct)} of total product profit (${fmtCur(top.profit)}).` })
+      list.push({ type: 'up', text: `${top.name} is the top profit driver at ${fmtPct(top.pct)} of total product profit (${formatCurrency(top.profit)}).` })
       const bottom = compositionData[compositionData.length - 1]
       const bottomType = bottom.pct < 10 ? 'warn' : 'ok'
       list.push({ type: bottomType, text: `${bottom.name} contributes only ${fmtPct(bottom.pct)} — review pricing or consider deprioritizing.` })
@@ -265,16 +259,16 @@ const ProfitInsights = () => {
       list.push({ type: 'ok', text: `Cost-to-revenue ratio is ${fmtPct(costRatio)}, leaving ${fmtPct(100 - costRatio)} margin headroom.` })
     }
     const riskType = stats.riskLevel === 'Low' ? 'ok' : stats.riskLevel === 'Moderate' ? 'warn' : 'down'
-    list.push({ type: riskType, text: `Profit volatility is ${stats.riskLevel} (CV ${fmtPct(stats.cv)}). Std deviation: ${fmtCur(stats.stdDev)}.` })
+    list.push({ type: riskType, text: `Profit volatility is ${stats.riskLevel} (CV ${fmtPct(stats.cv)}). Std deviation: ${formatCurrency(stats.stdDev)}.` })
     if (filteredSeries.length >= 2) {
       const first = filteredSeries[0].profit
       const last  = filteredSeries[filteredSeries.length - 1].profit
       const chg = first !== 0 ? ((last - first) / first) * 100 : 0
       const changeType = chg >= 0 ? 'up' : 'down'
-      list.push({ type: changeType, text: `Period-over-period profit change: ${chg >= 0 ? '+' : ''}${fmtPct(chg)} (${fmtCur(first)} → ${fmtCur(last)}).` })
+      list.push({ type: changeType, text: `Period-over-period profit change: ${chg >= 0 ? '+' : ''}${fmtPct(chg)} (${formatCurrency(first)} -> ${formatCurrency(last)}).` })
     }
     return list.slice(0, 6)
-  }, [compositionData, avgNetMargin, costRatio, stats, filteredSeries])
+  }, [compositionData, avgNetMargin, costRatio, stats, filteredSeries, formatCurrency])
 
   const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
 
@@ -403,13 +397,13 @@ const ProfitInsights = () => {
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tickFormatter={v => `$${fmtNum(v)}`}
+                  tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
                   tick={{ fontSize: 11, fill: '#9ca3af' }}
                   axisLine={false}
                   tickLine={false}
                   width={56}
                 />
-                <Tooltip content={<TrendTooltip />} />
+                <Tooltip content={<TrendTooltip formatCurrency={formatCurrency} />} />
                 {negativeRanges.map((r, i) => (
                   <ReferenceArea key={i} x1={r.x1} x2={r.x2} fill="#fee2e2" fillOpacity={0.4} />
                 ))}
@@ -473,7 +467,7 @@ const ProfitInsights = () => {
                   <CartesianGrid horizontal={false} stroke="#f0f0f0" strokeDasharray="3 0" />
                   <XAxis
                     type="number"
-                    tickFormatter={v => `$${fmtNum(v)}`}
+                    tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
                     tick={{ fontSize: 11, fill: '#9ca3af' }}
                     axisLine={false}
                     tickLine={false}
@@ -486,7 +480,7 @@ const ProfitInsights = () => {
                     tickLine={false}
                     width={110}
                   />
-                  <Tooltip content={<BarTooltip />} />
+                  <Tooltip content={<BarTooltip formatCurrency={formatCurrency} />} />
                   <Bar dataKey="profit" name="Profit" fill="#2563eb" radius={[0, 2, 2, 0]} barSize={16}
                     label={(props) => <CompositionLabel {...props} pct={compositionData[props.index]?.pct} />}
                   >
@@ -529,13 +523,13 @@ const ProfitInsights = () => {
                     interval="preserveStartEnd"
                   />
                   <YAxis
-                    tickFormatter={marginMode === 'pct' ? v => `${v.toFixed(0)}%` : v => `$${fmtNum(v)}`}
+                    tickFormatter={marginMode === 'pct' ? (v) => `${v.toFixed(0)}%` : (v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
                     tick={{ fontSize: 11, fill: '#9ca3af' }}
                     axisLine={false}
                     tickLine={false}
                     width={44}
                   />
-                  <Tooltip content={marginMode === 'pct' ? <MarginTooltip /> : <TrendTooltip />} />
+                  <Tooltip content={marginMode === 'pct' ? <MarginTooltip /> : <TrendTooltip formatCurrency={formatCurrency} />} />
                   {marginMode === 'pct' ? (
                     <>
                       <Line type="monotone" dataKey="netMargin" name="Net Margin" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
@@ -583,14 +577,14 @@ const ProfitInsights = () => {
                   <div className="pil-cost-bar-track">
                     <div className="pil-cost-bar-fill" style={{ width: '35%', background: '#2563eb' }} />
                   </div>
-                  <span className="pil-cost-value">{fmtCur(fixedCost)}</span>
+                  <span className="pil-cost-value">{formatCurrency(fixedCost)}</span>
                 </div>
                 <div className="pil-cost-row">
                   <span className="pil-cost-label">Variable Cost</span>
                   <div className="pil-cost-bar-track">
                     <div className="pil-cost-bar-fill" style={{ width: '65%', background: '#9ca3af' }} />
                   </div>
-                  <span className="pil-cost-value">{fmtCur(varCost)}</span>
+                  <span className="pil-cost-value">{formatCurrency(varCost)}</span>
                 </div>
                 <div className="pil-cost-row">
                   <span className="pil-cost-label">Cost / Revenue</span>
@@ -605,8 +599,8 @@ const ProfitInsights = () => {
                 <BarChart data={costPressureSeries.slice(-20)} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
                   <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={3} />
-                  <YAxis tickFormatter={v => `$${fmtNum(v)}`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
-                  <Tooltip content={<BarTooltip />} />
+                  <YAxis tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
+                  <Tooltip content={<BarTooltip formatCurrency={formatCurrency} />} />
                   <Bar dataKey="profit" name="Profit" fill="#2563eb" barSize={6} radius={[2, 2, 0, 0]} />
                   <Bar dataKey="cost"   name="Cost"   fill="#fca5a5" barSize={6} radius={[2, 2, 0, 0]} />
                 </BarChart>
@@ -627,18 +621,18 @@ const ProfitInsights = () => {
                 <tbody>
                   <tr>
                     <td className="pil-stats-label">Std Deviation</td>
-                    <td className="pil-stats-val">{fmtCur(stats.stdDev)}</td>
+                    <td className="pil-stats-val">{formatCurrency(stats.stdDev)}</td>
                   </tr>
                   <tr>
                     <td className="pil-stats-label">Best Period</td>
                     <td className="pil-stats-val pil-stats-val--pos">
-                      {stats.best ? `${fmtDate(stats.best.date)} · ${fmtCur(stats.best.value)}` : '—'}
+                      {stats.best ? `${fmtDate(stats.best.date)} · ${formatCurrency(stats.best.value)}` : '—'}
                     </td>
                   </tr>
                   <tr>
                     <td className="pil-stats-label">Worst Period</td>
                     <td className="pil-stats-val pil-stats-val--neg">
-                      {stats.worst ? `${fmtDate(stats.worst.date)} · ${fmtCur(stats.worst.value)}` : '—'}
+                      {stats.worst ? `${fmtDate(stats.worst.date)} · ${formatCurrency(stats.worst.value)}` : '—'}
                     </td>
                   </tr>
                   <tr>

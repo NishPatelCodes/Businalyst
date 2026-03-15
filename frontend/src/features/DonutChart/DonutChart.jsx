@@ -27,7 +27,7 @@ const columnTitle = (key) =>
   key.split(/[\s_]+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
 
 const DonutChart = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency } = useContext(KpiContext)
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const [tooltip, setTooltip] = useState({ x: 0, y: 0, visible: false })
 
@@ -57,15 +57,6 @@ const DonutChart = () => {
   const chartTitle = kpiData?.pie_column ? columnTitle(kpiData.pie_column) : 'Expense Sources'
   const totalAmount = expenseData ? expenseData.reduce((s, d) => s + (d.amount ?? 0), 0) : 0
   const isCountChart = Array.isArray(kpiData?.pie_data) && kpiData.pie_data.length > 0
-
-  const formatCurrency = useCallback((amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }, [])
 
   const formatNumber = useCallback((n) => new Intl.NumberFormat('en-US').format(Number(n) || 0), [])
 

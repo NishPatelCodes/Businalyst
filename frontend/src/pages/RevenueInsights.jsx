@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react'
+import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import DateRangePicker from '../components/DateRangePicker'
@@ -28,20 +28,6 @@ const RevenueInsights = () => {
   const dateLabel = dateRange.start && dateRange.end
     ? `${fmt(dateRange.start)} – ${fmt(dateRange.end)}`
     : 'Select dates'
-
-  const fmtCur = (n) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(n)
-
-  const aov = useMemo(() => {
-    const rev = kpiData?.revenue_sum ?? 0
-    const ord = kpiData?.orders_sum ?? 1
-    return rev / ord
-  }, [kpiData?.revenue_sum, kpiData?.orders_sum])
 
   return (
     <div className="ri-page">
