@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { BrandPanel } from './Login'
 import './Login.css'
 
 const ForgotPassword = () => {
@@ -26,117 +27,77 @@ const ForgotPassword = () => {
     }
   }
 
-  if (success) {
-    return (
-      <div className="forgot-container">
-        <div className="forgot-panel">
-          <div className="forgot-content">
-            <div className="brand-row">
-              <div className="brand-mark"></div>
-              <span className="brand-name">businalyst.</span>
-            </div>
-
-            <div className="heading-block">
-              <h1>Check your email</h1>
-              <p>
-                We've sent password reset instructions to {email}
-              </p>
-            </div>
-
-            <div className="login-link">
-              <Link to="/login">Back to login</Link>
-            </div>
-          </div>
-        </div>
-        <div className="right-panel"></div>
-      </div>
-    )
-  }
-
   return (
-    <div className="forgot-container">
-      <div className="forgot-panel">
-        <div className="forgot-content">
-          <div className="brand-row">
-            <div className="brand-mark"></div>
-            <span className="brand-name">businalyst.</span>
+    <div className="auth-container">
+      <BrandPanel />
+
+      <div className="auth-form-panel">
+        <div className="auth-form-content">
+          {/* mobile-only brand */}
+          <div className="auth-mobile-brand">
+            <div className="auth-brand-logo-mark" />
+            <span className="auth-brand-logo-text">businalyst.</span>
           </div>
 
-          <div className="heading-block">
-            <h1>Forgot Password?</h1>
-            <p>
-              No worries, we'll send you reset instructions.{' '}
-              <Link to="/login" className="back-link">
-                Back to login
-              </Link>
-            </p>
-          </div>
-
-          {error && <div className="error-message">{error}</div>}
-
-          <form className="form" onSubmit={handleSubmit}>
-            <div className="field-group">
-              <label className="field-label" htmlFor="email">
-                Email
-              </label>
-              <div className="field-input-wrap">
-                <input
-                  id="email"
-                  className="field-input"
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value)
-                    setError('')
-                  }}
-                  placeholder="Enter your email"
-                  autoComplete="email"
-                  required
-                />
+          {success ? (
+            <>
+              <div className="auth-heading">
+                <h1>Check Your Email</h1>
+                <p>
+                  We've sent password reset instructions to <strong>{email}</strong>.
+                </p>
               </div>
-            </div>
 
-            <button
-              type="submit"
-              className="primary-button"
-              disabled={loading}
-            >
-              {loading ? 'Sending...' : 'Send Reset Link'}
-            </button>
-          </form>
+              <p className="auth-footer-link">
+                <Link to="/login">Back to sign in</Link>
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="auth-heading">
+                <h1>Forgot Password?</h1>
+                <p>
+                  No worries, we'll send you reset instructions.
+                </p>
+              </div>
 
-          <div className="login-link">
-            <Link to="/login">Remember your password? Login</Link>
-          </div>
+              {error && <div className="auth-error">{error}</div>}
+
+              <form className="auth-form" onSubmit={handleSubmit}>
+                <div className="auth-field">
+                  <label className="auth-label" htmlFor="forgot-email">Email</label>
+                  <div className="auth-input-wrap">
+                    <input
+                      id="forgot-email"
+                      className="auth-input"
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value)
+                        setError('')
+                      }}
+                      placeholder="you@company.com"
+                      autoComplete="email"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="auth-submit-btn" disabled={loading}>
+                  {loading ? 'Sending...' : 'Send Reset Link'}
+                </button>
+              </form>
+
+              <p className="auth-footer-link">
+                Remember your password?{' '}
+                <Link to="/login">Sign in</Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
-
-      <div className="right-panel"></div>
     </div>
   )
 }
 
 export default ForgotPassword
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
