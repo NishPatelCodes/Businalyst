@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { KpiProvider } from './context/KpiContext'
 import ComingSoon from './pages/ComingSoon'
+import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
@@ -18,7 +19,8 @@ function App() {
     <KpiProvider>
       <Router>
         <Routes>
-        <Route path="/" element={<ComingSoon />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/coming-soon" element={<ComingSoon />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
