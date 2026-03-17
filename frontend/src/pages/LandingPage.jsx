@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import './LandingPage.css'
 
 /* ---- scroll-reveal hook (IntersectionObserver) ---- */
@@ -81,12 +82,6 @@ const CheckIcon = () => (
   </svg>
 )
 
-const TargetIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
-  </svg>
-)
-
 const ShieldIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -99,16 +94,36 @@ const ZapIcon = () => (
   </svg>
 )
 
+const ActivityIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+)
+
+/* ---- framer-motion hero variants ---- */
+const heroContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } }
+}
+
+const heroItem = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 120 } }
+}
+
 /* ===========================
    SECTION 1 — HERO (CINEMATIC)
    =========================== */
-const Hero = () => (
+const Hero = () => {
+  const { scrollY } = useScroll()
+  const dashboardY = useTransform(scrollY, [0, 600], [0, 40])
+
+  return (
   <section className="landing-hero">
     <div className="landing-hero-bg">
       <div className="landing-hero-glow landing-hero-glow--1" />
       <div className="landing-hero-glow landing-hero-glow--2" />
       <div className="landing-hero-glow landing-hero-glow--3" />
-      {/* grid pattern overlay */}
       <div className="landing-hero-grid-pattern" />
     </div>
 
@@ -119,9 +134,9 @@ const Hero = () => (
           <span className="landing-logo-text">businalyst.</span>
         </Link>
         <div className="landing-nav-links">
-          <a href="#features" className="landing-nav-link">Features</a>
           <a href="#how-it-works" className="landing-nav-link">How It Works</a>
           <a href="#product" className="landing-nav-link">Product</a>
+          <a href="#why" className="landing-nav-link">Why Businalyst</a>
         </div>
         <div className="landing-nav-actions">
           <Link to="/login" className="landing-nav-link">Sign In</Link>
@@ -131,18 +146,23 @@ const Hero = () => (
     </nav>
 
     <div className="landing-hero-content">
-      <div className="landing-hero-center landing-fade-in-up">
-        <div className="landing-hero-badge">
+      <motion.div
+        className="landing-hero-center"
+        variants={heroContainer}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={heroItem} className="landing-hero-badge">
           <span className="landing-hero-badge-dot" />
-          Analytics platform for SMBs
-        </div>
-        <h1 className="landing-hero-title">
-          Understand your business<br />like never before.
-        </h1>
-        <p className="landing-hero-subtitle">
-          Your business already has the answers — they're hidden in your data. Businalyst reveals what's driving revenue, where costs are leaking, and how your customers actually behave.
-        </p>
-        <div className="landing-hero-ctas">
+          Built for business owners, not data scientists
+        </motion.div>
+        <motion.h1 variants={heroItem} className="landing-hero-title">
+          Your data. Your dashboard.<br />Instant clarity.
+        </motion.h1>
+        <motion.p variants={heroItem} className="landing-hero-subtitle">
+          Upload a spreadsheet. Get a complete analytics dashboard — revenue trends, expense breakdowns, customer insights, and profit tracking — in under a minute.
+        </motion.p>
+        <motion.div variants={heroItem} className="landing-hero-ctas">
           <Link to="/signup" className="landing-btn landing-btn--primary landing-btn--lg">
             Get Started Free
             <ArrowRightIcon />
@@ -150,13 +170,13 @@ const Hero = () => (
           <Link to="/dashboard" className="landing-btn landing-btn--secondary landing-btn--lg">
             View Demo
           </Link>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      {/* cinematic product scene */}
-      <div className="landing-hero-scene landing-fade-in-up-delayed">
+      {/* cinematic product scene with parallax */}
+      <motion.div className="landing-hero-scene" style={{ y: dashboardY }}>
         <div className="landing-hero-scene-glow" />
-        <div className="landing-hero-dashboard-frame">
+        <div className="landing-hero-dashboard-frame landing-fade-in-up-delayed">
           <div className="landing-hero-browser-bar">
             <span className="landing-hero-browser-dot" />
             <span className="landing-hero-browser-dot" />
@@ -197,101 +217,151 @@ const Hero = () => (
           </div>
           <span className="landing-float-panel-badge landing-float-panel-badge--green">+5.7%</span>
         </div>
-      </div>
+      </motion.div>
     </div>
   </section>
-)
+  )
+}
 
 /* ===========================
-   SECTION 2 — SOCIAL PROOF BAR
+   SECTION 2 — SOCIAL PROOF BAR (animated counters)
    =========================== */
+const AnimatedStat = ({ target, label }) => {
+  const [value, setValue] = useState(() => {
+    const prefix = target.startsWith('$') ? '$' : ''
+    const suffix = target.replace(/[0-9,$.]/g, '')
+    return prefix + '0' + suffix
+  })
+  const ref = useRef(null)
+  const hasAnimated = useRef(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !hasAnimated.current) {
+        hasAnimated.current = true
+        const prefix = target.startsWith('$') ? '$' : ''
+        const suffix = target.replace(/[0-9,$.]/g, '')
+        const numericStr = target.replace(/[^0-9.]/g, '')
+        const numericTarget = parseFloat(numericStr) || 0
+        const isDecimal = numericStr.includes('.')
+        const duration = 1200
+        const start = Date.now()
+
+        const tick = () => {
+          const elapsed = Date.now() - start
+          const progress = Math.min(elapsed / duration, 1)
+          const eased = 1 - Math.pow(1 - progress, 3)
+          const current = eased * numericTarget
+
+          let display
+          if (isDecimal) {
+            display = current.toFixed(0)
+          } else {
+            display = Math.round(current).toLocaleString()
+          }
+
+          setValue(prefix + display + suffix)
+          if (progress < 1) requestAnimationFrame(tick)
+        }
+        requestAnimationFrame(tick)
+        observer.disconnect()
+      }
+    }, { threshold: 0.5 })
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [target])
+
+  return (
+    <div className="landing-proof-stat" ref={ref}>
+      <span className="landing-proof-stat-num">{value}</span>
+      <span className="landing-proof-stat-label">{label}</span>
+    </div>
+  )
+}
+
 const SocialProof = () => (
   <section className="landing-social-proof">
     <div className="landing-social-proof-inner">
       <p className="landing-social-proof-text">Trusted by business owners to make better decisions</p>
       <div className="landing-social-proof-stats">
-        <div className="landing-proof-stat">
-          <span className="landing-proof-stat-num">2,500+</span>
-          <span className="landing-proof-stat-label">Data files analyzed</span>
-        </div>
+        <AnimatedStat target="2,500+" label="Data files analyzed" />
         <div className="landing-proof-divider" />
-        <div className="landing-proof-stat">
-          <span className="landing-proof-stat-num">$50M+</span>
-          <span className="landing-proof-stat-label">Revenue tracked</span>
-        </div>
+        <AnimatedStat target="$50M+" label="Revenue tracked" />
         <div className="landing-proof-divider" />
-        <div className="landing-proof-stat">
-          <span className="landing-proof-stat-num">150+</span>
-          <span className="landing-proof-stat-label">Businesses powered</span>
-        </div>
+        <AnimatedStat target="150+" label="Businesses powered" />
       </div>
     </div>
   </section>
 )
 
 /* ===========================
-   SECTION 3 — PROBLEM → SOLUTION
+   SECTION 3 — HOW IT WORKS (moved up)
    =========================== */
-const ProblemSolution = () => (
-  <section className="landing-section landing-problem" id="why">
-    <div className="landing-problem-grid">
-      <div className="landing-problem-left">
-        <span className="landing-section-label">The Problem</span>
-        <h2 className="landing-problem-title">
-          Running a business shouldn't mean drowning in spreadsheets.
-        </h2>
-        <div className="landing-problem-points">
-          <div className="landing-problem-point">
-            <span className="landing-problem-x">&times;</span>
-            <p>Scattered data across spreadsheets, invoices, and tools</p>
-          </div>
-          <div className="landing-problem-point">
-            <span className="landing-problem-x">&times;</span>
-            <p>No clear picture of what's growing and what's costing you</p>
-          </div>
-          <div className="landing-problem-point">
-            <span className="landing-problem-x">&times;</span>
-            <p>Hours spent manually building reports instead of running your business</p>
-          </div>
-        </div>
-      </div>
-      <div className="landing-problem-right">
-        <span className="landing-section-label landing-section-label--green">The Solution</span>
-        <h2 className="landing-solution-title">
-          Businalyst turns your raw data into clear, actionable insights.
-        </h2>
-        <div className="landing-solution-points">
-          <div className="landing-solution-point">
-            <span className="landing-solution-check"><CheckIcon /></span>
-            <p>Upload your business data and get instant visual analytics</p>
-          </div>
-          <div className="landing-solution-point">
-            <span className="landing-solution-check"><CheckIcon /></span>
-            <p>See revenue, expenses, customers, and profit in one dashboard</p>
-          </div>
-          <div className="landing-solution-point">
-            <span className="landing-solution-check"><CheckIcon /></span>
-            <p>Make smarter financial decisions backed by real data</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-)
+const steps = [
+  { num: '01', icon: <UploadIcon />, title: 'Upload your data',                  desc: 'Import your CSV, spreadsheet, or business file. It takes seconds, not hours.' },
+  { num: '02', icon: <BrainIcon />,  title: 'Businalyst analyzes automatically', desc: 'Our engine processes your data and generates clear visual analytics instantly.' },
+  { num: '03', icon: <ChartIcon />,  title: 'Make smarter decisions',            desc: 'Explore interactive charts, KPIs, and actionable insights that drive growth.' },
+]
 
-/* ===========================
-   SECTION 4 — PRODUCT DEEP DIVES
-   =========================== */
-const ProductDeepDive = () => {
+const HowItWorks = () => {
   const revealRef = useScrollReveal()
 
   return (
-  <section className="landing-section landing-deep-dive" id="product" ref={revealRef}>
-    <div className="landing-section-header">
-      <span className="landing-section-label">Product</span>
-      <h2 className="landing-section-title">Powerful analytics, beautifully simple</h2>
+  <section className="landing-section landing-how" id="how-it-works" ref={revealRef}>
+    <div className="landing-section-header scroll-reveal" data-reveal>
+      <span className="landing-section-label">How It Works</span>
+      <h2 className="landing-section-title">How it works — three steps, under a minute</h2>
       <p className="landing-section-desc">
-        Revenue, expenses and customers tell the real story of your business. Businalyst makes that story clear.
+        No data science degree required. If you can upload a file, you can use Businalyst.
+      </p>
+    </div>
+
+    <div className="landing-steps">
+      {steps.map((s, i) => (
+        <React.Fragment key={i}>
+          <div className="landing-step scroll-reveal-card" data-reveal>
+            <div className="landing-step-num">{s.num}</div>
+            <div className="landing-step-icon">{s.icon}</div>
+            <h3 className="landing-step-title">{s.title}</h3>
+            <p className="landing-step-desc">{s.desc}</p>
+          </div>
+          {i < steps.length - 1 && (
+            <div className="landing-step-connector scroll-reveal-card" data-reveal>
+              <ArrowRightIcon />
+            </div>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  </section>
+  )
+}
+
+/* ===========================
+   SECTION 4 — PRODUCT SHOWCASE (merged Deep Dives + Capabilities)
+   =========================== */
+const capabilities = [
+  { icon: <BrainIcon />,    title: 'AI-Powered Insights',   desc: 'Get automated observations about your data without manual analysis.' },
+  { icon: <UploadIcon />,   title: 'Easy Data Upload',      desc: 'Upload CSV or spreadsheet files — Businalyst handles the rest automatically.' },
+  { icon: <ShieldIcon />,   title: 'Secure Data Handling',  desc: 'Your business data is encrypted and handled with enterprise-grade security.' },
+  { icon: <ActivityIcon />, title: 'Real-Time KPIs',        desc: 'Track key performance indicators that update as soon as your data does.' },
+]
+
+const ProductShowcase = () => {
+  const revealRef = useScrollReveal()
+  const capsRef = useScrollReveal()
+
+  return (
+  <section className="landing-section landing-showcase" id="product" ref={revealRef}>
+    <div className="landing-section-header scroll-reveal" data-reveal>
+      <span className="landing-section-label">Product</span>
+      <h2 className="landing-section-title">Four dashboards. One complete picture.</h2>
+      <p className="landing-section-desc">
+        Every angle of your business — revenue, costs, customers, and profit — visualized and ready to act on.
       </p>
     </div>
 
@@ -312,7 +382,7 @@ const ProductDeepDive = () => {
       </div>
       <div className="landing-dive-visual scroll-reveal-visual" data-reveal>
         <div className="landing-dive-frame">
-          <img src="/images/dashboard-main.png" alt="Businalyst Revenue Dashboard" className="landing-dive-img" />
+          <img src="/images/dashboard-revenue.png" alt="Businalyst Revenue Dashboard" className="landing-dive-img" />
         </div>
       </div>
     </div>
@@ -360,154 +430,135 @@ const ProductDeepDive = () => {
         </div>
       </div>
     </div>
-  </section>
-  )
-}
 
-/* ===========================
-   SECTION 5 — FEATURES GRID
-   =========================== */
-const features = [
-  { icon: <ChartIcon />,   title: 'Revenue Analytics',    desc: 'Track revenue streams, trends, and growth patterns across your entire business.' },
-  { icon: <WalletIcon />,  title: 'Expense Intelligence', desc: 'Break down spending categories, spot anomalies, and control costs effectively.' },
-  { icon: <UsersIcon />,   title: 'Customer Insights',    desc: 'Understand customer behavior, segmentation, and lifetime value at a glance.' },
-  { icon: <TrendUpIcon />, title: 'Profit Tracking',      desc: 'Monitor profit margins, identify high-performing products, and optimize pricing.' },
-  { icon: <BrainIcon />,   title: 'Automated Insights',   desc: 'Get AI-powered observations about your data without manual analysis.' },
-  { icon: <UploadIcon />,  title: 'Easy Data Upload',     desc: 'Upload CSV or spreadsheet files — Businalyst handles the rest automatically.' },
-]
-
-const Features = () => (
-  <section className="landing-section landing-features" id="features">
-    <div className="landing-section-header">
-      <span className="landing-section-label">Features</span>
-      <h2 className="landing-section-title">Everything your business needs to grow</h2>
-      <p className="landing-section-desc">
-        Successful businesses don't guess. They analyze. These tools make it effortless.
-      </p>
-    </div>
-
-    <div className="landing-features-grid">
-      {features.map((f, i) => (
-        <div key={i} className="landing-feature-card">
-          <div className="landing-feature-icon">{f.icon}</div>
-          <h3 className="landing-feature-title">{f.title}</h3>
-          <p className="landing-feature-desc">{f.desc}</p>
+    {/* Deep dive 4 — Profit (reversed) */}
+    <div className="landing-dive-row landing-dive-row--reverse scroll-reveal" data-reveal>
+      <div className="landing-dive-text scroll-reveal-text" data-reveal>
+        <div className="landing-dive-icon-wrap landing-dive-icon-wrap--green"><TrendUpIcon /></div>
+        <h3 className="landing-dive-title">Profit Intelligence</h3>
+        <p className="landing-dive-quote">Revenue is vanity, profit is sanity. See the real health of your business.</p>
+        <p className="landing-dive-desc">
+          Track gross and net margins, compare profitability across products and periods, and identify what's actually driving your bottom line.
+        </p>
+        <ul className="landing-dive-list">
+          <li><CheckIcon /> Margin trend analysis</li>
+          <li><CheckIcon /> Product-level profitability</li>
+          <li><CheckIcon /> Period-over-period comparison</li>
+        </ul>
+      </div>
+      <div className="landing-dive-visual scroll-reveal-visual" data-reveal>
+        <div className="landing-dive-frame">
+          <img src="/images/dashboard-profit.png" alt="Businalyst Profit Intelligence" className="landing-dive-img" />
         </div>
-      ))}
-    </div>
-  </section>
-)
-
-/* ===========================
-   SECTION 6 — HOW IT WORKS
-   =========================== */
-const steps = [
-  { num: '01', icon: <UploadIcon />, title: 'Upload your data',                  desc: 'Import your CSV, spreadsheet, or business file. It takes seconds, not hours.' },
-  { num: '02', icon: <BrainIcon />,  title: 'Businalyst analyzes automatically', desc: 'Our engine processes your data and generates clear visual analytics instantly.' },
-  { num: '03', icon: <ChartIcon />,  title: 'Make smarter decisions',            desc: 'Explore interactive charts, KPIs, and actionable insights that drive growth.' },
-]
-
-const HowItWorks = () => (
-  <section className="landing-section landing-how" id="how-it-works">
-    <div className="landing-section-header">
-      <span className="landing-section-label">How It Works</span>
-      <h2 className="landing-section-title">From raw data to insights in three steps</h2>
-      <p className="landing-section-desc">
-        No data science degree required. If you can upload a file, you can use Businalyst.
-      </p>
+      </div>
     </div>
 
-    <div className="landing-steps">
-      {steps.map((s, i) => (
-        <React.Fragment key={i}>
-          <div className="landing-step">
-            <div className="landing-step-num">{s.num}</div>
-            <div className="landing-step-icon">{s.icon}</div>
-            <h3 className="landing-step-title">{s.title}</h3>
-            <p className="landing-step-desc">{s.desc}</p>
-          </div>
-          {i < steps.length - 1 && (
-            <div className="landing-step-connector">
-              <ArrowRightIcon />
-            </div>
-          )}
-        </React.Fragment>
-      ))}
-    </div>
-  </section>
-)
-
-/* ===========================
-   SECTION 7 — BENEFITS
-   =========================== */
-const benefits = [
-  { icon: <TargetIcon />, title: 'Understand performance instantly',       desc: 'Know exactly how every part of your business is performing — no manual reports needed.' },
-  { icon: <WalletIcon />, title: 'Identify cost problems early',           desc: 'Spot expense anomalies and budget overruns before they become expensive mistakes.' },
-  { icon: <UsersIcon />,  title: 'Track customer growth',                  desc: "See who your best customers are, who's leaving, and what drives retention." },
-  { icon: <ZapIcon />,    title: 'Make smarter financial decisions',       desc: 'Replace gut feelings with clear data. Every decision backed by real numbers.' },
-]
-
-const Benefits = () => (
-  <section className="landing-section landing-benefits">
-    <div className="landing-section-header">
-      <span className="landing-section-label">Benefits</span>
-      <h2 className="landing-section-title">What you gain with Businalyst</h2>
-      <p className="landing-section-desc">
-        Smart decisions come from clear insights. Here's what changes when you see the full picture.
-      </p>
-    </div>
-
-    <div className="landing-benefits-grid">
-      {benefits.map((b, i) => (
-        <div key={i} className="landing-benefit-card">
-          <div className="landing-benefit-icon">{b.icon}</div>
-          <h3 className="landing-benefit-title">{b.title}</h3>
-          <p className="landing-benefit-desc">{b.desc}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-)
-
-/* ===========================
-   SECTION 8 — PLATFORM STRENGTHS
-   =========================== */
-const strengths = [
-  { icon: <BrainIcon />,  text: 'Smart analytics engine' },
-  { icon: <ChartIcon />,  text: 'Clean visual dashboards' },
-  { icon: <UploadIcon />, text: 'Easy CSV & spreadsheet upload' },
-  { icon: <ZapIcon />,    text: 'Instant actionable insights' },
-  { icon: <ShieldIcon />, text: 'Secure data handling' },
-  { icon: <TargetIcon />, text: 'Built for real business owners' },
-]
-
-const PlatformStrengths = () => (
-  <section className="landing-strengths">
-    <div className="landing-strengths-inner">
-      <h2 className="landing-strengths-title">Built to make business analytics effortless</h2>
-      <div className="landing-strengths-grid">
-        {strengths.map((s, i) => (
-          <div key={i} className="landing-strength-item">
-            <span className="landing-strength-icon">{s.icon}</span>
-            <span className="landing-strength-text">{s.text}</span>
+    {/* Capabilities strip */}
+    <div className="landing-capabilities" ref={capsRef}>
+      <div className="landing-capabilities-grid">
+        {capabilities.map((c, i) => (
+          <div key={i} className="landing-capability-card scroll-reveal-card" data-reveal>
+            <div className="landing-capability-icon">{c.icon}</div>
+            <h3 className="landing-capability-title">{c.title}</h3>
+            <p className="landing-capability-desc">{c.desc}</p>
           </div>
         ))}
       </div>
     </div>
   </section>
-)
+  )
+}
 
 /* ===========================
-   SECTION 9 — FINAL CTA
+   SECTION 5 — MID-PAGE CTA (demo link)
    =========================== */
-const FinalCTA = () => (
-  <section className="landing-section landing-cta">
-    <div className="landing-cta-inner">
+const MidPageCTA = () => {
+  const revealRef = useScrollReveal()
+
+  return (
+  <section className="landing-mid-cta" ref={revealRef}>
+    <div className="landing-mid-cta-inner scroll-reveal-scale" data-reveal>
+      <h2 className="landing-mid-cta-title">See it in action</h2>
+      <p className="landing-mid-cta-desc">
+        Explore a live dashboard with real sample data. No signup required.
+      </p>
+      <Link to="/dashboard" className="landing-btn landing-btn--primary landing-btn--lg">
+        View Live Demo
+        <ArrowRightIcon />
+      </Link>
+    </div>
+  </section>
+  )
+}
+
+/* ===========================
+   SECTION 6 — PROBLEM → SOLUTION (objection handler)
+   =========================== */
+const ProblemSolution = () => {
+  const revealRef = useScrollReveal()
+
+  return (
+  <section className="landing-section landing-problem" id="why" ref={revealRef}>
+    <div className="landing-problem-grid">
+      <div className="landing-problem-left scroll-reveal-text" data-reveal>
+        <span className="landing-section-label landing-section-label--red">The Problem</span>
+        <h2 className="landing-problem-title">
+          Running a business shouldn't mean drowning in spreadsheets.
+        </h2>
+        <div className="landing-problem-points">
+          <div className="landing-problem-point">
+            <span className="landing-problem-x">&times;</span>
+            <p>You have the data, but it sits in spreadsheets nobody reads</p>
+          </div>
+          <div className="landing-problem-point">
+            <span className="landing-problem-x">&times;</span>
+            <p>You make financial decisions based on gut feeling, not evidence</p>
+          </div>
+          <div className="landing-problem-point">
+            <span className="landing-problem-x">&times;</span>
+            <p>Every month you promise yourself you'll "look at the numbers" — but you never do</p>
+          </div>
+        </div>
+      </div>
+      <div className="landing-problem-right scroll-reveal-text" data-reveal style={{ transitionDelay: '0.2s' }}>
+        <span className="landing-section-label landing-section-label--green">The Solution</span>
+        <h2 className="landing-solution-title">
+          Businalyst turns your raw data into clear, actionable insights.
+        </h2>
+        <div className="landing-solution-points">
+          <div className="landing-solution-point">
+            <span className="landing-solution-check"><CheckIcon /></span>
+            <p>Upload your business data and get instant visual analytics</p>
+          </div>
+          <div className="landing-solution-point">
+            <span className="landing-solution-check"><CheckIcon /></span>
+            <p>See revenue, expenses, customers, and profit in one dashboard</p>
+          </div>
+          <div className="landing-solution-point">
+            <span className="landing-solution-check"><CheckIcon /></span>
+            <p>Make smarter financial decisions backed by real data</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  )
+}
+
+/* ===========================
+   SECTION 7 — FINAL CTA (signup push)
+   =========================== */
+const FinalCTA = () => {
+  const revealRef = useScrollReveal()
+
+  return (
+  <section className="landing-section landing-cta" ref={revealRef}>
+    <div className="landing-cta-inner scroll-reveal-scale" data-reveal>
       <div className="landing-cta-glow" />
       <span className="landing-cta-badge">Start for free</span>
-      <h2 className="landing-cta-title">Start understanding your business today.</h2>
+      <h2 className="landing-cta-title">Your data is already waiting.<br />Let's put it to work.</h2>
       <p className="landing-cta-desc">
-        No complicated setup. No credit card required. Upload your data and get insights in minutes.
+        Free to start. No credit card. Upload your first file and see your dashboard in under 60 seconds.
       </p>
       <div className="landing-cta-actions">
         <Link to="/signup" className="landing-btn landing-btn--primary landing-btn--lg">
@@ -520,7 +571,8 @@ const FinalCTA = () => (
       </div>
     </div>
   </section>
-)
+  )
+}
 
 /* ===========================
    FOOTER
@@ -537,9 +589,9 @@ const Footer = () => (
       <div className="landing-footer-links">
         <div className="landing-footer-col">
           <h4>Product</h4>
-          <a href="#features">Features</a>
           <a href="#how-it-works">How It Works</a>
           <a href="#product">Dashboard</a>
+          <a href="#why">Why Businalyst</a>
         </div>
         <div className="landing-footer-col">
           <h4>Company</h4>
@@ -575,12 +627,10 @@ const LandingPage = () => (
   <div className="landing-page">
     <Hero />
     <SocialProof />
-    <ProblemSolution />
-    <ProductDeepDive />
-    <Features />
     <HowItWorks />
-    <Benefits />
-    <PlatformStrengths />
+    <ProductShowcase />
+    <MidPageCTA />
+    <ProblemSolution />
     <FinalCTA />
     <Footer />
   </div>
