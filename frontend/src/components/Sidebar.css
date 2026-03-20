@@ -197,22 +197,50 @@
 .sidebar-premium {
   margin: var(--spacing-1) var(--spacing-2) var(--spacing-2);
   padding: var(--spacing-2);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-  border-radius: 9px;
+  border-radius: 10px;
   position: relative;
   overflow: hidden;
 }
 
-.sidebar-premium::before {
+.sidebar-premium--coming-soon {
+  background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-premium--coming-soon::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0.06) 0%, transparent 40%);
   pointer-events: none;
+}
+
+.sidebar-premium--coming-soon .premium-icon {
+  color: rgba(255, 255, 255, 0.95);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.sidebar-premium--coming-soon .premium-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 2px;
+  line-height: var(--line-height-tight);
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-premium--coming-soon .premium-description {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 0;
+  line-height: var(--line-height-tight);
+  letter-spacing: 0.01em;
 }
 
 .premium-icon {
@@ -226,7 +254,7 @@
 .premium-title {
   font-size: 13px;
   font-weight: var(--font-weight-semibold);
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 2px;
   position: relative;
   z-index: 1;
@@ -236,39 +264,12 @@
 
 .premium-description {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: var(--spacing-1);
+  color: var(--text-secondary);
+  margin-bottom: 0;
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-normal);
   position: relative;
   z-index: 1;
-}
-
-.premium-button {
-  width: 100%;
-  padding: var(--spacing-1) var(--spacing-2);
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 7px;
-  font-size: 13px;
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-normal);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  position: relative;
-  z-index: 1;
-}
-
-.premium-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.premium-button:active {
-  transform: translateY(0);
 }
 
 /* Scrollbar styling */

@@ -1,5 +1,6 @@
 import React, { useContext, useState, useId } from 'react'
 import { KpiContext } from '../../context/KpiContext'
+import { formatAxisValueCompact } from '../../utils/axisFormatters'
 import './BarChart.css'
 
 const truncateLabel = (s, maxLen = 14) => {
@@ -8,17 +9,11 @@ const truncateLabel = (s, maxLen = 14) => {
   return t.length <= maxLen ? t : t.slice(0, maxLen - 1) + '…'
 }
 
-const formatAxisValue = (v) => {
-  if (v >= 1e6) return `${(v / 1e6).toFixed(1)}M`
-  if (v >= 1e3) return `${(v / 1e3).toFixed(0)}k`
-  return String(Math.round(v))
-}
-
-const BarChart = ({ data: dataProp, title: titleProp }) => {
+const BarChart = ({ data: dataProp, title: titleProp, periodRatio = 1 }) => {
   const { kpiData } = useContext(KpiContext)
   const [tooltip, setTooltip] = useState(null)
   const gradientId = useId().replace(/:/g, '-')
-  const barData = Array.isArray(dataProp) && dataProp.length >= 2
+  const barDataRaw = Array.isArray(dataProp) && dataProp.length >= 2
     ? dataProp
     : Array.isArray(kpiData?.bar_data) && kpiData.bar_data.length >= 2
       ? kpiData.bar_data
@@ -29,6 +24,10 @@ const BarChart = ({ data: dataProp, title: titleProp }) => {
           { name: 'Item 4', value: 1100 },
           { name: 'Item 5', value: 2200 },
         ]
+  const barData = barDataRaw.map((d) => ({
+    ...d,
+    value: (Number(d?.value) || 0) * periodRatio,
+  }))
   const barColumn = kpiData?.bar_column || 'Item'
 
   const values = barData.map(d => Math.max(0, Number(d.value) || 0))
@@ -125,7 +124,7 @@ const BarChart = ({ data: dataProp, title: titleProp }) => {
                   textAnchor="end"
                   className="axis-label"
                 >
-                  {formatAxisValue(value)}
+                  {formatAxisValueCompact(value)}
                 </text>
               )
             })}

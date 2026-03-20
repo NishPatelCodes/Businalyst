@@ -10,12 +10,6 @@ const COLUMN_OPTIONS = [
   { key: 'subcategory', label: 'Subcategory' },
 ]
 
-const TIME_OPTIONS = [
-  { key: 'week', label: 'Week' },
-  { key: 'month', label: 'Month' },
-  { key: 'year', label: 'Year' },
-]
-
 // Image-style palette: purple, lime green, light blue, dark grey, light grey (last can be striped "Other")
 const SEGMENT_COLORS = [
   '#8B5CF6',
@@ -33,10 +27,9 @@ function luminance(hex) {
   return 0.299 * r + 0.587 * g + 0.114 * b
 }
 
-const RevenueInsightsByColumn = () => {
+const RevenueInsightsByColumn = ({ periodRatio = 1 }) => {
   const { kpiData, formatCurrency } = useContext(KpiContext)
   const [selectedColumn, setSelectedColumn] = useState('category')
-  const [timeRange, setTimeRange] = useState('month')
   const [columnDropdownOpen, setColumnDropdownOpen] = useState(false)
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const columnDropdownRef = useRef(null)
@@ -58,25 +51,25 @@ const RevenueInsightsByColumn = () => {
       if (Array.isArray(fallback) && fallback.length > 0) {
         return fallback.map((d, i) => ({
           name: String(d.name ?? '—'),
-          value: Number(d.value) ?? 0,
+          value: Math.round((Number(d.value) ?? 0) * periodRatio),
           color: SEGMENT_COLORS[i % SEGMENT_COLORS.length],
         }))
       }
       return [
-        { name: 'Electronics', value: 120000, color: SEGMENT_COLORS[0] },
-        { name: 'Office', value: 90000, color: SEGMENT_COLORS[1] },
-        { name: 'Other', value: 50000, color: SEGMENT_COLORS[4] },
+        { name: 'Electronics', value: Math.round(120000 * periodRatio), color: SEGMENT_COLORS[0] },
+        { name: 'Office', value: Math.round(90000 * periodRatio), color: SEGMENT_COLORS[1] },
+        { name: 'Other', value: Math.round(50000 * periodRatio), color: SEGMENT_COLORS[4] },
       ]
     }
     const raw = byColumn[selectedColumn]
     const total = raw.reduce((s, d) => s + (Number(d.value) || 0), 0) || 1
     return raw.map((d, i) => ({
       name: String(d.name ?? '—'),
-      value: Number(d.value) || 0,
+      value: Math.round((Number(d.value) || 0) * periodRatio),
       percentage: Math.round(((Number(d.value) || 0) / total) * 100),
       color: SEGMENT_COLORS[i % SEGMENT_COLORS.length],
     }))
-  }, [kpiData, selectedColumn])
+  }, [kpiData, selectedColumn, periodRatio])
 
   const total = useMemo(() => chartData.reduce((s, d) => s + (d.value ?? 0), 0), [chartData])
   const withPercentage = useMemo(() => {
@@ -184,18 +177,6 @@ const RevenueInsightsByColumn = () => {
             )}
           </div>
 
-          <div className="ribc-time-pills">
-            {TIME_OPTIONS.map((t) => (
-              <button
-                key={t.key}
-                type="button"
-                className={timeRange === t.key ? 'ribc-pill ribc-pill--selected' : 'ribc-pill'}
-                onClick={() => setTimeRange(t.key)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 

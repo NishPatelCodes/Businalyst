@@ -20,15 +20,19 @@ const DEFAULT_MARKERS = [
   { name: 'Australia', value: 0, coordinates: [120, -25] },
 ]
 
-const MapChart = () => {
+const MapChart = ({ periodRatio = 1 }) => {
   const { kpiData, formatCompactCurrency } = useContext(KpiContext)
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
   const [tooltip, setTooltip] = useState(null)
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
 
-  const mapData = Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
+  const mapDataRaw = Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
     ? kpiData.map_data
     : DEFAULT_MARKERS
+  const mapData = mapDataRaw.map((m) => ({
+    ...m,
+    value: Math.round((Number(m?.value) || 0) * periodRatio),
+  }))
   const mapColumn = kpiData?.map_column || 'region'
   const topName = mapData[0]?.name ?? '—'
   const marketCount = mapData.length

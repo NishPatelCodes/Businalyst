@@ -35,15 +35,23 @@ def _merge_component(payload, df, name, fn, merge_keys=None):
     """
     Run a component function; on success merge result into payload.
     On exception log and leave payload unchanged for that part.
+    If result is an error-only dict (expected merge keys missing), log and append analytics_warnings.
     """
     try:
         result = fn(df)
         if result is None:
             return
+        if not isinstance(result, dict):
+            return
         if merge_keys is None:
-            merge_keys = list(result.keys())
+            merge_keys = [k for k in result.keys() if k != "error"]
+        if "error" in result and merge_keys and not any(k in result for k in merge_keys):
+            msg = result.get("error", "unknown")
+            logger.warning("Analytics component %s returned error: %s", name, msg)
+            payload.setdefault("analytics_warnings", []).append({"component": name, "error": str(msg)})
+            return
         for key in merge_keys:
-            if key in result:
+            if key in result and key != "error":
                 payload[key] = result[key]
     except Exception as e:
         logger.warning("Analytics component %s failed: %s", name, e, exc_info=True)
@@ -72,7 +80,13 @@ def upload_dataset(request):
         date_col = find_date_col(df)
         if (start_date or end_date) and date_col:
             df = filter_df_by_date(df, start_date=start_date, end_date=end_date, date_column=date_col)
-        kpis = calculate_kpis(df, start_date=start_date, end_date=end_date, date_column=date_col or "date")
+        # KPIs use already-filtered df when upload applied a date range (avoid double filter)
+        kpis = calculate_kpis(
+            df,
+            start_date=None if (start_date or end_date) and date_col else start_date,
+            end_date=None if (start_date or end_date) and date_col else end_date,
+            date_column=date_col or "date",
+        )
         payload = {
             "message": "File processed successfully",
             "source_currency": df.attrs.get("source_currency", "USD"),
@@ -85,6 +99,8 @@ def upload_dataset(request):
             payload["revenue_data"] = chart["revenue_data"]
             payload["profit_data"] = chart["profit_data"]
             payload["date_data"] = chart["date_data"]
+            if "orders_data" in chart:
+                payload["orders_data"] = chart["orders_data"]
             if "product_data" in chart:
                 payload["product_data"] = chart["product_data"]
         except Exception as e:

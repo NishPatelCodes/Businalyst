@@ -48,6 +48,9 @@ def linechart(df):
     df = df.copy()
     df["revenue"] = pd.to_numeric(df["revenue"], errors="coerce")
     df["profit"] = pd.to_numeric(df["profit"], errors="coerce")
+    # Orders are optional for the line chart (used by some client-side comparisons).
+    if "orders" in df.columns:
+        df["orders"] = pd.to_numeric(df["orders"], errors="coerce").fillna(0)
     date_series = df[date_col].astype(str)
 
     result = {
@@ -59,6 +62,9 @@ def linechart(df):
     product_col = _find_product_col(df)
     if product_col is not None:
         result["product_data"] = df[product_col].astype(str).str.strip().tolist()
+
+    if "orders" in df.columns:
+        result["orders_data"] = df["orders"].tolist()
 
     return result
 
@@ -191,19 +197,6 @@ def _find_order_id_col(df):
         if c in df.columns:
             return c
     return None
-
-
-def _infer_orders_series(df_bucket):
-    """
-    For a grouped bucket DataFrame, count orders.
-    Priority: 'orders' column sum > unique order_id count > row count.
-    """
-    if "orders" in df_bucket.columns:
-        return pd.to_numeric(df_bucket["orders"], errors="coerce").fillna(0).sum()
-    order_id_col = _find_order_id_col(df_bucket)
-    if order_id_col is not None:
-        return df_bucket[order_id_col].nunique()
-    return len(df_bucket)
 
 
 def multiline_chart(df, granularity="monthly"):

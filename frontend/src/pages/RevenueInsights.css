@@ -226,36 +226,110 @@
   white-space: nowrap;
 }
 
-.ri-page-actions {
+.ri-page-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 2px 0 0;
+  font-weight: 400;
+}
+
+.ri-page-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   flex-shrink: 0;
 }
 
-.ri-action-btn {
+/* ── Range tabs ────────────────────────────────────────────── */
+.ri-range-tabs {
+  display: flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ri-range-tab {
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  background: #fff;
+  border: none;
+  border-right: 1px solid #e5e7eb;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.ri-range-tab:last-child { border-right: none; }
+.ri-range-tab:hover { background: #f9fafb; color: #111827; }
+.ri-range-tab--active { background: #111827; color: #fff; }
+.ri-range-tab--active:hover { background: #111827; }
+
+/* ── Export dropdown ───────────────────────────────────────── */
+.ri-export-wrap {
+  position: relative;
+}
+
+.ri-export-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
-  background: var(--ri-bg-card);
-  border: 1px solid #e5e7eb;
-  border-radius: var(--card-border-radius);
-  font-size: 13px;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
   font-weight: 500;
   color: #374151;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
   cursor: pointer;
-  white-space: nowrap;
   font-family: inherit;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
-.ri-action-btn:hover {
+.ri-export-btn:hover {
   background: #f9fafb;
   border-color: #d1d5db;
 }
-.ri-action-btn svg {
-  color: #6b7280;
-  flex-shrink: 0;
+.ri-export-btn[aria-expanded="true"] {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.ri-export-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 88;
+}
+
+.ri-export-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 140px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  z-index: 89;
+  overflow: hidden;
+}
+
+.ri-export-menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.ri-export-menu-item:hover {
+  background: #f3f4f6;
 }
 
 /* ── Full-width chart (above grid) ─────────────────────────────── */
@@ -603,6 +677,10 @@
   .ri-page-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+  .ri-page-header-actions {
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .ri-trend-amount {
     font-size: 24px;

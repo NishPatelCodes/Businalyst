@@ -8,6 +8,7 @@ export const DEMO_KPI_DATA = {
   orders_sum: 2187,
   expense_sum: 374167.75,
   customers_sum: 91,
+  source_currency: 'USD',
 
   // Line chart: Revenue & Profit over time (monthly aggregates)
   date_data: [
@@ -45,6 +46,31 @@ export const DEMO_KPI_DATA = {
     'Bluetooth Adapter', 'USB-C Cable', 'Tablet Case', 'Bluetooth Adapter',
     'Wireless Headphones', 'Tablet Stand', 'USB-C Cable', 'Bluetooth Speaker',
     'USB-C Adapter', 'Bluetooth Adapter', 'Tablet Case', 'Wireless Headphones',
+  ],
+
+  // Per-row order counts (parallel to date_data; proportional to revenue, matches orders_sum)
+  orders_data: [
+    41, 62, 50, 73, 32, 55, 44, 65, 37, 81, 52, 59, 34, 70, 47, 63, 41, 66, 53, 75,
+    36, 58, 44, 64, 38, 79, 49, 60, 35, 71, 53, 63, 41, 67, 45, 62, 36, 76, 51, 59,
+  ],
+
+  // Orders overview spark / API shape: daily aggregates
+  orders_trend: [
+    { date: '2024-01-15', orders: 41 },
+    { date: '2024-01-16', orders: 62 },
+    { date: '2024-01-17', orders: 50 },
+    { date: '2024-01-18', orders: 73 },
+    { date: '2024-01-19', orders: 32 },
+    { date: '2024-01-20', orders: 55 },
+    { date: '2024-01-21', orders: 44 },
+    { date: '2024-01-22', orders: 65 },
+    { date: '2024-01-23', orders: 37 },
+    { date: '2024-01-24', orders: 81 },
+    { date: '2024-01-25', orders: 52 },
+    { date: '2024-01-26', orders: 59 },
+    { date: '2024-01-27', orders: 34 },
+    { date: '2024-01-28', orders: 70 },
+    { date: '2024-01-29', orders: 47 },
   ],
 
   // Comparing Bar Chart — current vs previous period sales (by product)
@@ -137,84 +163,6 @@ export const DEMO_KPI_DATA = {
     'category', 'region', 'product_name', 'order_id', 'sales_rep', 'payment_method',
   ],
 
-  // Orders page: list of orders (reuse top5 for demo; backend sends up to 100)
-  orders_list: [
-    {
-      date: '2024-02-10',
-      revenue: 23800,
-      profit: 5950,
-      orders: 82,
-      expense: 17850,
-      customer_name: 'Modern Solutions',
-      category: 'Electronics',
-      region: 'East',
-      product_name: 'Tablet Case',
-      order_id: 'ORD-2024-0040',
-      sales_rep: 'Lucas Scott',
-      payment_method: 'PayPal',
-    },
-    {
-      date: '2024-01-24',
-      revenue: 24500.5,
-      profit: 6125.12,
-      orders: 85,
-      expense: 18375.38,
-      customer_name: 'Advanced Systems',
-      category: 'Electronics',
-      region: 'East',
-      product_name: 'Tablet Stand',
-      order_id: 'ORD-2024-0024',
-      sales_rep: 'Christopher Brown',
-      payment_method: 'Credit Card',
-    },
-    {
-      date: '2024-02-22',
-      revenue: 22900,
-      profit: 5725,
-      orders: 79,
-      expense: 17175,
-      customer_name: 'Innovation Tech',
-      category: 'Electronics',
-      region: 'East',
-      product_name: 'Bluetooth Adapter',
-      order_id: 'ORD-2024-0052',
-      sales_rep: 'Michael Parker',
-      payment_method: 'PayPal',
-    },
-    {
-      date: '2024-01-18',
-      revenue: 22100.25,
-      profit: 5525.06,
-      orders: 78,
-      expense: 16575.19,
-      customer_name: 'Digital Ventures',
-      category: 'Electronics',
-      region: 'West',
-      product_name: 'USB-C Cable',
-      order_id: 'ORD-2024-0018',
-      sales_rep: 'David Kim',
-      payment_method: 'Credit Card',
-    },
-    {
-      date: '2024-02-28',
-      revenue: 20900,
-      profit: 5225,
-      orders: 72,
-      expense: 15675,
-      customer_name: 'Advanced Office',
-      category: 'Electronics',
-      region: 'West',
-      product_name: 'USB-C Adapter',
-      order_id: 'ORD-2024-0058',
-      sales_rep: 'Matthew Morris',
-      payment_method: 'PayPal',
-    },
-  ],
-  orders_columns: [
-    'date', 'revenue', 'profit', 'orders', 'expense', 'customer_name',
-    'category', 'region', 'product_name', 'order_id', 'sales_rep', 'payment_method',
-  ],
-
   // Donut chart: Category breakdown (Electronics vs Office Supplies)
   pie_column: 'category',
   pie_data: [
@@ -267,17 +215,6 @@ export const DEMO_KPI_DATA = {
       { name: 'Other', value: 123324 },
     ],
   },
-
-  // Revenue by product (for Revenue Analytics page)
-  revenue_bar_data: [
-    { name: 'Tablet Stand', value: 24500 },
-    { name: 'Tablet Case', value: 23800 },
-    { name: 'Bluetooth Adapter', value: 22900 },
-    { name: 'USB-C Cable', value: 22100 },
-    { name: 'USB-C Adapter', value: 20900 },
-    { name: 'Wireless Headphones', value: 19400 },
-    { name: 'Bluetooth Speaker', value: 19800 },
-  ],
 
   // Bar chart: Top 6 products by revenue
   bar_column: 'product_name',

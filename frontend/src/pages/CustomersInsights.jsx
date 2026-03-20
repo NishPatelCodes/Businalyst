@@ -2,6 +2,9 @@ import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { KpiContext } from '../context/KpiContext'
+import { fmtNum, fmtPct, fmtDate } from '../utils/formatters'
+import { filterSeriesByCalendarRange } from '../utils/timeRangeFilter'
+import { exportCSV, exportPDF } from '../utils/exportUtils'
 import {
   ComposedChart,
   BarChart,
@@ -18,23 +21,6 @@ import {
   Cell,
 } from 'recharts'
 import './ProfitInsights.css'
-
-const fmtNum = (n) => {
-  const abs = Math.abs(n)
-  if (abs >= 1e6) return `${(n / 1e6).toFixed(1)}M`
-  if (abs >= 1e3) return `${(n / 1e3).toFixed(0)}K`
-  return (n || 0).toFixed(0)
-}
-
-const fmtPct = (n) => `${(n || 0).toFixed(1)}%`
-
-const fmtDate = (s) => {
-  try {
-    return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  } catch {
-    return s
-  }
-}
 
 const TrendTooltip = ({ active, payload, label }) => {
   if (!active || !payload || !payload.length) return null
@@ -94,11 +80,14 @@ const metricState = (value, healthy, moderate) => {
   return { label: 'Risk', color: '#b91c1c', bg: '#fee2e2' }
 }
 
+const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
+
 const CustomersInsights = () => {
   const { kpiData, formatCurrency } = useContext(KpiContext)
 
   const [dateRange, setDateRange] = useState('30D')
   const [showAverage, setShowAverage] = useState(true)
+  const [exportOpen, setExportOpen] = useState(false)
 
   const dateData = useMemo(() => kpiData?.date_data || [], [kpiData])
   const revenueData = useMemo(() => (kpiData?.revenue_data || []).map(Number), [kpiData])
@@ -146,12 +135,13 @@ const CustomersInsights = () => {
     })
   }, [dateData, revenueData, profitData, customersSum])
 
-  const filteredSeries = useMemo(() => {
-    const sorted = [...baseSeries].sort((a, b) => new Date(a.date) - new Date(b.date))
-    const limits = { '7D': 7, '30D': 30, '90D': 90, '1Y': 365 }
-    const n = limits[dateRange]
-    return n ? sorted.slice(-n) : sorted
-  }, [baseSeries, dateRange])
+  const filteredSeries = useMemo(
+    () => filterSeriesByCalendarRange(baseSeries, dateRange),
+    [baseSeries, dateRange]
+  )
+
+  /** No per-day customer IDs from API; series is modeled from revenue/KPIs */
+  const showEstimatedBadge = true
 
   const averageCustomers = useMemo(() => {
     if (!filteredSeries.length) return 0
@@ -287,7 +277,17 @@ const CustomersInsights = () => {
     return items.slice(0, 6)
   }, [healthMetrics, acquisitionRates, engagementPanel, formatCurrency])
 
-  const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
+  /* ── Export handlers ────────────────────────────────────── */
+  const handleExportCSV = () => {
+    const cols = ['date', 'totalCustomers', 'newCustomers', 'returningCustomers', 'engagement']
+    exportCSV({
+      columns: cols,
+      rows: filteredSeries,
+      filename: `customer-insights-${dateRange}.csv`,
+    })
+  }
+
+  const handleExportPDF = () => { exportPDF() }
 
   const retentionState = metricState(healthMetrics.retentionRate, 60, 45)
   const repeatState = metricState(healthMetrics.repeatPurchaseRate, 45, 30)
@@ -306,6 +306,14 @@ const CustomersInsights = () => {
             <span className="pi-bc-link">Performance</span>
             <span className="pi-bc-sep">/</span>
             <span className="pi-bc-active">Customers</span>
+            {showEstimatedBadge && (
+              <span
+                className="pi-estimated-badge"
+                title="Daily customer metrics are modeled from revenue and order KPIs, not raw customer-level rows."
+              >
+                Estimated
+              </span>
+            )}
           </div>
 
           <div className="pi-topnav-search">
@@ -345,22 +353,44 @@ const CustomersInsights = () => {
           <div className="pil-page-header">
             <div>
               <h1 className="pil-page-title">Customers Intelligence</h1>
-              <p className="pil-page-subtitle">Customer growth diagnostics · Current dataset</p>
+              <p className="pil-page-subtitle">Customer growth diagnostics · {dateRange} timeline</p>
             </div>
-            <div className="pil-page-actions">
-              <button className="pil-btn-ghost">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Export CSV
-              </button>
-              <button className="pil-btn-ghost">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M5 8h6M5 5h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                Export PDF
-              </button>
+            <div className="pil-page-header-actions">
+              <div className="pil-range-tabs">
+                {RANGES.map(r => (
+                  <button
+                    key={r}
+                    className={`pil-range-tab${dateRange === r ? ' pil-range-tab--active' : ''}`}
+                    onClick={() => setDateRange(r)}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+              <div className="pi-export-wrap">
+                <button className="pi-export-btn" onClick={() => setExportOpen(prev => !prev)} aria-expanded={exportOpen}>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Export
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                {exportOpen && (
+                  <>
+                    <div className="pi-export-backdrop" onClick={() => setExportOpen(false)} aria-hidden="true" />
+                    <div className="pi-export-menu">
+                      <button className="pi-export-menu-item" onClick={() => { handleExportCSV(); setExportOpen(false) }}>
+                        Export CSV
+                      </button>
+                      <button className="pi-export-menu-item" onClick={() => { handleExportPDF(); setExportOpen(false) }}>
+                        Export PDF
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
@@ -371,17 +401,6 @@ const CustomersInsights = () => {
                 <h2 className="pil-section-heading">Customer Growth Trend</h2>
               </div>
               <div className="pil-trend-controls">
-                <div className="pil-range-tabs">
-                  {RANGES.map((r) => (
-                    <button
-                      key={r}
-                      className={`pil-range-tab${dateRange === r ? ' pil-range-tab--active' : ''}`}
-                      onClick={() => setDateRange(r)}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
                 <div className="pil-overlays">
                   <label className="pil-overlay-toggle">
                     <input type="checkbox" checked={showAverage} onChange={(e) => setShowAverage(e.target.checked)} />

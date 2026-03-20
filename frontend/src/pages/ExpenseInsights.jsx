@@ -2,6 +2,11 @@ import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { KpiContext } from '../context/KpiContext'
+import useFilteredSeries from '../hooks/useFilteredSeries'
+import { fmtNum, fmtPct, fmtDate } from '../utils/formatters'
+import { exportCSV, exportPDF } from '../utils/exportUtils'
+import InsightsTopNav from '../components/InsightsTopNav'
+import InsightsPageHeader from '../components/InsightsPageHeader'
 import {
   ComposedChart, BarChart, LineChart as RechartLineChart,
   Area, Bar, Line, XAxis, YAxis, CartesianGrid,
@@ -9,21 +14,6 @@ import {
   Cell,
 } from 'recharts'
 import './ExpenseInsights.css'
-
-/* ── Formatting helpers ─────────────────────────────────────── */
-const fmtNum = (n) => {
-  const abs = Math.abs(n)
-  if (abs >= 1e6) return `${(n / 1e6).toFixed(1)}M`
-  if (abs >= 1e3) return `${(n / 1e3).toFixed(0)}K`
-  return (n || 0).toFixed(0)
-}
-
-const fmtPct = (n) => `${(n || 0).toFixed(1)}%`
-
-const fmtDate = (s) => {
-  try { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
-  catch { return s }
-}
 
 /* ── Custom tooltips ──────────────────────────────────────── */
 const TrendTooltip = ({ active, payload, label, formatCurrency }) => {
@@ -52,22 +42,6 @@ const BarTooltip = ({ active, payload, label, formatCurrency }) => {
           <span className="eil-tooltip-dot" style={{ background: p.color || p.fill }} />
           <span className="eil-tooltip-label">{p.name}</span>
           <span className="eil-tooltip-val">{formatCurrency(p.value)}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-const PctTooltip = ({ active, payload, label }) => {
-  if (!active || !payload || !payload.length) return null
-  return (
-    <div className="eil-tooltip">
-      <div className="eil-tooltip-date">{fmtDate(label)}</div>
-      {payload.map((p) => (
-        <div key={p.dataKey} className="eil-tooltip-row">
-          <span className="eil-tooltip-dot" style={{ background: p.color }} />
-          <span className="eil-tooltip-label">{p.name}</span>
-          <span className="eil-tooltip-val">{fmtPct(p.value)}</span>
         </div>
       ))}
     </div>
@@ -117,6 +91,8 @@ const InsightIcon = ({ type }) => {
   return <span className="eil-insight-icon" style={{ color }}>{symbol}</span>
 }
 
+const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
+
 /* ═══════════════════════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════ */
@@ -127,6 +103,7 @@ const ExpenseInsights = () => {
   const [showTotal, setShowTotal] = useState(true)
   const [showFixed, setShowFixed] = useState(false)
   const [showVariable, setShowVariable] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
 
   /* ── Raw arrays ─────────────────────────────────────────── */
   const dateData    = useMemo(() => kpiData?.date_data || [], [kpiData])
@@ -135,23 +112,18 @@ const ExpenseInsights = () => {
   const costData    = useMemo(() => revenueData.map((r, i) => r - (profitData[i] || 0)), [revenueData, profitData])
 
   /* ── Date range filtering ────────────────────────────────── */
-  const filteredSeries = useMemo(() => {
-    const all = dateData.map((d, i) => {
-      const totalExpense = costData[i] || 0
-      return {
-        date: d,
-        totalExpense,
-        fixedExpense: totalExpense * 0.35,
-        variableExpense: totalExpense * 0.65,
-        revenue: revenueData[i] || 0,
-      }
-    })
-    if (!all.length) return []
-    const sorted = [...all].sort((a, b) => new Date(a.date) - new Date(b.date))
-    const limits = { '7D': 7, '30D': 30, '90D': 90, '1Y': 365 }
-    const n = limits[dateRange]
-    return n ? sorted.slice(-n) : sorted
-  }, [dateData, costData, revenueData, dateRange])
+  const allSeries = useMemo(() => dateData.map((d, i) => {
+    const totalExpense = costData[i] || 0
+    return {
+      date: d,
+      totalExpense,
+      fixedExpense: totalExpense * 0.35,
+      variableExpense: totalExpense * 0.65,
+      revenue: revenueData[i] || 0,
+    }
+  }), [dateData, costData, revenueData])
+
+  const filteredSeries = useFilteredSeries(allSeries, dateRange)
 
   /* ── Average expense line value ────────────────────────── */
   const avgExpense = useMemo(() => {
@@ -159,10 +131,11 @@ const ExpenseInsights = () => {
     return filteredSeries.reduce((s, pt) => s + pt.totalExpense, 0) / filteredSeries.length
   }, [filteredSeries])
 
-  /* ── Expense composition by category ───────────────────── */
-  const expenseSum = kpiData?.expense_sum || 0
-  const revenueSum = kpiData?.revenue_sum || 1
+  /* ── Period-level sums (driven by filtered timeline) ───── */
+  const expenseSum = useMemo(() => filteredSeries.reduce((s, pt) => s + pt.totalExpense, 0), [filteredSeries])
+  const revenueSum = useMemo(() => Math.max(1, filteredSeries.reduce((s, pt) => s + pt.revenue, 0)), [filteredSeries])
 
+  /* ── Expense composition by category ───────────────────── */
   const compositionData = useMemo(() => {
     // Simulate category breakdown using SMB benchmark ratios
     const categories = [
@@ -190,8 +163,8 @@ const ExpenseInsights = () => {
     return (opex / revenueSum) * 100
   }, [expenseSum, revenueSum])
   const avgDailyExpense = useMemo(() => {
-    return dateData.length > 0 ? expenseSum / dateData.length : 0
-  }, [expenseSum, dateData])
+    return filteredSeries.length > 0 ? expenseSum / filteredSeries.length : 0
+  }, [expenseSum, filteredSeries])
   const expenseGrowthRate = useMemo(() => {
     if (filteredSeries.length < 2) return 0
     const firstHalf = filteredSeries.slice(0, Math.floor(filteredSeries.length / 2))
@@ -266,10 +239,12 @@ const ExpenseInsights = () => {
       list.push({ type: 'positive', text: `Marketing spend is ${formatCurrency(marketingSpend)} (${fmtPct(marketingRatio)} of revenue) \u2014 within healthy benchmark.` })
     }
 
-    // Shipping costs
-    const shippingPct = 15 // from composition
-    if (shippingPct > 12) {
+    // Shipping costs (derived from the computed expense composition model)
+    const shippingPct = compositionData.find((c) => c.name === 'Shipping')?.pct ?? 0
+    if (shippingPct > 12 && costToRevenueRatio > 80) {
       list.push({ type: 'opportunity', text: `Shipping costs account for ${shippingPct}% of total expenses \u2014 consider negotiating carrier rates.` })
+    } else {
+      list.push({ type: 'positive', text: `Shipping costs are ${shippingPct}% of total expenses \u2014 within manageable bounds for the current dataset.` })
     }
 
     // Fixed costs
@@ -283,10 +258,12 @@ const ExpenseInsights = () => {
       list.push({ type: 'positive', text: `Expense-to-revenue ratio is ${fmtPct(costToRevenueRatio)}, leaving ${fmtPct(grossMargin)} gross margin.` })
     }
 
-    // Software tools benchmark
-    const softwarePct = 6
-    if (softwarePct > 5) {
+    // Software tools benchmark (derived from computed expense composition)
+    const softwarePct = compositionData.find((c) => c.name === 'Software Tools')?.pct ?? 0
+    if (softwarePct > 5 && expenseGrowthRate > 5) {
       list.push({ type: 'opportunity', text: `Software tools cost (${fmtPct(softwarePct)} of expenses) exceeds recommended SMB benchmark \u2014 audit tool subscriptions.` })
+    } else {
+      list.push({ type: 'positive', text: `Software tools are ${softwarePct}% of expenses \u2014 no immediate subscription red flags.` })
     }
 
     // Expense growth
@@ -299,9 +276,19 @@ const ExpenseInsights = () => {
     }
 
     return list.slice(0, 6)
-  }, [expenseSum, marketingRatio, fixedCost, costToRevenueRatio, expenseGrowthRate, formatCurrency])
+  }, [expenseSum, compositionData, marketingRatio, fixedCost, costToRevenueRatio, expenseGrowthRate, formatCurrency])
 
-  const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
+  /* ── Export handlers ────────────────────────────────────── */
+  const handleExportCSV = () => {
+    const cols = ['date', 'totalExpense', 'fixedExpense', 'variableExpense', 'revenue']
+    exportCSV({
+      columns: cols,
+      rows: filteredSeries,
+      filename: `expense-insights-${dateRange}.csv`,
+    })
+  }
+
+  const handleExportPDF = () => { exportPDF() }
 
   return (
     <div className="ei-page">
@@ -309,76 +296,38 @@ const ExpenseInsights = () => {
 
       <div className="ei-shell">
         {/* ═══ TOP NAV ════════════════════════════════════════════════ */}
-        <header className="ei-topnav">
-          <div className="ei-breadcrumbs">
-            <Link to="/dashboard" className="ei-bc-link">Dashboard</Link>
-            <span className="ei-bc-sep">/</span>
-            <span className="ei-bc-link">Performance</span>
-            <span className="ei-bc-sep">/</span>
-            <span className="ei-bc-active">Expenses</span>
-          </div>
-
-          <div className="ei-topnav-search">
-            <svg className="ei-search-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
-              <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M11 11L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            <input type="text" placeholder="Search Anything" className="ei-search-input" />
-          </div>
-
-          <div className="ei-topnav-actions">
-            <button className="ei-nav-btn">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M2 4C2 2.9 2.9 2 4 2H16C17.1 2 18 2.9 18 4V12C18 13.1 17.1 14 16 14H6L2 18V4Z"
-                      stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <circle cx="6.5" cy="8" r=".8" fill="currentColor"/>
-                <circle cx="10"  cy="8" r=".8" fill="currentColor"/>
-                <circle cx="13.5" cy="8" r=".8" fill="currentColor"/>
-              </svg>
-            </button>
-            <button className="ei-nav-btn">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <circle cx="10" cy="10" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M10 3V4M10 16V17M17 10H16M4 10H3M15.66 4.34L14.95 5.05M5.05 14.95L4.34 15.66M15.66 15.66L14.95 14.95M5.05 5.05L4.34 4.34"
-                      stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
-            <div className="ei-profile">
-              <img src="https://i.pravatar.cc/150?img=12" alt="Profile" className="ei-avatar"/>
-              <span className="ei-profile-name">Nish Patel</span>
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5"
-                      strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+        <InsightsTopNav
+          topNavPrefix="ei"
+          breadcrumbs={
+            <div className="ei-breadcrumbs">
+              <Link to="/dashboard" className="ei-bc-link">Dashboard</Link>
+              <span className="ei-bc-sep">/</span>
+              <span className="ei-bc-link">Performance</span>
+              <span className="ei-bc-sep">/</span>
+              <span className="ei-bc-active">Expenses</span>
             </div>
-          </div>
-        </header>
+          }
+          profileName="Nish Patel"
+          avatarUrl="https://i.pravatar.cc/150?img=12"
+        />
 
         {/* ═══ SCROLLABLE CONTENT ════════════════════════════════════ */}
         <div className="ei-content">
 
-          {/* ── Page Header ─────────────────────────────────────────── */}
-          <div className="eil-page-header">
-            <div>
-              <h1 className="eil-page-title">Expense Intelligence</h1>
-              <p className="eil-page-subtitle">Operational cost diagnostics · Current dataset</p>
-            </div>
-            <div className="eil-page-actions">
-              <button className="eil-btn-ghost">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Export CSV
-              </button>
-              <button className="eil-btn-ghost">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M5 8h6M5 5h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                Export PDF
-              </button>
-            </div>
-          </div>
+          {/* ── Page Header: title + global time range + export ── */}
+          <InsightsPageHeader
+            titlePrefix="eil"
+            exportPrefix="eil"
+            title="Expense Intelligence"
+            subtitle={`Operational cost diagnostics · ${dateRange} timeline`}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            RANGES={RANGES}
+            exportOpen={exportOpen}
+            setExportOpen={setExportOpen}
+            onExportCSV={handleExportCSV}
+            onExportPDF={handleExportPDF}
+          />
 
           {/* ═══ SECTION 1: Expense Trend Analysis (Hero, full width) ═ */}
           <div className="eil-section">
@@ -388,19 +337,6 @@ const ExpenseInsights = () => {
                 <h2 className="eil-section-heading">Expense Trend Analysis</h2>
               </div>
               <div className="eil-trend-controls">
-                {/* Date range tabs */}
-                <div className="eil-range-tabs">
-                  {RANGES.map(r => (
-                    <button
-                      key={r}
-                      className={`eil-range-tab${dateRange === r ? ' eil-range-tab--active' : ''}`}
-                      onClick={() => setDateRange(r)}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-                {/* Overlay toggles */}
                 <div className="eil-overlays">
                   <label className="eil-overlay-toggle">
                     <input type="checkbox" checked={showTotal} onChange={e => setShowTotal(e.target.checked)} />

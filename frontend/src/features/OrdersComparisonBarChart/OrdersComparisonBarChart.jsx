@@ -1,10 +1,9 @@
-import React, { useState, useMemo, useContext } from 'react'
+import React, { useMemo, useContext } from 'react'
 import { KpiContext } from '../../context/KpiContext'
 import './OrdersComparisonBarChart.css'
 
-const OrdersComparisonBarChart = () => {
+const OrdersComparisonBarChart = ({ periodRatio = 1 }) => {
   const { kpiData } = useContext(KpiContext)
-  const [yearDropdownOpen, setYearDropdownOpen] = useState(false)
 
   const { labels, currentValues, previousValues, hasComparison, totalCurrent } = useMemo(() => {
     const backendLabels = kpiData?.comparison_bar_labels
@@ -16,11 +15,13 @@ const OrdersComparisonBarChart = () => {
       Array.isArray(backendLabels) && backendLabels.length > 0 &&
       Array.isArray(backendCurrent) && backendCurrent.length > 0
     ) {
-      const total = backendCurrent.reduce((a, b) => a + b, 0)
+      const scaledCurrent = backendCurrent.map((v) => Number(v) * periodRatio)
+      const scaledPrevious = Array.isArray(backendPrevious) ? backendPrevious.map((v) => Number(v) * periodRatio) : null
+      const total = scaledCurrent.reduce((a, b) => a + b, 0)
       return {
         labels: backendLabels,
-        currentValues: backendCurrent,
-        previousValues: backendHasPrevious && Array.isArray(backendPrevious) ? backendPrevious : null,
+        currentValues: scaledCurrent,
+        previousValues: backendHasPrevious && Array.isArray(backendPrevious) ? scaledPrevious : null,
         hasComparison: backendHasPrevious && Array.isArray(backendPrevious),
         totalCurrent: Math.round(total),
       }
@@ -28,8 +29,8 @@ const OrdersComparisonBarChart = () => {
 
     // Demo / fallback data
     const demoLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-    const demoCurrent = [18, 22, 20, 24, 19, 26, 28]
-    const demoPrevious = [14, 18, 16, 20, 17, 22, 20]
+    const demoCurrent = [18, 22, 20, 24, 19, 26, 28].map((v) => v * periodRatio)
+    const demoPrevious = [14, 18, 16, 20, 17, 22, 20].map((v) => v * periodRatio)
     return {
       labels: demoLabels,
       currentValues: demoCurrent,
@@ -42,6 +43,7 @@ const OrdersComparisonBarChart = () => {
     kpiData?.comparison_bar_current,
     kpiData?.comparison_bar_previous,
     kpiData?.comparison_bar_has_previous,
+    periodRatio,
   ])
 
   const allSeries = hasComparison && previousValues
@@ -91,19 +93,6 @@ const OrdersComparisonBarChart = () => {
                 Previous
               </span>
             )}
-          </div>
-          <div className="ocb-dropdown-wrap">
-            <button
-              type="button"
-              className="ocb-dropdown-btn"
-              onClick={() => setYearDropdownOpen((o) => !o)}
-              aria-expanded={yearDropdownOpen}
-            >
-              Period
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
           </div>
         </div>
       </div>

@@ -3,7 +3,6 @@ Shared constants for analytics: chart limits, column keywords, colors, map coord
 """
 
 # Chart limits
-BAR_CHART_MAX_BARS = 7
 PIE_MAX_SEGMENTS = 5
 ORDERS_LIST_MAX = 100
 

@@ -52,15 +52,16 @@ function getBubbleLayout(items) {
   }))
 }
 
-const RevenueByCategoryBubble = () => {
+const RevenueByCategoryBubble = ({ periodRatio = 1 }) => {
   const { kpiData } = useContext(KpiContext)
   const [hovered, setHovered] = useState(null)
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
 
   const categories = useMemo(() => {
     const raw = getCategoryData(kpiData?.pie_data, kpiData?.revenue_sum)
-    return getBubbleLayout(raw)
-  }, [kpiData?.pie_data, kpiData?.revenue_sum])
+    const scaled = raw.map(d => ({ ...d, value: Math.round(d.value * periodRatio) }))
+    return getBubbleLayout(scaled)
+  }, [kpiData?.pie_data, kpiData?.revenue_sum, periodRatio])
 
   const showTooltip = useCallback((i, e) => {
     setHovered(i)

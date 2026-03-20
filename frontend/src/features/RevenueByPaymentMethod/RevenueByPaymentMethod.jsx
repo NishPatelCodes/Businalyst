@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   BarChart,
   Bar,
@@ -64,23 +64,18 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
-const RevenueByPaymentMethod = () => {
-  const [year, setYear] = useState(2024)
-  const [yearDropdownOpen, setYearDropdownOpen] = useState(false)
+const RevenueByPaymentMethod = ({ periodRatio = 1 }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null)
-  const yearDropdownRef = useRef(null)
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (yearDropdownRef.current && !yearDropdownRef.current.contains(e.target)) {
-        setYearDropdownOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const chartData = useMemo(() => getMockData(year), [year])
+  const chartData = useMemo(() => {
+    const raw = getMockData(2024)
+    return raw.map(d => ({
+      ...d,
+      Prepaid: Math.round(d.Prepaid * periodRatio),
+      'Cash on Delivery': Math.round(d['Cash on Delivery'] * periodRatio),
+      total: Math.round(d.total * periodRatio),
+    }))
+  }, [periodRatio])
 
   const maxTotal = useMemo(
     () => Math.max(1, ...chartData.map((d) => d.total)),
@@ -95,7 +90,7 @@ const RevenueByPaymentMethod = () => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = `revenue-by-payment-method-${year}.csv`
+    link.download = 'revenue-by-payment-method.csv'
     link.click()
     URL.revokeObjectURL(link.href)
   }
@@ -122,38 +117,6 @@ const RevenueByPaymentMethod = () => {
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
           </button>
-          <div className="rpm-dropdown-wrap" ref={yearDropdownRef}>
-            <button
-              type="button"
-              className="rpm-year-btn"
-              onClick={() => setYearDropdownOpen((o) => !o)}
-              aria-haspopup="listbox"
-              aria-expanded={yearDropdownOpen}
-            >
-              {year}
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            {yearDropdownOpen && (
-              <ul className="rpm-dropdown" role="listbox">
-                {[2022, 2023, 2024, 2025].map((y) => (
-                  <li key={y} role="option" aria-selected={y === year}>
-                    <button
-                      type="button"
-                      className={y === year ? 'rpm-dropdown-item rpm-dropdown-item--active' : 'rpm-dropdown-item'}
-                      onClick={() => {
-                        setYear(y)
-                        setYearDropdownOpen(false)
-                      }}
-                    >
-                      {y}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
         </div>
       </div>
 

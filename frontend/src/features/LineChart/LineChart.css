@@ -98,27 +98,6 @@
   line-height: 1.1;
 }
 
-.chart-current-value {
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.current-value-label {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: 2px;
-  line-height: var(--line-height-tight);
-}
-
-.current-value-amount {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: #34c759;
-  line-height: var(--line-height-tight);
-  font-variant-numeric: tabular-nums;
-}
-
 .line-chart-container {
   position: relative;
   width: 100%;
@@ -156,125 +135,10 @@
   fill: #94a3b8;
 }
 
-.chart-baseline {
-  stroke: var(--color-neutral-300);
-  stroke-dasharray: 6 4;
-}
-
 .chart-y-axis-line {
   stroke: #e5e7eb;
   stroke-width: 1;
   pointer-events: none;
-}
-
-.chart-boundary {
-  pointer-events: none;
-}
-
-.chart-reference-line {
-  stroke: rgba(0, 0, 0, 0.06);
-  stroke-dasharray: 4 3;
-}
-
-.chart-area-wealthsimple {
-  fill: url(#wealthsimpleGreenGradient);
-}
-
-.chart-line-wealthsimple {
-  stroke: #000000;
-  stroke-width: 3.5;
-}
-
-.chart-line-sep {
-  stroke: #9ca3af;
-}
-
-/* Total sales variant: title, value, legend, Month dropdown (img2 layout) */
-.line-chart-header--total-sales {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  padding-bottom: 0;
-  border-bottom: none;
-  gap: 16px;
-}
-
-.line-chart-title-total-sales {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
-  margin: 0 0 6px 0;
-}
-
-.line-chart-value-total-sales {
-  font-size: 24px;
-  font-weight: 700;
-  color: #000;
-  letter-spacing: -0.02em;
-  margin-bottom: 0;
-}
-
-.chart-header-right-total-sales {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.line-chart-legend-total-sales {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  color: #374151;
-}
-
-.line-chart-legend-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 4px;
-  vertical-align: middle;
-}
-
-.line-chart-legend-dot--current {
-  background: #000;
-}
-
-.line-chart-legend-dot--sep {
-  background: #9ca3af;
-}
-
-.line-chart-dropdown-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #374151;
-  cursor: pointer;
-}
-
-.line-chart-dropdown-btn svg {
-  flex-shrink: 0;
-}
-
-.chart-last-point {
-  fill: #000000;
-  stroke: #ffffff;
-  stroke-width: 1.5;
-}
-
-.data-point-hit {
-  cursor: pointer;
 }
 
 .chart-tooltip--wealthsimple {
@@ -326,22 +190,6 @@
   line-height: var(--line-height-tight);
 }
 
-.tooltip-delta {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-tight);
-  margin-top: 4px;
-  padding-top: 4px;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.tooltip-delta svg { width: 10px; height: 10px; flex-shrink: 0; }
-.tooltip-delta--positive { color: #34c759; }
-.tooltip-delta--negative { color: #ff3b30; }
-
 /* Total sales: chart only, fill card edge-to-edge (no padding/margin) */
 .line-chart--total-sales {
   flex: 1;
@@ -374,7 +222,5 @@
 @media (max-width: 768px) {
   .line-chart { padding: 7px 0; min-height: 0; }
   .line-chart-header { flex-direction: column; align-items: flex-start; }
-  .chart-current-value { text-align: left; }
-  .current-value-amount { font-size: var(--font-size-lg); }
   .line-chart-container { min-height: 187px; }
 }

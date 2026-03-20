@@ -1,9 +1,7 @@
 """
 Currency detection and numeric parsing helpers for uploaded datasets.
 """
-
 import re
-
 import pandas as pd
 
 CURRENCY_SYMBOL_PATTERNS = {

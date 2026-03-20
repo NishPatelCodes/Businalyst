@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react'
+import React, { useContext, useMemo } from 'react'
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -12,13 +12,6 @@ import {
 import { KpiContext } from '../../context/KpiContext'
 import './RevenueLineChart.css'
 
-const TIME_RANGES = [
-  { key: '12M', label: '12 months' },
-  { key: '30D', label: '30 days' },
-  { key: '7D', label: '7 days' },
-  { key: '24H', label: '24 hours' },
-]
-
 const THIS_PERIOD_COLOR = '#2563eb'
 const PREVIOUS_PERIOD_COLOR = '#93c5fd'
 
@@ -28,37 +21,8 @@ const formatDateLabel = (d) => {
   return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-/** Aggregate by month; previous period = ~65% of this period for demo */
-function buildMonthlyChartData(dates, revenues) {
-  const monthMap = new Map()
-  const len = Math.min(dates.length, revenues.length)
-
-  for (let i = 0; i < len; i++) {
-    const date = new Date(dates[i])
-    if (isNaN(date.getTime())) continue
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`
-    const rev = Number(revenues[i]) || 0
-    if (!monthMap.has(monthKey)) {
-      monthMap.set(monthKey, { key: monthKey, thisPeriod: 0, month: date.toLocaleDateString('en-US', { month: 'short' }) })
-    }
-    monthMap.get(monthKey).thisPeriod += rev
-  }
-
-  const sorted = Array.from(monthMap.entries()).sort((a, b) => a[0].localeCompare(b[0])).slice(-12)
-  return sorted.map(([, row]) => ({
-    name: row.month,
-    thisPeriod: Math.round(row.thisPeriod * 100) / 100,
-    previousPeriod: Math.round(row.thisPeriod * 0.65 * 100) / 100,
-    dateLabel: `${row.month} ${row.key.split('-')[0]}`,
-    prevDateLabel: `${row.month} ${parseInt(row.key.split('-')[0], 10) - 1}`,
-  }))
-}
-
-function buildChartData(kpiData, rangeKey) {
-  const dates = kpiData?.date_data
-  const revenues = kpiData?.revenue_data
-
-  if (!dates?.length || !revenues?.length) {
+function buildChartDataFromSeries(filteredSeries) {
+  if (!filteredSeries || !filteredSeries.length) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     return months.map((name, i) => ({
       name,
@@ -69,26 +33,42 @@ function buildChartData(kpiData, rangeKey) {
     }))
   }
 
-  if (rangeKey === '12M') {
-    const data = buildMonthlyChartData(dates, revenues)
-    if (data.length > 0) return data
+  if (filteredSeries.length > 120) {
+    const monthMap = new Map()
+    filteredSeries.forEach(pt => {
+      const date = new Date(pt.date)
+      if (isNaN(date.getTime())) return
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`
+      if (!monthMap.has(monthKey)) {
+        monthMap.set(monthKey, {
+          key: monthKey,
+          thisPeriod: 0,
+          month: date.toLocaleDateString('en-US', { month: 'short' }),
+        })
+      }
+      monthMap.get(monthKey).thisPeriod += pt.revenue
+    })
+    const sorted = Array.from(monthMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+    return sorted.map(([, row]) => ({
+      name: row.month,
+      thisPeriod: Math.round(row.thisPeriod * 100) / 100,
+      previousPeriod: Math.round(row.thisPeriod * 0.65 * 100) / 100,
+      dateLabel: `${row.month} ${row.key.split('-')[0]}`,
+      prevDateLabel: `${row.month} ${parseInt(row.key.split('-')[0], 10) - 1}`,
+    }))
   }
 
-  const len = Math.min(dates.length, revenues.length)
-  const step = rangeKey === '30D' ? Math.max(1, Math.floor(len / 30)) : rangeKey === '7D' ? Math.max(1, Math.floor(len / 7)) : 1
-  const result = []
-  for (let i = 0; i < len; i += step) {
-    const date = new Date(dates[i])
-    const rev = Number(revenues[i]) || 0
-    result.push({
-      name: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      thisPeriod: rev,
-      previousPeriod: Math.round(rev * 0.65 * 100) / 100,
-      dateLabel: formatDateLabel(dates[i]),
-      prevDateLabel: formatDateLabel(dates[i]),
-    })
-  }
-  return result.slice(-12)
+  return filteredSeries.map(pt => {
+    const date = new Date(pt.date)
+    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return {
+      name: dateStr,
+      thisPeriod: pt.revenue,
+      previousPeriod: Math.round(pt.revenue * 0.65 * 100) / 100,
+      dateLabel: formatDateLabel(pt.date),
+      prevDateLabel: formatDateLabel(pt.date),
+    }
+  })
 }
 
 const CustomTooltip = ({ active, payload, formatCurrency }) => {
@@ -114,57 +94,28 @@ const CustomTooltip = ({ active, payload, formatCurrency }) => {
   )
 }
 
-const RevenueLineChart = ({ dateLabel, onOpenDatePicker, totalRevenue, changePercent = 15 }) => {
+const RevenueLineChart = ({ filteredSeries = [], totalRevenue, changePercent = 15 }) => {
   const { kpiData, formatCurrency } = useContext(KpiContext)
-  const [timeRange, setTimeRange] = useState('12M')
 
   const chartData = useMemo(
-    () => buildChartData(kpiData, timeRange),
-    [kpiData, timeRange]
+    () => buildChartDataFromSeries(filteredSeries),
+    [filteredSeries]
   )
 
   const displayTotal = totalRevenue ?? kpiData?.revenue_sum ?? 88820.44
   const displayChange = typeof changePercent === 'number' ? changePercent : 15
+  const isPositive = displayChange >= 0
 
   return (
     <div className="ri-chart-card">
       <div className="ri-chart-header">
         <div className="ri-chart-header-left">
-          <h2 className="ri-chart-title">
-            Revenue
-            <svg className="ri-chart-title-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </h2>
+          <h2 className="ri-chart-title">Revenue</h2>
           <div className="ri-chart-total">{formatCurrency(displayTotal)}</div>
-          <div className="ri-chart-change">
-            <span className="ri-chart-change-arrow">↑</span>
-            {displayChange}%
+          <div className={`ri-chart-change ${isPositive ? '' : 'ri-chart-change--neg'}`}>
+            <span className="ri-chart-change-arrow">{isPositive ? '↑' : '↓'}</span>
+            {Math.abs(displayChange)}%
           </div>
-        </div>
-
-        <div className="ri-chart-controls">
-          <div className="ri-chart-time-pills">
-            {TIME_RANGES.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                className={`ri-chart-pill ${timeRange === key ? 'ri-chart-pill-active' : ''}`}
-                onClick={() => setTimeRange(key)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <button type="button" className="ri-chart-date-btn" onClick={onOpenDatePicker}>
-            <svg className="ri-chart-date-filter" width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            <span>{dateLabel}</span>
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-              <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
         </div>
       </div>
 
@@ -181,11 +132,9 @@ const RevenueLineChart = ({ dateLabel, onOpenDatePicker, totalRevenue, changePer
               tickLine={false}
               tick={{ fill: '#8E8E93', fontSize: 12 }}
               dy={8}
+              interval="preserveStartEnd"
             />
-            <YAxis
-              hide
-              domain={['auto', 'auto']}
-            />
+            <YAxis hide domain={['auto', 'auto']} />
             <Tooltip content={<CustomTooltip formatCurrency={formatCurrency} />} cursor={{ stroke: '#e5e5ea', strokeWidth: 1 }} />
             <Legend
               layout="horizontal"

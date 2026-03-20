@@ -32,7 +32,7 @@ def orders_trend_daily(df):
         agg = agg.tail(60)
     return {
         "orders_trend": [
-            {"date": str(d), "orders": int(v) if getattr(v, "item", None) else int(v)}
+            {"date": str(d), "orders": int(v)}
             for d, v in agg.items()
         ]
     }

@@ -2,12 +2,14 @@ import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { KpiContext } from '../context/KpiContext'
+import { filterSeriesByCalendarRange } from '../utils/timeRangeFilter'
 import {
   ComposedChart, BarChart, Area, Bar, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Cell,
 } from 'recharts'
 import './Orders.css'
+import './ProfitInsights.css'
 
 /* ── Demo fallbacks ─────────────────────────────────────────── */
 const DEMO_TREND = [
@@ -139,6 +141,10 @@ const Orders = () => {
   const revenueData = useMemo(() => (kpiData?.revenue_data || []).map(Number), [kpiData])
   const ordersSum   = useMemo(() => Number(kpiData?.orders_sum) || 2187, [kpiData])
   const productData = useMemo(() => kpiData?.product_data || [], [kpiData])
+  const ordersRowData = useMemo(
+    () => (kpiData?.orders_data || []).map((v) => Number(v) || 0),
+    [kpiData]
+  )
 
   /* ── Build per-date series with product ────────────────────── */
   const trendData = useMemo(() => {
@@ -147,14 +153,19 @@ const Orders = () => {
     const base = ordersSum / n
     return dateData.map((d, i) => {
       const factor = 0.7 + 0.6 * (0.5 + 0.5 * Math.sin(i * 1.3))
+      const hasRowOrders = i < ordersRowData.length
+      const fromUpload = hasRowOrders ? Number(ordersRowData[i]) : NaN
       return {
         date: d,
-        orders: Math.round(base * factor),
+        orders:
+          hasRowOrders && Number.isFinite(fromUpload)
+            ? Math.max(0, Math.round(fromUpload))
+            : Math.round(base * factor),
         revenue: revenueData[i] || 0,
         product: productData[i] || '',
       }
     })
-  }, [dateData, ordersSum, revenueData, productData])
+  }, [dateData, ordersSum, revenueData, productData, ordersRowData])
 
   /* ── Single filtered timeline (drives every component) ───── */
   const filteredTrend = useMemo(() => {
@@ -250,7 +261,7 @@ const Orders = () => {
     if (Array.isArray(kpiData?.revenue_by_category) && kpiData.revenue_by_category.length)
       return kpiData.revenue_by_category.map((d) => ({
         name: d.name || d.category,
-        value: Math.round(Number(d.value || d.revenue || 0) / 1000 * periodRatio),
+        value: Math.max(0, Math.round(Number(d.value || d.revenue || 0) * periodRatio)),
       }))
     return DEMO_CATEGORY.map(d => ({
       ...d,
@@ -536,7 +547,7 @@ const Orders = () => {
                   </tr>
                   <tr>
                     <td className="omi-stats-metric">Total Revenue</td>
-                    <td className="omi-stats-value">{fmtCur(periodTotals.revenue)}</td>
+                    <td className="omi-stats-value">{formatCurrency(periodTotals.revenue)}</td>
                   </tr>
                   <tr>
                     <td className="omi-stats-metric">Completed</td>

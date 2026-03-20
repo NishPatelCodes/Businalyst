@@ -21,7 +21,7 @@ function formatDateShort(str) {
   return `${month} ${year}`
 }
 
-const LineChart = ({ hideTabs = false, metric, variant }) => {
+const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
   const { kpiData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
   const [selectedTab, setSelectedTab] = useState(hideTabs ? (metric === 'revenue' ? 'Revenue' : 'Profit') : 'Revenue')
   const [hoverIndex, setHoverIndex] = useState(null)
@@ -47,7 +47,18 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
   }, [])
 
   // Build chart data from backend: date_data + revenue_data or profit_data
+  // If seriesOverride is provided (Dashboard dateRange), it becomes the source of truth.
   const chartData = useMemo(() => {
+    const override = Array.isArray(seriesOverride) ? seriesOverride : null
+
+    if (override?.length) {
+      const valueKey = selectedTab === 'Revenue' ? 'revenue' : 'profit'
+      return override.map((pt) => ({
+        date: pt.date,
+        value: Number(pt?.[valueKey]) || 0,
+      }))
+    }
+
     const dates = kpiData?.date_data
     const revenue = kpiData?.revenue_data
     const profit = kpiData?.profit_data
@@ -60,7 +71,7 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
       }))
     }
     return PLACEHOLDER.map((d) => ({ date: d.date, value: d.value }))
-  }, [kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab])
+  }, [seriesOverride, kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab])
 
   const values = chartData.map((d) => d.value)
   const maxVal = Math.max(0, ...values)

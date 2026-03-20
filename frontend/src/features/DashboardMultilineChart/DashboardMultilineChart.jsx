@@ -18,7 +18,7 @@ function buildSmoothPath(pts) {
   return d
 }
 
-const DashboardMultilineChart = () => {
+const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
   const { kpiData, formatCurrency } = useContext(KpiContext)
   const containerRef = useRef(null)
   const [size, setSize] = useState({ width: 0, height: 0 })
@@ -53,8 +53,8 @@ const DashboardMultilineChart = () => {
 
     const chartData = Array.from({ length: safelen }, (_, i) => ({
       label: labels[i] ?? '',
-      revenue: Number(revenue[i]) || 0,
-      orders: Number(orders[i]) || 0,
+      revenue: (Number(revenue[i]) || 0) * revenueRatio,
+      orders: (Number(orders[i]) || 0) * ordersRatio,
       aov: Number(aov[i]) || 0,
     }))
 
@@ -119,6 +119,8 @@ const DashboardMultilineChart = () => {
     kpiData?.multiline_aov,
     kpiData?.date_data,
     kpiData?.revenue_data,
+    revenueRatio,
+    ordersRatio,
     size.width,
     size.height,
   ])
@@ -231,7 +233,7 @@ const DashboardMultilineChart = () => {
             Orders: {Number(point.orders).toLocaleString()}
           </div>
           <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.aov }}>
-            AOV: ${Number(point.aov).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+            AOV: {formatCurrency(point.aov)}
           </div>
         </div>
       )}

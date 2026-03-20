@@ -2,6 +2,11 @@ import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { KpiContext } from '../context/KpiContext'
+import InsightsTopNav from '../components/InsightsTopNav'
+import InsightsPageHeader from '../components/InsightsPageHeader'
+import useFilteredSeries from '../hooks/useFilteredSeries'
+import { fmtNum, fmtPct, fmtDate } from '../utils/formatters'
+import { exportCSV, exportPDF } from '../utils/exportUtils'
 import {
   ComposedChart, BarChart, LineChart as RechartLineChart,
   Area, Bar, Line, XAxis, YAxis, CartesianGrid,
@@ -9,21 +14,6 @@ import {
   Cell,
 } from 'recharts'
 import './ProfitInsights.css'
-
-/* ── Formatting helpers ─────────────────────────────────────── */
-const fmtNum = (n) => {
-  const abs = Math.abs(n)
-  if (abs >= 1e6) return `${(n / 1e6).toFixed(1)}M`
-  if (abs >= 1e3) return `${(n / 1e3).toFixed(0)}K`
-  return (n || 0).toFixed(0)
-}
-
-const fmtPct = (n) => `${(n || 0).toFixed(1)}%`
-
-const fmtDate = (s) => {
-  try { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
-  catch { return s }
-}
 
 /* ── Custom tooltips ──────────────────────────────────────── */
 const TrendTooltip = ({ active, payload, label, formatCurrency }) => {
@@ -125,7 +115,7 @@ const ProfitInsights = () => {
   const productData = useMemo(() => kpiData?.product_data || [], [kpiData])
 
   /* ── Single filtered timeline (drives every component) ───── */
-  const filteredSeries = useMemo(() => {
+  const allSeries = useMemo(() => {
     const all = dateData.map((d, i) => ({
       date: d,
       profit: profitData[i] || 0,
@@ -133,12 +123,10 @@ const ProfitInsights = () => {
       cost: costData[i] || 0,
       product: productData[i] || '',
     }))
-    if (!all.length) return []
-    const sorted = [...all].sort((a, b) => new Date(a.date) - new Date(b.date))
-    const limits = { '7D': 7, '30D': 30, '90D': 90, '1Y': 365 }
-    const n = limits[dateRange]
-    return n ? sorted.slice(-n) : sorted
-  }, [dateData, profitData, revenueData, costData, productData, dateRange])
+    return all
+  }, [dateData, profitData, revenueData, costData, productData])
+
+  const filteredSeries = useFilteredSeries(allSeries, dateRange)
 
   /* ── Negative profit periods for ReferenceArea ──────────── */
   const negativeRanges = useMemo(() => {
@@ -266,62 +254,22 @@ const ProfitInsights = () => {
   const revenueSum = periodSums.revenue || 1
   const costRatio  = (expenseSum / revenueSum) * 100
 
-  /* ── Auto-generate insights ──────────────────────────────── */
-  const insights = useMemo(() => {
-    const list = []
-    if (compositionData.length) {
-      const top = compositionData[0]
-      list.push({ type: 'up', text: `${top.name} is the top profit driver at ${fmtPct(top.pct)} of total product profit (${formatCurrency(top.profit)}).` })
-      const bottom = compositionData[compositionData.length - 1]
-      const bottomType = bottom.pct < 10 ? 'warn' : 'ok'
-      list.push({ type: bottomType, text: `${bottom.name} contributes only ${fmtPct(bottom.pct)} — review pricing or consider deprioritizing.` })
-    }
-    const nm = avgNetMargin
-    // 20% net margin: widely cited SMB health threshold (SBA / Harvard Business Review benchmarks)
-    if (nm < 20) {
-      list.push({ type: 'warn', text: `Net margin ${fmtPct(nm)} is below 20% threshold — cost structure review recommended.` })
-    } else {
-      list.push({ type: 'ok', text: `Net margin ${fmtPct(nm)} exceeds 20% target — margin health is acceptable.` })
-    }
-    // 80% cost-to-revenue: threshold at which profit margin drops below 20%, flagging structural cost pressure
-    if (costRatio > 80) {
-      list.push({ type: 'down', text: `Cost-to-revenue ratio is ${fmtPct(costRatio)} — expenses consume most of revenue, limiting profit ceiling.` })
-    } else {
-      list.push({ type: 'ok', text: `Cost-to-revenue ratio is ${fmtPct(costRatio)}, leaving ${fmtPct(100 - costRatio)} margin headroom.` })
-    }
-    const riskType = stats.riskLevel === 'Low' ? 'ok' : stats.riskLevel === 'Moderate' ? 'warn' : 'down'
-    list.push({ type: riskType, text: `Profit volatility is ${stats.riskLevel} (CV ${fmtPct(stats.cv)}). Std deviation: ${formatCurrency(stats.stdDev)}.` })
-    if (filteredSeries.length >= 2) {
-      const first = filteredSeries[0].profit
-      const last  = filteredSeries[filteredSeries.length - 1].profit
-      const chg = first !== 0 ? ((last - first) / first) * 100 : 0
-      const changeType = chg >= 0 ? 'up' : 'down'
-      list.push({ type: changeType, text: `Period-over-period profit change: ${chg >= 0 ? '+' : ''}${fmtPct(chg)} (${formatCurrency(first)} -> ${formatCurrency(last)}).` })
-    }
-    return list.slice(0, 6)
-  }, [compositionData, avgNetMargin, costRatio, stats, filteredSeries, formatCurrency])
+  // (Insight panel currently hard-coded / coming soon)
 
   const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
 
   /* ── Export handlers (use filtered data for timeline consistency) ── */
   const handleExportCSV = () => {
-    if (!filteredSeries.length) return
     const cols = ['date', 'profit', 'revenue', 'cost']
-    const csvRows = [cols.join(',')]
-    filteredSeries.forEach((row) => {
-      csvRows.push(cols.map(c => `"${String(row[c] ?? '').replace(/"/g, '""')}"`).join(','))
+    exportCSV({
+      columns: cols,
+      rows: filteredSeries,
+      filename: `profit-insights-${dateRange}.csv`,
     })
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `profit-insights-${dateRange}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
   }
 
   const handleExportPDF = () => {
-    window.print()
+    exportPDF()
   }
 
   return (
@@ -330,98 +278,38 @@ const ProfitInsights = () => {
 
       <div className="pi-shell">
         {/* ═══ TOP NAV ════════════════════════════════════════════════ */}
-        <header className="pi-topnav">
-          <div className="pi-breadcrumbs">
-            <Link to="/dashboard" className="pi-bc-link">Dashboard</Link>
-            <span className="pi-bc-sep">/</span>
-            <span className="pi-bc-link">Performance</span>
-            <span className="pi-bc-sep">/</span>
-            <span className="pi-bc-active">Profit</span>
-          </div>
-
-          <div className="pi-topnav-search">
-            <svg className="pi-search-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
-              <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M11 11L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            <input type="text" placeholder="Search Anything" className="pi-search-input" />
-          </div>
-
-          <div className="pi-topnav-actions">
-            <button className="pi-nav-btn">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M2 4C2 2.9 2.9 2 4 2H16C17.1 2 18 2.9 18 4V12C18 13.1 17.1 14 16 14H6L2 18V4Z"
-                      stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <circle cx="6.5" cy="8" r=".8" fill="currentColor"/>
-                <circle cx="10"  cy="8" r=".8" fill="currentColor"/>
-                <circle cx="13.5" cy="8" r=".8" fill="currentColor"/>
-              </svg>
-            </button>
-            <button className="pi-nav-btn">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <circle cx="10" cy="10" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M10 3V4M10 16V17M17 10H16M4 10H3M15.66 4.34L14.95 5.05M5.05 14.95L4.34 15.66M15.66 15.66L14.95 14.95M5.05 5.05L4.34 4.34"
-                      stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
-            <div className="pi-profile">
-              <img src="https://i.pravatar.cc/150?img=12" alt="Profile" className="pi-avatar"/>
-              <span className="pi-profile-name">Nish Patel</span>
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5"
-                      strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+        <InsightsTopNav
+          topNavPrefix="pi"
+          breadcrumbs={
+            <div className="pi-breadcrumbs">
+              <Link to="/dashboard" className="pi-bc-link">Dashboard</Link>
+              <span className="pi-bc-sep">/</span>
+              <span className="pi-bc-link">Performance</span>
+              <span className="pi-bc-sep">/</span>
+              <span className="pi-bc-active">Profit</span>
             </div>
-          </div>
-        </header>
+          }
+          profileName="Nish Patel"
+          avatarUrl="https://i.pravatar.cc/150?img=12"
+        />
 
         {/* ═══ SCROLLABLE CONTENT ════════════════════════════════════ */}
         <div className="pi-content">
 
           {/* ── Page Header (gap below top nav): title + time range + export ── */}
-          <div className="pil-page-header">
-            <div>
-              <h1 className="pil-page-title">Profit Intelligence</h1>
-              <p className="pil-page-subtitle">Financial diagnostic analysis · {dateRange} timeline</p>
-            </div>
-            <div className="pil-page-header-actions">
-              <div className="pil-range-tabs">
-                {RANGES.map(r => (
-                  <button
-                    key={r}
-                    className={`pil-range-tab${dateRange === r ? ' pil-range-tab--active' : ''}`}
-                    onClick={() => setDateRange(r)}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
-              <div className="pi-export-wrap">
-                <button className="pi-export-btn" onClick={() => setExportOpen(prev => !prev)} aria-expanded={exportOpen}>
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Export
-                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-                {exportOpen && (
-                  <>
-                    <div className="pi-export-backdrop" onClick={() => setExportOpen(false)} aria-hidden="true" />
-                    <div className="pi-export-menu">
-                      <button className="pi-export-menu-item" onClick={() => { handleExportCSV(); setExportOpen(false); }}>
-                        Export CSV
-                      </button>
-                      <button className="pi-export-menu-item" onClick={() => { handleExportPDF(); setExportOpen(false); }}>
-                        Export PDF
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
+          <InsightsPageHeader
+            titlePrefix="pil"
+            exportPrefix="pi"
+            title="Profit Intelligence"
+            subtitle={`Financial diagnostic analysis · ${dateRange} timeline`}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            RANGES={RANGES}
+            exportOpen={exportOpen}
+            setExportOpen={setExportOpen}
+            onExportCSV={handleExportCSV}
+            onExportPDF={handleExportPDF}
+          />
 
           {/* ═══ SECTION 1: Profit Trend Analysis (Hero, full width) ═ */}
           <div className="pil-section">

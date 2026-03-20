@@ -29,35 +29,27 @@ const columnLabel = (key) => {
     .join(' ')
 }
 
-const TopProfitTable = () => {
+const TopProfitTable = ({ periodRatio = 1 }) => {
   const { kpiData, formatCurrency } = useContext(KpiContext)
   const rows = Array.isArray(kpiData?.top5_profit) ? kpiData.top5_profit : []
   const columns = Array.isArray(kpiData?.top5_columns) && kpiData.top5_columns.length > 0
     ? kpiData.top5_columns
     : (rows.length > 0 ? Object.keys(rows[0]) : [])
 
-  const handleExportCSV = () => {
-    if (rows.length === 0 || columns.length === 0) return
-    const csvRows = [columns.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')]
-    rows.forEach((row) => {
-      csvRows.push(
-        columns.map((col) => {
-          const v = row[col]
-          const s = v == null ? '' : String(v)
-          return `"${s.replace(/"/g, '""')}"`
-        }).join(',')
-      )
-    })
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'top5-profit.csv'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+  const scaledRows =
+    periodRatio === 1
+      ? rows
+      : rows.map((row) => {
+          const out = { ...row }
+          columns.forEach((col) => {
+            if (!MONEY_COLUMN_PATTERN.test(col)) return
+            const numeric = Number(out[col])
+            if (Number.isFinite(numeric)) out[col] = numeric * periodRatio
+          })
+          return out
+        })
 
-  if (rows.length === 0) {
+  if (scaledRows.length === 0) {
     return (
       <div className="top-profit-table-container">
         <div className="table-header">
@@ -95,7 +87,7 @@ const TopProfitTable = () => {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, index) => (
+            {scaledRows.map((row, index) => (
               <tr key={index}>
                 {columns.map((col) => (
                   <td key={col} className="data-cell">

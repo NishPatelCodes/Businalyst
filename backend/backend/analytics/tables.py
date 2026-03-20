@@ -14,7 +14,7 @@ def table_component(df):
     Returns {"top5_profit": list of row dicts, "top5_columns": list of column names}.
     """
     if "profit" not in df.columns:
-        raise ValueError("Missing column: profit")
+        return None
     df = df.copy()
     df["profit"] = pd.to_numeric(df["profit"], errors="coerce")
     df_sorted = df.sort_values(by="profit", ascending=False).reset_index(drop=True).head(5)
