@@ -5,16 +5,16 @@ import TopNavigation from '../components/TopNavigation'
 import FileDropzone from '../components/FileDropzone'
 import ExampleDataTable from '../components/ExampleDataTable'
 import { KpiContext } from '../context/KpiContext'
+import { useAuth } from '../context/AuthContext'
 import './Upload.css'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const Upload = () => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState(null)
   const [uploadSuccess, setUploadSuccess] = useState(false)
-  const { setKpiData } = useContext(KpiContext)
+  const { setKpiData, isDemoData, datasetMeta } = useContext(KpiContext)
+  const { authFetch, API_BASE } = useAuth()
   const navigate = useNavigate()
 
   const handleFileSelect = (file) => {
@@ -31,7 +31,7 @@ const Upload = () => {
     try {
       const formData = new FormData()
       formData.append('file', selectedFile)
-      const res = await fetch(`${API_BASE}/upload/`, {
+      const res = await authFetch(`${API_BASE}/api/upload/`, {
         method: 'POST',
         body: formData,
       })
@@ -40,57 +40,22 @@ const Upload = () => {
         setError(data.error || 'Upload failed')
         return
       }
-      setKpiData({
-        source_currency: data.source_currency,
-        profit_sum: data.profit_sum,
-        revenue_sum: data.revenue_sum,
-        orders_sum: data.orders_sum,
-        expense_sum: data.expense_sum,
-        customers_sum: data.customers_sum,
-        revenue_data: data.revenue_data,
-        profit_data: data.profit_data,
-        date_data: data.date_data,
-        product_data: data.product_data,
-        orders_data: data.orders_data,
-        top5_profit: data.top5_profit,
-        top5_columns: data.top5_columns,
-        orders_list: data.orders_list,
-        orders_columns: data.orders_columns,
-        orders_trend: data.orders_trend,
-        orders_by_status: data.orders_by_status,
-        orders_by_channel: data.orders_by_channel,
-        orders_by_region: data.orders_by_region,
-        top_products_by_orders: data.top_products_by_orders,
-        pie_column: data.pie_column,
-        pie_data: data.pie_data,
-        map_column: data.map_column,
-        map_data: data.map_data,
-        bar_column: data.bar_column,
-        bar_data: data.bar_data,
-        profit_by_product_column: data.profit_by_product_column,
-        profit_by_product_data: data.profit_by_product_data,
-        comparison_bar_labels: data.comparison_bar_labels,
-        comparison_bar_current: data.comparison_bar_current,
-        comparison_bar_previous: data.comparison_bar_previous,
-        comparison_bar_has_previous: data.comparison_bar_has_previous,
-        multiline_labels: data.multiline_labels,
-        multiline_revenue: data.multiline_revenue,
-        multiline_orders: data.multiline_orders,
-        multiline_aov: data.multiline_aov,
-      })
+      setKpiData(data)
       setUploadSuccess(true)
     } catch (err) {
       const msg = err.message || 'Network error'
       const isFetchFailed = /failed to fetch|network error|load failed/i.test(msg)
       setError(
         isFetchFailed
-          ? `Could not reach the server. Make sure the backend is running at ${API_BASE} (e.g. run "python manage.py runserver" in the backend folder).`
+          ? `Could not reach the server. Make sure the backend is running at ${API_BASE}.`
           : msg
       )
     } finally {
       setIsUploading(false)
     }
   }
+
+  const isReplacing = !isDemoData && datasetMeta
 
   return (
     <div className="dashboard-container">
@@ -100,9 +65,13 @@ const Upload = () => {
         
         <div className="upload-content">
           <div className="upload-hero">
-            <h1 className="upload-title">Upload Your Business Data</h1>
+            <h1 className="upload-title">
+              {isReplacing ? 'Replace Your Business Data' : 'Upload Your Business Data'}
+            </h1>
             <p className="upload-subtitle">
-              Transform your spreadsheets into powerful insights with our AI-powered analytics
+              {isReplacing
+                ? `Currently using "${datasetMeta.name}". Upload a new file to replace it.`
+                : 'Transform your spreadsheets into powerful insights with our AI-powered analytics'}
             </p>
           </div>
 

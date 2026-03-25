@@ -111,9 +111,64 @@
 }
 
 .ocb-bar {
-  transition: opacity 0.2s ease;
+  transition: fill 0.15s ease;
 }
 
-.ocb-bar:hover {
-  opacity: 0.85;
+.ocb-bar-group {
+  cursor: default;
 }
+
+/* ── Tooltip ─────────────────────────────── */
+.ocb-tooltip {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  min-width: 130px;
+  padding: 8px 12px;
+  background: #1f2937;
+  color: #fff;
+  font-size: 11px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  z-index: 20;
+  white-space: nowrap;
+  animation: ocb-tip-in 0.1s ease;
+}
+
+@keyframes ocb-tip-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.ocb-tooltip-label {
+  font-weight: 600;
+  font-size: 11px;
+  margin-bottom: 6px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ocb-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ocb-tooltip-row strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.ocb-tooltip-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.ocb-tooltip-swatch--current { background: #2563eb; }
+.ocb-tooltip-swatch--prev    { background: #bfdbfe; }

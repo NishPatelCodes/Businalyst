@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useLocation, Link } from 'react-router-dom'
+import { KpiContext } from '../context/KpiContext'
 import './Sidebar.css'
 
 const BADGE_DISMISSED_KEY = 'businalyst_premium_badge_dismissed'
 
 const Sidebar = () => {
   const location = useLocation()
-  // BUG 11 fix: badge is dismissible and stays dismissed via localStorage
+  const { isDemoData, datasetMeta } = useContext(KpiContext)
   const [badgeDismissed, setBadgeDismissed] = useState(() => {
     try { return localStorage.getItem(BADGE_DISMISSED_KEY) === '1' }
     catch { return false }
@@ -16,6 +17,8 @@ const Sidebar = () => {
     setBadgeDismissed(true)
     try { localStorage.setItem(BADGE_DISMISSED_KEY, '1') } catch {}
   }
+
+  const needsUpload = isDemoData && !datasetMeta
 
   return (
     <aside className="sidebar">
@@ -37,7 +40,27 @@ const Sidebar = () => {
       </div>
 
       <nav className="sidebar-nav">
+        {/* Data Sources section */}
         <div className="nav-section">
+          <div className="nav-section-label">
+            <span>Data Sources</span>
+            {needsUpload && <span className="nav-upload-dot" title="Upload required" />}
+          </div>
+          <Link to="/upload" className={`nav-item ${location.pathname === '/upload' ? 'active' : ''}`}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 13V4M10 4L7 7M10 4L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M4 16H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M4 13H6M14 13H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <span>Upload</span>
+            {needsUpload && <span className="nav-badge-required">Required</span>}
+          </Link>
+        </div>
+
+        {/* Analytics section */}
+        <div className="nav-section">
+          <div className="nav-section-label"><span>Analytics</span></div>
+
           <Link to="/dashboard" className={`nav-item ${location.pathname === '/dashboard' ? 'active' : ''}`}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M10 2L2 7L10 12L18 7L10 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
@@ -88,19 +111,9 @@ const Sidebar = () => {
             </svg>
             <span>Customers</span>
           </Link>
-
-          <Link to="/upload" className={`nav-item ${location.pathname === '/upload' ? 'active' : ''}`}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 13V4M10 4L7 7M10 4L13 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M4 16H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M4 13H6M14 13H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            <span>Upload</span>
-          </Link>
         </div>
       </nav>
 
-      {/* BUG 11 fix: badge is dismissible — no longer permanently overlays the sidebar */}
       {!badgeDismissed && (
         <div className="sidebar-premium sidebar-premium--coming-soon">
           <button
@@ -127,4 +140,3 @@ const Sidebar = () => {
 }
 
 export default Sidebar
-

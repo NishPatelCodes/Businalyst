@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import './Login.css'
 
 /* ---- reusable SVG icons ---- */
@@ -146,34 +147,30 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const { loginUser, loading } = useAuth()
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    setLoading(true)
 
     try {
-      // TODO: Connect to backend API for authentication
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      console.log('Login attempt:', { email, password, rememberMe })
+      const result = await loginUser(email, password)
+      if (result.success) {
+        navigate(result.hasDataset ? '/dashboard' : '/upload', { replace: true })
+      }
     } catch (err) {
-      setError('Invalid email or password. Please try again.')
-      console.error('Login error:', err)
-    } finally {
-      setLoading(false)
+      setError(err.message || 'Invalid email or password. Please try again.')
     }
   }
 
   const handleGoogleSignIn = () => {
-    // TODO: Implement Google OAuth
-    console.log('Google sign in clicked')
+    console.log('Google sign in — OAuth not yet configured')
   }
 
   const handleMicrosoftSignIn = () => {
-    // TODO: Implement Microsoft OAuth
-    console.log('Microsoft sign in clicked')
+    console.log('Microsoft sign in — OAuth not yet configured')
   }
 
   return (

@@ -1,5 +1,6 @@
-import React, { createContext, useCallback, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { DEMO_KPI_DATA } from '../data/demoData'
+import { useAuth } from './AuthContext'
 
 export const KpiContext = createContext(null)
 
@@ -18,7 +19,6 @@ const CURRENCY_LOCALES = {
   AUD: 'en-AU',
 }
 
-// Approximate FX rates relative to 1 unit in each currency -> USD.
 const FX_TO_USD = {
   USD: 1,
   EUR: 1.09,
@@ -40,9 +40,11 @@ export const CURRENCIES = [
 ]
 
 const DEFAULT_CURRENCY = CURRENCIES[0]
-const isSupportedCurrency = (code) => CURRENCIES.some((currency) => currency.code === code)
+const isSupportedCurrency = (code) => CURRENCIES.some((c) => c.code === code)
 
 export function KpiProvider({ children }) {
+  const { isAuthenticated, authFetch, API_BASE, initializing } = useAuth()
+
   const [kpiData, setKpiDataState] = useState(() => {
     try {
       const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
@@ -50,12 +52,10 @@ export function KpiProvider({ children }) {
       if (stored && Number(storedVersion) >= CURRENT_VERSION) {
         return JSON.parse(stored)
       }
-      // Stale or missing version — clear and use fresh demo data
       localStorage.removeItem(DATA_STORAGE_KEY)
       localStorage.removeItem(STORAGE_VERSION_KEY)
       return DEMO_KPI_DATA
-    } catch (error) {
-      console.error('Error loading KPI data from localStorage:', error)
+    } catch {
       return DEMO_KPI_DATA
     }
   })
@@ -64,20 +64,20 @@ export function KpiProvider({ children }) {
     const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
     return !localStorage.getItem(DATA_STORAGE_KEY) || Number(storedVersion) < CURRENT_VERSION
   })
+
+  const [datasetMeta, setDatasetMeta] = useState(null)
+  const [datasetLoading, setDatasetLoading] = useState(false)
+
   const [selectedCurrencyCode, setSelectedCurrencyCode] = useState(() => {
     const stored = localStorage.getItem(CURRENCY_STORAGE_KEY)
     if (isSupportedCurrency(stored)) return stored
-
     try {
       const storedData = localStorage.getItem(DATA_STORAGE_KEY)
       if (storedData) {
         const parsed = JSON.parse(storedData)
         if (isSupportedCurrency(parsed?.source_currency)) return parsed.source_currency
       }
-    } catch (error) {
-      console.error('Error reading stored source currency:', error)
-    }
-
+    } catch {}
     return DEFAULT_CURRENCY.code
   })
 
@@ -87,7 +87,7 @@ export function KpiProvider({ children }) {
   }, [kpiData?.source_currency])
 
   const selectedCurrency = useMemo(() => {
-    return CURRENCIES.find((currency) => currency.code === selectedCurrencyCode) || DEFAULT_CURRENCY
+    return CURRENCIES.find((c) => c.code === selectedCurrencyCode) || DEFAULT_CURRENCY
   }, [selectedCurrencyCode])
 
   const setSelectedCurrency = useCallback((currencyCode) => {
@@ -99,7 +99,6 @@ export function KpiProvider({ children }) {
   const convertCurrencyValue = useCallback((value) => {
     const numeric = Number(value)
     if (!Number.isFinite(numeric)) return Number.NaN
-
     const sourceRate = FX_TO_USD[sourceCurrencyCode] || FX_TO_USD.USD
     const targetRate = FX_TO_USD[selectedCurrency.code] || FX_TO_USD.USD
     return numeric * (sourceRate / targetRate)
@@ -108,7 +107,6 @@ export function KpiProvider({ children }) {
   const formatCurrency = useCallback((value, options = {}) => {
     const numeric = convertCurrencyValue(value)
     if (!Number.isFinite(numeric)) return '--'
-
     return new Intl.NumberFormat(CURRENCY_LOCALES[selectedCurrency.code] || 'en-US', {
       style: 'currency',
       currency: selectedCurrency.code,
@@ -121,7 +119,6 @@ export function KpiProvider({ children }) {
   const formatCompactCurrency = useCallback((value, options = {}) => {
     const numeric = convertCurrencyValue(value)
     if (!Number.isFinite(numeric)) return '--'
-
     return new Intl.NumberFormat(CURRENCY_LOCALES[selectedCurrency.code] || 'en-US', {
       style: 'currency',
       currency: selectedCurrency.code,
@@ -132,7 +129,7 @@ export function KpiProvider({ children }) {
     }).format(numeric)
   }, [selectedCurrency.code, convertCurrencyValue])
 
-  const setKpiData = (data) => {
+  const setKpiData = useCallback((data) => {
     try {
       if (data) {
         const sourceCurrency = isSupportedCurrency(data.source_currency)
@@ -144,21 +141,51 @@ export function KpiProvider({ children }) {
         setIsDemoData(false)
         localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(normalizedData))
         localStorage.setItem(STORAGE_VERSION_KEY, String(CURRENT_VERSION))
-        // For newly uploaded data, default UI currency to the dataset currency.
         setSelectedCurrencyCode(sourceCurrency)
         localStorage.setItem(CURRENCY_STORAGE_KEY, sourceCurrency)
+
+        if (data.dataset_id) {
+          setDatasetMeta({
+            id: data.dataset_id,
+            name: data.dataset_name,
+            uploaded_at: data.uploaded_at,
+          })
+        }
       } else {
         localStorage.removeItem(DATA_STORAGE_KEY)
         localStorage.removeItem(STORAGE_VERSION_KEY)
         setKpiDataState(DEMO_KPI_DATA)
         setIsDemoData(true)
+        setDatasetMeta(null)
         setSelectedCurrencyCode(DEFAULT_CURRENCY.code)
         localStorage.removeItem(CURRENCY_STORAGE_KEY)
       }
     } catch (error) {
-      console.error('Error saving KPI data to localStorage:', error)
+      console.error('Error saving KPI data:', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (initializing || !isAuthenticated) return
+
+    const loadSavedDataset = async () => {
+      setDatasetLoading(true)
+      try {
+        const res = await authFetch(`${API_BASE}/api/dataset/`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (data.has_dataset) {
+          setKpiData(data)
+        }
+      } catch (err) {
+        console.error('Failed to load saved dataset:', err)
+      } finally {
+        setDatasetLoading(false)
+      }
+    }
+
+    loadSavedDataset()
+  }, [isAuthenticated, initializing]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <KpiContext.Provider
@@ -166,6 +193,8 @@ export function KpiProvider({ children }) {
         kpiData,
         setKpiData,
         isDemoData,
+        datasetMeta,
+        datasetLoading,
         currencies: CURRENCIES,
         selectedCurrency,
         setSelectedCurrency,

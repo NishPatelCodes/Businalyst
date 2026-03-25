@@ -53,6 +53,7 @@
   flex: 1;
   min-height: 180px;
   position: relative;
+  overflow: visible;
 }
 
 .dashboard-multiline-svg {
@@ -69,28 +70,55 @@
 
 .dashboard-multiline-tooltip {
   position: absolute;
-  bottom: 100%;
-  margin-bottom: 8px;
+  /* top/bottom set dynamically via inline style — no static top here */
   transform: translateX(-50%);
-  min-width: 120px;
-  padding: 8px 12px;
+  min-width: 148px;
+  padding: 9px 13px;
   background: #1f2937;
-  color: #fff;
+  color: #f9fafb;
   font-size: 11px;
-  border-radius: var(--card-border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   pointer-events: none;
-  z-index: 10;
+  z-index: 20;
+  white-space: nowrap;
+  /* entrance animation uses scale so it doesn't fight with translateX */
+  animation: dml-tip-in 0.12s ease;
+}
+
+@keyframes dml-tip-in {
+  from { opacity: 0; transform: translateX(-50%) scale(0.95); }
+  to   { opacity: 1; transform: translateX(-50%) scale(1); }
 }
 
 .dashboard-multiline-tooltip-date {
-  font-weight: 600;
-  margin-bottom: 6px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+  font-size: 11px;
+  margin-bottom: 7px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
 }
 
 .dashboard-multiline-tooltip-row {
-  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 4px;
   font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dashboard-multiline-tooltip-row strong {
+  color: #fff;
+  font-weight: 600;
+  margin-left: auto;
+  padding-left: 8px;
+}
+
+.dml-tip-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }

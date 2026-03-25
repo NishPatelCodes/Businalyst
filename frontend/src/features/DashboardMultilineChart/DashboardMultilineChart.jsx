@@ -23,6 +23,7 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
   const containerRef = useRef(null)
   const [size, setSize] = useState({ width: 0, height: 0 })
   const [hoverIndex, setHoverIndex] = useState(null)
+  const [hoverY, setHoverY] = useState(0)
 
   useEffect(() => {
     const el = containerRef.current
@@ -129,22 +130,38 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
     if (!containerRef.current || n === 0) return
     const rect = containerRef.current.getBoundingClientRect()
     const x = ((e.clientX - rect.left) / rect.width) * size.width
+    const y = e.clientY - rect.top   // container-relative Y in CSS pixels
     let idx = 0
     let best = Infinity
     for (let i = 0; i < n; i++) {
       const d = Math.abs(x - indexToX(i))
-      if (d < best) {
-        best = d
-        idx = i
-      }
+      if (d < best) { best = d; idx = i }
     }
     setHoverIndex(idx)
+    setHoverY(y)
   }
 
-  const handleMouseLeave = () => setHoverIndex(null)
+  const handleMouseLeave = () => { setHoverIndex(null); setHoverY(0) }
 
   const hasSize = size.width > 0 && size.height > 0
   const point = hoverIndex != null && chartData[hoverIndex] ? chartData[hoverIndex] : null
+
+  // Re-derive Y coordinate for each series at the hover point (needed for SVG dots)
+  const graphH = size.height - pad.top - pad.bottom
+  const calcDotY = (v, max) =>
+    pad.top + graphH - (Number(v) / Math.max(max, 1)) * graphH
+
+  // Tooltip horizontal position: clamp so it never overflows the container edges
+  const tooltipPct = hasSize && hoverIndex != null
+    ? Math.min(Math.max((indexToX(hoverIndex) / size.width) * 100, 12), 88)
+    : 50
+
+  // Tooltip vertical position: follow cursor, flip above/below the midpoint so
+  // the tooltip never covers the chart lines the user is actively looking at.
+  const containerH = size.height   // SVG render height (= container height)
+  const tooltipAbove = hoverY > containerH * 0.55   // in bottom 45% → show above cursor
+  const tooltipTopPx  = tooltipAbove ? undefined : hoverY + 14
+  const tooltipBotPx  = tooltipAbove ? containerH - hoverY + 10 : undefined
 
   return (
     <div className="dashboard-multiline">
@@ -177,19 +194,20 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
             viewBox={`0 0 ${size.width} ${size.height}`}
             preserveAspectRatio="xMidYMid meet"
           >
-            {/* Horizontal grid — light guides, no y-axis labels (normalized) */}
+            {/* Horizontal grid */}
             {[0.25, 0.5, 0.75].map((frac) => {
-              const graphH = size.height - pad.top - pad.bottom
               const y = pad.top + graphH * (1 - frac)
               return (
                 <line key={frac} x1={pad.left} y1={y} x2={size.width - pad.right} y2={y}
                   stroke="#e5e7eb" strokeWidth="1" strokeDasharray="3,3" />
               )
             })}
-            {/* Lines — each normalized to its own max so all are visible */}
+
+            {/* Lines */}
             <path d={paths.revenue} fill="none" stroke={COLORS.revenue} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d={paths.orders} fill="none" stroke={COLORS.orders} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d={paths.aov} fill="none" stroke={COLORS.aov} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d={paths.orders}  fill="none" stroke={COLORS.orders}  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d={paths.aov}     fill="none" stroke={COLORS.aov}     strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+
             {/* X labels */}
             {xLabelIndices.map((i) => (
               <text
@@ -202,37 +220,71 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
                 {chartData[i]?.label ?? ''}
               </text>
             ))}
-            {/* Hover vertical line */}
-            {hoverIndex != null && chartData[hoverIndex] && (
+
+            {/* Hover hairline */}
+            {hoverIndex != null && point && (
               <line
                 x1={indexToX(hoverIndex)}
                 y1={pad.top}
                 x2={indexToX(hoverIndex)}
                 y2={size.height - pad.bottom}
-                stroke="rgba(0,0,0,0.08)"
-                strokeWidth="2"
+                stroke="rgba(0,0,0,0.1)"
+                strokeWidth="1.5"
+                strokeDasharray="3,3"
               />
             )}
+
+            {/* Hover dots — one per series at the hovered data point */}
+            {hoverIndex != null && point && (() => {
+              const cx = indexToX(hoverIndex)
+              return (
+                <>
+                  {/* Revenue dot */}
+                  <circle cx={cx} cy={calcDotY(point.revenue, seriesMax.revenue)} r="5"
+                    fill="#fff" stroke={COLORS.revenue} strokeWidth="2.5" />
+                  {/* Orders dot */}
+                  {point.orders > 0 && (
+                    <circle cx={cx} cy={calcDotY(point.orders, seriesMax.orders)} r="5"
+                      fill="#fff" stroke={COLORS.orders} strokeWidth="2.5" />
+                  )}
+                  {/* AOV dot */}
+                  {point.aov > 0 && (
+                    <circle cx={cx} cy={calcDotY(point.aov, seriesMax.aov)} r="5"
+                      fill="#fff" stroke={COLORS.aov} strokeWidth="2.5" />
+                  )}
+                </>
+              )
+            })()}
           </svg>
         )}
+
+        {/* Floating tooltip — follows cursor, flips above/below so it never
+            covers the area the user is actively looking at */}
+        {point && hoverIndex != null && hasSize && (
+          <div
+            className="dashboard-multiline-tooltip"
+            style={{
+              left: `${tooltipPct}%`,
+              top: tooltipTopPx != null ? tooltipTopPx : undefined,
+              bottom: tooltipBotPx != null ? tooltipBotPx : undefined,
+            }}
+          >
+            <div className="dashboard-multiline-tooltip-date">{point.label}</div>
+            <div className="dashboard-multiline-tooltip-row">
+              <span className="dml-tip-swatch" style={{ background: COLORS.revenue }} />
+              Revenue: <strong>{formatCurrency(point.revenue)}</strong>
+            </div>
+            <div className="dashboard-multiline-tooltip-row">
+              <span className="dml-tip-swatch" style={{ background: COLORS.orders }} />
+              Orders: <strong>{Number(point.orders).toLocaleString()}</strong>
+            </div>
+            <div className="dashboard-multiline-tooltip-row">
+              <span className="dml-tip-swatch" style={{ background: COLORS.aov }} />
+              AOV: <strong>{formatCurrency(point.aov)}</strong>
+            </div>
+          </div>
+        )}
       </div>
-      {point && hoverIndex != null && hasSize && (
-        <div
-          className="dashboard-multiline-tooltip"
-          style={{ left: `${(indexToX(hoverIndex) / size.width) * 100}%` }}
-        >
-          <div className="dashboard-multiline-tooltip-date">{point.label}</div>
-          <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.revenue }}>
-            Revenue: {formatCurrency(point.revenue)}
-          </div>
-          <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.orders }}>
-            Orders: {Number(point.orders).toLocaleString()}
-          </div>
-          <div className="dashboard-multiline-tooltip-row" style={{ color: COLORS.aov }}>
-            AOV: {formatCurrency(point.aov)}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

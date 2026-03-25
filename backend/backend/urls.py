@@ -1,25 +1,33 @@
-"""
-URL configuration for backend project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
-from . import views
+from rest_framework_simplejwt.views import TokenRefreshView
+
+from backend.api.auth_views import register, login, me
+from backend.api.dataset_views import (
+    upload_dataset,
+    get_active_dataset,
+    dataset_history,
+    activate_dataset,
+    delete_dataset,
+)
+from backend.api import views as legacy_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('upload/',views.upload_dataset, name='upload'),
+    path("admin/", admin.site.urls),
 
+    # Auth
+    path("api/auth/register/", register, name="auth-register"),
+    path("api/auth/login/", login, name="auth-login"),
+    path("api/auth/refresh/", TokenRefreshView.as_view(), name="auth-refresh"),
+    path("api/auth/me/", me, name="auth-me"),
+
+    # Dataset (authenticated)
+    path("api/upload/", upload_dataset, name="dataset-upload"),
+    path("api/dataset/", get_active_dataset, name="dataset-active"),
+    path("api/datasets/", dataset_history, name="dataset-history"),
+    path("api/datasets/<int:dataset_id>/activate/", activate_dataset, name="dataset-activate"),
+    path("api/datasets/<int:dataset_id>/", delete_dataset, name="dataset-delete"),
+
+    # Legacy unauthenticated upload (kept for backwards compat during transition)
+    path("upload/", legacy_views.upload_dataset, name="upload-legacy"),
 ]

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { BrandPanel, GoogleIcon, MicrosoftIcon, EyeIcon, EyeOffIcon } from './Login'
 import './Login.css'
 
@@ -13,8 +14,9 @@ const Signup = () => {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const { registerUser, loading } = useAuth()
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -39,28 +41,22 @@ const Signup = () => {
       return
     }
 
-    setLoading(true)
-
     try {
-      // TODO: Connect to backend API for signup
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      console.log('Signup attempt:', formData)
+      const result = await registerUser(formData.name, formData.email, formData.password)
+      if (result.success) {
+        navigate('/upload', { replace: true })
+      }
     } catch (err) {
-      setError('Something went wrong. Please try again.')
-      console.error('Signup error:', err)
-    } finally {
-      setLoading(false)
+      setError(err.message || 'Something went wrong. Please try again.')
     }
   }
 
   const handleGoogleSignUp = () => {
-    // TODO: Implement Google OAuth
-    console.log('Google sign up clicked')
+    console.log('Google sign up — OAuth not yet configured')
   }
 
   const handleMicrosoftSignUp = () => {
-    // TODO: Implement Microsoft OAuth
-    console.log('Microsoft sign up clicked')
+    console.log('Microsoft sign up — OAuth not yet configured')
   }
 
   return (

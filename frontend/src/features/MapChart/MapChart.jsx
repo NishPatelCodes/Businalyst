@@ -21,10 +21,8 @@ const DEFAULT_MARKERS = [
 ]
 
 const MapChart = ({ periodRatio = 1 }) => {
-  const { kpiData, formatCompactCurrency } = useContext(KpiContext)
+  const { kpiData } = useContext(KpiContext)
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
-  const [tooltip, setTooltip] = useState(null)
-  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
 
   const mapDataRaw = Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
     ? kpiData.map_data
@@ -57,19 +55,6 @@ const MapChart = ({ periodRatio = 1 }) => {
     e.stopPropagation()
   }
 
-  const onMarkerEnter = (marker, e) => {
-    setTooltip({ name: marker.name, value: marker.value, percentage: marker.percentage })
-    setTooltipPos({ x: e.clientX, y: e.clientY })
-  }
-
-  const onMarkerMove = (e) => {
-    if (tooltip) setTooltipPos({ x: e.clientX, y: e.clientY })
-  }
-
-  const onMarkerLeave = () => {
-    setTooltip(null)
-  }
-
   return (
     <div className="map-view">
       <div className="map-header">
@@ -83,19 +68,6 @@ const MapChart = ({ periodRatio = 1 }) => {
 
       <div className="map-container">
         <div className="map-wrapper" onWheel={handleWheel}>
-          {/* BUG 10 fix: always show region name + order count in tooltip */}
-          {tooltip && (
-            <div
-              className="map-tooltip"
-              style={{ left: tooltipPos.x, top: tooltipPos.y }}
-            >
-              <span className="map-tooltip-name">{tooltip.name}</span>
-              <span className="map-tooltip-value">
-                Orders: {(tooltip.value ?? 0).toLocaleString()}
-                {tooltip.percentage != null ? ` (${tooltip.percentage}%)` : ''}
-              </span>
-            </div>
-          )}
           <ComposableMap
             projection="geoMercator"
             projectionConfig={{
@@ -143,15 +115,9 @@ const MapChart = ({ periodRatio = 1 }) => {
                   ))
                 }
               </Geographies>
-              {/* Dots = areas; hover shows place name + value */}
               {mapData.map((marker, index) => (
                 <Marker key={marker.name ?? index} coordinates={marker.coordinates}>
-                  <g
-                    className="map-marker-g"
-                    onMouseEnter={(e) => onMarkerEnter(marker, e)}
-                    onMouseMove={(e) => onMarkerMove(e)}
-                    onMouseLeave={onMarkerLeave}
-                  >
+                  <g className="map-marker-g">
                     <circle r={16} fill="#2563eb" fillOpacity={0.08} />
                     <circle r={14} fill="#2563eb" fillOpacity={0.12} />
                     <circle r={12} fill="#2563eb" fillOpacity={0.18} />
