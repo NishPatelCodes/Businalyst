@@ -24,9 +24,11 @@ const BarChart = ({ data: dataProp, title: titleProp, periodRatio = 1 }) => {
           { name: 'Item 4', value: 1100 },
           { name: 'Item 5', value: 2200 },
         ]
+  // BUG 7 fix: skip scaling when periodRatio is 0 to prevent blank chart
+  const safeRatio = periodRatio === 0 ? 1 : periodRatio
   const barData = barDataRaw.map((d) => ({
     ...d,
-    value: (Number(d?.value) || 0) * periodRatio,
+    value: (Number(d?.value) || 0) * safeRatio,
   }))
   const barColumn = kpiData?.bar_column || 'Item'
 
@@ -34,18 +36,21 @@ const BarChart = ({ data: dataProp, title: titleProp, periodRatio = 1 }) => {
   const minVal = Math.min(...values)
   const maxVal = Math.max(...values, 1)
   const range = maxVal - minVal || 1
-  // Non-zero baseline: scale from ~80% of min so bars are centered, not over-heighted
-  const yMin = Math.max(0, minVal - range * 0.15)
-  const yMax = maxVal + range * 0.05
+  // BUG 7 fix: when all values are 0, use a sensible default range (0–10)
+  // instead of 0–1 so the y-axis labels aren't misleading.
+  const yMin = maxVal === 0 ? 0 : Math.max(0, minVal - range * 0.15)
+  const yMax = maxVal === 0 ? 10 : maxVal + range * 0.05
   const yRange = yMax - yMin || 1
   const tickCount = 5
   const yAxisLabels = Array.from({ length: tickCount }, (_, i) =>
     yMin + (yRange * (tickCount - 1 - i)) / (tickCount - 1)
   )
 
+  // BUG 7 fix: increased bottom padding and chart height to prevent rotated
+  // x-axis labels from being clipped at the SVG viewBox edge.
   const chartWidth = 400
-  const chartHeight = 250
-  const padding = { top: 20, right: 40, bottom: 72, left: 48 }
+  const chartHeight = 280
+  const padding = { top: 20, right: 40, bottom: 90, left: 48 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom
 

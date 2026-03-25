@@ -11,12 +11,16 @@ const OrdersComparisonBarChart = ({ periodRatio = 1 }) => {
     const backendPrevious = kpiData?.comparison_bar_previous
     const backendHasPrevious = kpiData?.comparison_bar_has_previous ?? false
 
+    // BUG 1 fix: skip scaling when periodRatio is 0 (no data in range) so the
+    // chart shows full values instead of rendering a blank chart with value 0.
+    const safeRatio = periodRatio === 0 ? 1 : periodRatio
+
     if (
       Array.isArray(backendLabels) && backendLabels.length > 0 &&
       Array.isArray(backendCurrent) && backendCurrent.length > 0
     ) {
-      const scaledCurrent = backendCurrent.map((v) => Number(v) * periodRatio)
-      const scaledPrevious = Array.isArray(backendPrevious) ? backendPrevious.map((v) => Number(v) * periodRatio) : null
+      const scaledCurrent = backendCurrent.map((v) => Number(v) * safeRatio)
+      const scaledPrevious = Array.isArray(backendPrevious) ? backendPrevious.map((v) => Number(v) * safeRatio) : null
       const total = scaledCurrent.reduce((a, b) => a + b, 0)
       return {
         labels: backendLabels,
@@ -27,10 +31,9 @@ const OrdersComparisonBarChart = ({ periodRatio = 1 }) => {
       }
     }
 
-    // Demo / fallback data
     const demoLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-    const demoCurrent = [18, 22, 20, 24, 19, 26, 28].map((v) => v * periodRatio)
-    const demoPrevious = [14, 18, 16, 20, 17, 22, 20].map((v) => v * periodRatio)
+    const demoCurrent = [18, 22, 20, 24, 19, 26, 28].map((v) => v * safeRatio)
+    const demoPrevious = [14, 18, 16, 20, 17, 22, 20].map((v) => v * safeRatio)
     return {
       labels: demoLabels,
       currentValues: demoCurrent,

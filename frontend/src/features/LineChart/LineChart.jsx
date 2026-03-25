@@ -14,11 +14,17 @@ const PLACEHOLDER = [
 
 function formatDateShort(str) {
   if (!str) return ''
+  // If str is already a Date object (from Dashboard seriesOverride), use it
+  // directly. For ISO strings like '2024-01-15', extract UTC year/month to
+  // avoid timezone drift (UTC midnight → wrong local day in western TZs).
+  if (str instanceof Date) {
+    const month = str.toLocaleDateString('en-US', { month: 'short' })
+    return `${month} ${str.getFullYear()}`
+  }
   const d = new Date(str)
   if (isNaN(d.getTime())) return String(str)
-  const month = d.toLocaleDateString('en-US', { month: 'short' })
-  const year = d.getFullYear()
-  return `${month} ${year}`
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return `${monthNames[d.getUTCMonth()]} ${d.getUTCFullYear()}`
 }
 
 const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
@@ -46,12 +52,14 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
     return () => observer.disconnect()
   }, [])
 
-  // Build chart data from backend: date_data + revenue_data or profit_data
-  // If seriesOverride is provided (Dashboard dateRange), it becomes the source of truth.
+  // BUG 2/12 fix: when seriesOverride is supplied (Dashboard dateRange filtering),
+  // always use it as the source of truth — even when empty. Previously an empty
+  // override silently fell back to raw unfiltered kpiData, making the chart ignore
+  // the date filter and show stale data.
   const chartData = useMemo(() => {
     const override = Array.isArray(seriesOverride) ? seriesOverride : null
 
-    if (override?.length) {
+    if (override !== null) {
       const valueKey = selectedTab === 'Revenue' ? 'revenue' : 'profit'
       return override.map((pt) => ({
         date: pt.date,
@@ -170,12 +178,21 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
     ? ''
     : `${linePath} L ${points[points.length - 1].x} ${pad.top + graphH} L ${points[0].x} ${pad.top + graphH} Z`
 
-  // X labels: first, last, and up to 3 in between (evenly spaced by index)
+  // BUG 9 fix: deduplicate x-axis labels so consecutive ticks that format to
+  // the same "Month Year" string (e.g. two data points in March) aren't repeated.
   const xLabelIndices = useMemo(() => {
     if (n <= 2) return [...Array(n).keys()]
     const step = (n - 1) / 4
-    return [0, Math.round(step), Math.round(step * 2), Math.round(step * 3), n - 1].filter((v, i, a) => a.indexOf(v) === i)
-  }, [n])
+    const candidates = [0, Math.round(step), Math.round(step * 2), Math.round(step * 3), n - 1]
+      .filter((v, i, a) => a.indexOf(v) === i)
+    const seen = new Set()
+    return candidates.filter((idx) => {
+      const label = formatDateShort(chartData[idx]?.date)
+      if (seen.has(label)) return false
+      seen.add(label)
+      return true
+    })
+  }, [n, chartData])
 
   // Y ticks: 0 and a few steps
   const yTicks = useMemo(() => {

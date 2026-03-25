@@ -29,9 +29,11 @@ const MapChart = ({ periodRatio = 1 }) => {
   const mapDataRaw = Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
     ? kpiData.map_data
     : DEFAULT_MARKERS
+  // BUG 10 fix: skip scaling when periodRatio is 0 to prevent all markers showing 0
+  const safeRatio = periodRatio === 0 ? 1 : periodRatio
   const mapData = mapDataRaw.map((m) => ({
     ...m,
-    value: Math.round((Number(m?.value) || 0) * periodRatio),
+    value: Math.round((Number(m?.value) || 0) * safeRatio),
   }))
   const mapColumn = kpiData?.map_column || 'region'
   const topName = mapData[0]?.name ?? '—'
@@ -81,18 +83,17 @@ const MapChart = ({ periodRatio = 1 }) => {
 
       <div className="map-container">
         <div className="map-wrapper" onWheel={handleWheel}>
+          {/* BUG 10 fix: always show region name + order count in tooltip */}
           {tooltip && (
             <div
               className="map-tooltip"
               style={{ left: tooltipPos.x, top: tooltipPos.y }}
             >
               <span className="map-tooltip-name">{tooltip.name}</span>
-              {(tooltip.value != null && tooltip.value !== 0) && (
-                <span className="map-tooltip-value">
-                  {formatCompactCurrency(tooltip.value)}
-                  {tooltip.percentage != null ? ` (${tooltip.percentage}%)` : ''}
-                </span>
-              )}
+              <span className="map-tooltip-value">
+                Orders: {(tooltip.value ?? 0).toLocaleString()}
+                {tooltip.percentage != null ? ` (${tooltip.percentage}%)` : ''}
+              </span>
             </div>
           )}
           <ComposableMap
@@ -193,6 +194,18 @@ const MapChart = ({ periodRatio = 1 }) => {
               </svg>
             </button>
           </div>
+        </div>
+
+        {/* BUG 10 fix: color-scale legend showing region names + order counts */}
+        <div className="map-legend-bottom">
+          {mapData.map((marker) => (
+            <div key={marker.name} className="map-legend-item-bottom">
+              <span className="map-legend-dot-bottom" style={{ background: '#2563eb' }} />
+              <span className="map-legend-name-bottom">
+                {marker.name}{marker.value > 0 ? ` (${marker.value.toLocaleString()})` : ''}
+              </span>
+            </div>
+          ))}
         </div>
 
         <div className="map-mini-stats">

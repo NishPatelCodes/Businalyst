@@ -36,8 +36,10 @@ const TopProfitTable = ({ periodRatio = 1 }) => {
     ? kpiData.top5_columns
     : (rows.length > 0 ? Object.keys(rows[0]) : [])
 
+  // BUG 3 fix: when periodRatio is 0 (no data in selected range), skip scaling
+  // so dollar columns retain their original values instead of becoming $0.
   const scaledRows =
-    periodRatio === 1
+    periodRatio === 1 || periodRatio === 0
       ? rows
       : rows.map((row) => {
           const out = { ...row }
@@ -69,7 +71,8 @@ const TopProfitTable = ({ periodRatio = 1 }) => {
         <h3 className="table-title">Top 5 by Profit</h3>
       </div>
 
-      <div className={`table-wrapper ${manyColumns ? 'table-wrapper--scroll' : ''}`}>
+      {/* BUG 6 fix: always apply scroll wrapper so columns are never clipped */}
+      <div className="table-wrapper table-wrapper--scroll">
         <table
           className="data-table data-table--dynamic"
           style={manyColumns ? { minWidth: columns.length * 120 } : undefined}

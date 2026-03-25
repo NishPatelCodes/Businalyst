@@ -1,4 +1,6 @@
 /* Top Profit Table - Apple Style */
+/* BUG 6 fix: changed overflow from hidden to visible so the inner
+   table-wrapper scrollbar isn't clipped at the card edge. */
 .top-profit-table-container {
   background: #ffffff;
   border-radius: var(--card-border-radius);
@@ -7,7 +9,7 @@
     0 1px 3px rgba(0, 0, 0, 0.04),
     0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .top-profit-table-container .table-header {
@@ -53,8 +55,11 @@
   text-align: center;
 }
 
+/* BUG 6 fix: always constrain the table wrapper to the card width so
+   the horizontal scrollbar stays within the card boundary. */
 .top-profit-table-container .table-wrapper {
   overflow-x: auto;
+  max-width: 100%;
   -webkit-overflow-scrolling: touch;
 }
 

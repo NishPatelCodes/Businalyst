@@ -14,16 +14,64 @@ import { KpiContext } from '../context/KpiContext'
 import DateRangePicker from '../components/DateRangePicker'
 import './Dashboard.css'
 
+// new Date('YYYY-MM-DD') is spec'd to produce UTC midnight, but the calendar
+// picker creates dates at local midnight via new Date(y,m,d). Comparing them
+// causes off-by-one filtering at timezone boundaries. This helper parses an
+// ISO date string into local midnight so all dates in the app are comparable.
+function parseDateLocal(dateStr) {
+  if (dateStr instanceof Date) {
+    const d = new Date(dateStr)
+    d.setHours(0, 0, 0, 0)
+    return d
+  }
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return null
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
+}
+
 const Dashboard = () => {
   const { kpiData, isDemoData, currencies, selectedCurrency, setSelectedCurrency } = useContext(KpiContext)
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
+  // Derive initial date range from actual data bounds using local-midnight dates
+  // so they match the calendar picker's dates and filtering works correctly.
   const [dateRange, setDateRange] = useState(() => {
+    const dates = kpiData?.date_data
+    if (Array.isArray(dates) && dates.length > 0) {
+      const parsed = dates.map(d => parseDateLocal(d)).filter(Boolean)
+      if (parsed.length > 0) {
+        const min = new Date(Math.min(...parsed))
+        const max = new Date(Math.max(...parsed))
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        return { start: min, end: max > today ? today : max }
+      }
+    }
     const end = new Date()
-    const start = new Date()
+    end.setHours(0, 0, 0, 0)
+    const start = new Date(end)
     start.setMonth(end.getMonth() - 1)
     return { start, end }
   })
+  // Re-derive date range when the underlying dataset changes (e.g. new upload)
+  const prevDateDataRef = useRef(kpiData?.date_data)
+  useEffect(() => {
+    const prev = prevDateDataRef.current
+    const curr = kpiData?.date_data
+    if (curr === prev) return
+    prevDateDataRef.current = curr
+    if (Array.isArray(curr) && curr.length > 0) {
+      const parsed = curr.map(d => parseDateLocal(d)).filter(Boolean)
+      if (parsed.length > 0) {
+        const min = new Date(Math.min(...parsed))
+        const max = new Date(Math.max(...parsed))
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        setDateRange({ start: min, end: max > today ? today : max })
+      }
+    }
+  }, [kpiData?.date_data])
+
   const currencyDropdownRef = useRef(null)
   const currencyButtonRef = useRef(null)
   const exportButtonRef = useRef(null)
@@ -31,6 +79,11 @@ const Dashboard = () => {
   const [exportOpen, setExportOpen] = useState(false)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
   const [exportDropdownPosition, setExportDropdownPosition] = useState({ top: 0, right: 0 })
+
+  // BUG 5 fix: force scroll to top on mount so KPI cards aren't hidden
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   const formatDate = (date) => {
     if (!date) return ''
@@ -97,8 +150,10 @@ const Dashboard = () => {
     const len = Math.min(dates.length, revenues.length, profits.length)
     const allSeries = []
     for (let i = 0; i < len; i++) {
-      const dt = new Date(dates[i])
-      if (Number.isNaN(dt.getTime())) continue
+      // Parse as local midnight so comparisons with the date picker
+      // (which also uses local midnight) are timezone-consistent.
+      const dt = parseDateLocal(dates[i])
+      if (!dt) continue
       allSeries.push({
         date: dt,
         revenue: Number(revenues[i]) || 0,
@@ -140,8 +195,10 @@ const Dashboard = () => {
     }
   }, [kpiData, dateRange?.start, dateRange?.end])
 
+  // BUG 2/12 fix: always pass filtered series so LineChart never falls back to
+  // raw unfiltered kpiData. When the date range yields no data, the chart correctly
+  // shows an empty state instead of stale unfiltered data.
   const lineSeriesOverride = useMemo(() => {
-    if (!dashboardSeries.filteredSeries.length) return undefined
     return dashboardSeries.filteredSeries.map((pt) => ({
       date: pt.date,
       revenue: pt.revenue,
@@ -162,8 +219,11 @@ const Dashboard = () => {
     const cols = ['date', 'revenue', 'profit', 'orders']
     const csvRows = [cols.join(',')]
     exportSeries.forEach((row) => {
+      const y = row.date.getFullYear()
+      const m = String(row.date.getMonth() + 1).padStart(2, '0')
+      const d = String(row.date.getDate()).padStart(2, '0')
       csvRows.push([
-        `"${row.date.toISOString().slice(0, 10)}"`,
+        `"${y}-${m}-${d}"`,
         Number(row.revenue ?? 0),
         Number(row.profit ?? 0),
         Number(row.orders ?? 0),

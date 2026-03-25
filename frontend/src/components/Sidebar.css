@@ -202,6 +202,31 @@
   overflow: hidden;
 }
 
+/* BUG 11 fix: dismiss button for the Coming Soon badge */
+.premium-dismiss-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+
+.premium-dismiss-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
+
 .sidebar-premium--coming-soon {
   background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
   border: 1px solid rgba(255, 255, 255, 0.12);

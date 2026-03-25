@@ -37,8 +37,11 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
     return () => observer.disconnect()
   }, [])
 
-  const { chartData, paths, pad, valueToY, indexToX, n, yTicks, xLabelIndices } = useMemo(() => {
-    // Consume clean backend arrays; fall back to demo data if unavailable
+  // BUG 4 fix: Revenue ($1M+), Orders (~1000s), and AOV (~$280) have vastly
+  // different scales. A single y-axis made Revenue dominate and AOV/Orders
+  // invisible. Fix: normalize each series to 0–1 range for plotting, but
+  // show actual values in tooltips. This keeps all three lines visible.
+  const { chartData, paths, pad, indexToX, n, xLabelIndices, seriesMax } = useMemo(() => {
     const labels = kpiData?.multiline_labels || kpiData?.date_data || []
     const revenue = kpiData?.multiline_revenue || kpiData?.revenue_data || []
     const orders = kpiData?.multiline_orders || []
@@ -58,9 +61,10 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
       aov: Number(aov[i]) || 0,
     }))
 
-    const allValues = chartData.flatMap((d) => [d.revenue, d.orders, d.aov])
-    const maxVal = Math.max(1, ...allValues)
-    const yMax = maxVal * 1.08
+    const maxRevenue = Math.max(1, ...chartData.map(d => d.revenue))
+    const maxOrders = Math.max(1, ...chartData.map(d => d.orders))
+    const maxAov = Math.max(1, ...chartData.map(d => d.aov))
+    const seriesMax = { revenue: maxRevenue, orders: maxOrders, aov: maxAov }
 
     const width = size.width
     const height = size.height
@@ -68,34 +72,31 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
       return {
         chartData: [],
         paths: { revenue: '', orders: '', aov: '' },
-        pad: { top: 12, right: 12, bottom: 28, left: 36 },
-        valueToY: () => 0,
+        pad: { top: 12, right: 12, bottom: 28, left: 12 },
         indexToX: () => 0,
         n: 0,
-        yTicks: [0],
         xLabelIndices: [0],
+        seriesMax,
       }
     }
 
-    const pad = { top: 12, right: 12, bottom: 28, left: 40 }
+    const pad = { top: 12, right: 12, bottom: 28, left: 12 }
     const graphW = width - pad.left - pad.right
     const graphH = height - pad.top - pad.bottom
 
     const nPts = chartData.length
-    const valueToY = (v) => pad.top + graphH - (Number(v) / yMax) * graphH
+    const normalizedY = (v, max) => pad.top + graphH - (Number(v) / max) * graphH
     const indexToX = (i) => (nPts <= 1 ? pad.left : pad.left + (i / (nPts - 1)) * graphW)
 
-    const pts = (key) =>
-      chartData.map((d, i) => ({ x: indexToX(i), y: valueToY(d[key]) }))
+    const pts = (key, max) =>
+      chartData.map((d, i) => ({ x: indexToX(i), y: normalizedY(d[key], max) }))
 
     const paths = {
-      revenue: buildSmoothPath(pts('revenue')),
-      orders: buildSmoothPath(pts('orders')),
-      aov: buildSmoothPath(pts('aov')),
+      revenue: buildSmoothPath(pts('revenue', maxRevenue)),
+      orders: buildSmoothPath(pts('orders', maxOrders)),
+      aov: buildSmoothPath(pts('aov', maxAov)),
     }
 
-    const yStep = yMax / 4
-    const yTicks = [0, yStep, yStep * 2, yStep * 3, yMax].map((v) => Math.round(v))
     const xLabelIndices =
       nPts <= 2
         ? [...Array(nPts).keys()]
@@ -106,11 +107,10 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
       chartData,
       paths,
       pad,
-      valueToY,
       indexToX,
       n: nPts,
-      yTicks,
       xLabelIndices,
+      seriesMax,
     }
   }, [
     kpiData?.multiline_labels,
@@ -177,20 +177,16 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
             viewBox={`0 0 ${size.width} ${size.height}`}
             preserveAspectRatio="xMidYMid meet"
           >
-            {/* Y grid */}
-            {yTicks.map((tick) => (
-              <line
-                key={tick}
-                x1={pad.left}
-                y1={valueToY(tick)}
-                x2={size.width - pad.right}
-                y2={valueToY(tick)}
-                stroke="#e5e7eb"
-                strokeWidth="1"
-                strokeDasharray="3,3"
-              />
-            ))}
-            {/* Lines */}
+            {/* Horizontal grid — light guides, no y-axis labels (normalized) */}
+            {[0.25, 0.5, 0.75].map((frac) => {
+              const graphH = size.height - pad.top - pad.bottom
+              const y = pad.top + graphH * (1 - frac)
+              return (
+                <line key={frac} x1={pad.left} y1={y} x2={size.width - pad.right} y2={y}
+                  stroke="#e5e7eb" strokeWidth="1" strokeDasharray="3,3" />
+              )
+            })}
+            {/* Lines — each normalized to its own max so all are visible */}
             <path d={paths.revenue} fill="none" stroke={COLORS.revenue} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             <path d={paths.orders} fill="none" stroke={COLORS.orders} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             <path d={paths.aov} fill="none" stroke={COLORS.aov} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

@@ -1,9 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import './Sidebar.css'
 
+const BADGE_DISMISSED_KEY = 'businalyst_premium_badge_dismissed'
+
 const Sidebar = () => {
   const location = useLocation()
+  // BUG 11 fix: badge is dismissible and stays dismissed via localStorage
+  const [badgeDismissed, setBadgeDismissed] = useState(() => {
+    try { return localStorage.getItem(BADGE_DISMISSED_KEY) === '1' }
+    catch { return false }
+  })
+
+  const handleDismissBadge = () => {
+    setBadgeDismissed(true)
+    try { localStorage.setItem(BADGE_DISMISSED_KEY, '1') } catch {}
+  }
 
   return (
     <aside className="sidebar">
@@ -88,15 +100,28 @@ const Sidebar = () => {
         </div>
       </nav>
 
-      <div className="sidebar-premium sidebar-premium--coming-soon">
-        <div className="premium-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" fillOpacity="0.9"/>
-          </svg>
+      {/* BUG 11 fix: badge is dismissible — no longer permanently overlays the sidebar */}
+      {!badgeDismissed && (
+        <div className="sidebar-premium sidebar-premium--coming-soon">
+          <button
+            className="premium-dismiss-btn"
+            onClick={handleDismissBadge}
+            title="Dismiss"
+            aria-label="Dismiss coming soon badge"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+          <div className="premium-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" fillOpacity="0.9"/>
+            </svg>
+          </div>
+          <h3 className="premium-title">Coming soon</h3>
+          <p className="premium-description">Premium feature</p>
         </div>
-        <h3 className="premium-title">Coming soon</h3>
-        <p className="premium-description">Premium feature</p>
-      </div>
+      )}
     </aside>
   )
 }
