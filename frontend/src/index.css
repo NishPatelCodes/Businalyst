@@ -1,3 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
 /* ============================================
    DESIGN SYSTEM - CSS VARIABLES
    ============================================ */
@@ -97,42 +103,45 @@
 
 /* ============================================
    RESET & BASE STYLES
+   Wrapped in @layer base so Tailwind's @layer
+   utilities can override margin / padding / bg.
    ============================================ */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-body {
-  font-family: var(--font-family);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  -webkit-text-size-adjust: 100%;
-  font-weight: var(--font-weight-normal);
-  line-height: var(--line-height-normal);
-  letter-spacing: var(--letter-spacing-normal);
-  background: var(--bg-secondary);
-  margin: 0;
-  padding: 0;
-  font-feature-settings: "kern" 1;
-  font-kerning: normal;
-  color: var(--text-primary);
-}
+  body {
+    font-family: var(--font-family);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-normal);
+    letter-spacing: var(--letter-spacing-normal);
+    background: var(--bg-secondary);
+    margin: 0;
+    padding: 0;
+    font-feature-settings: "kern" 1;
+    font-kerning: normal;
+    color: var(--text-primary);
+  }
 
-/* Enhanced font rendering for all text elements */
-h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, label {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
+  h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, label {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
 
-#root {
-  width: 100%;
-  min-height: 100vh;
-  background: var(--bg-secondary);
+  #root {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--bg-secondary);
+  }
 }
 
 /* ============================================
