@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useCallback } from 'react'
 import {
   ComposableMap,
   Geographies,
@@ -10,6 +10,8 @@ import { KpiContext } from '../../context/KpiContext'
 import './MapChart.css'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
+
+const MIN_ZOOM_FOR_TOOLTIP = 1.5
 
 const DEFAULT_MARKERS = [
   { name: 'North America', value: 0, coordinates: [-100, 45] },
@@ -23,6 +25,29 @@ const DEFAULT_MARKERS = [
 const MapChart = ({ periodRatio = 1 }) => {
   const { kpiData } = useContext(KpiContext)
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
+  const [tooltip, setTooltip] = useState(null)
+
+  const isZoomedEnough = position.zoom >= MIN_ZOOM_FOR_TOOLTIP
+
+  const handleMarkerEnter = useCallback((marker, e) => {
+    if (position.zoom < MIN_ZOOM_FOR_TOOLTIP || e.buttons !== 0) return
+    const mr = e.currentTarget.getBoundingClientRect()
+    const cx = mr.left + mr.width / 2
+    const cy = mr.top
+    const cyBottom = mr.bottom
+    const flipped = cy < 80
+    setTooltip({
+      name: marker.name,
+      value: marker.value,
+      x: cx,
+      y: flipped ? cyBottom : cy,
+      flipped,
+    })
+  }, [position.zoom])
+
+  const handleMarkerLeave = useCallback(() => {
+    setTooltip(null)
+  }, [])
 
   const mapDataRaw = Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
     ? kpiData.map_data
@@ -40,15 +65,18 @@ const MapChart = ({ periodRatio = 1 }) => {
   const handleZoomIn = () => {
     if (position.zoom >= 4) return
     setPosition((pos) => ({ ...pos, zoom: pos.zoom * 1.5 }))
+    setTooltip(null)
   }
 
   const handleZoomOut = () => {
     if (position.zoom <= 1) return
     setPosition((pos) => ({ ...pos, zoom: pos.zoom / 1.5 }))
+    setTooltip(null)
   }
 
   const handleMoveEnd = ({ coordinates, zoom }) => {
     setPosition({ coordinates: coordinates ?? position.coordinates, zoom: zoom ?? position.zoom })
+    setTooltip(null)
   }
 
   const handleWheel = (e) => {
@@ -117,7 +145,11 @@ const MapChart = ({ periodRatio = 1 }) => {
               </Geographies>
               {mapData.map((marker, index) => (
                 <Marker key={marker.name ?? index} coordinates={marker.coordinates}>
-                  <g className="map-marker-g">
+                  <g
+                    className={`map-marker-g${isZoomedEnough ? ' map-marker-interactive' : ''}`}
+                    onMouseEnter={isZoomedEnough ? (e) => handleMarkerEnter(marker, e) : undefined}
+                    onMouseLeave={isZoomedEnough ? handleMarkerLeave : undefined}
+                  >
                     <circle r={16} fill="#2563eb" fillOpacity={0.08} />
                     <circle r={14} fill="#2563eb" fillOpacity={0.12} />
                     <circle r={12} fill="#2563eb" fillOpacity={0.18} />
@@ -160,19 +192,34 @@ const MapChart = ({ periodRatio = 1 }) => {
               </svg>
             </button>
           </div>
+
+          <div className="map-legend-bottom">
+            {mapData.map((marker) => (
+              <div key={marker.name} className="map-legend-item-bottom">
+                <span className="map-legend-dot-bottom" style={{ background: '#2563eb' }} />
+                <span className="map-legend-name-bottom">
+                  {marker.name}{marker.value > 0 ? ` (${marker.value.toLocaleString()})` : ''}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* BUG 10 fix: color-scale legend showing region names + order counts */}
-        <div className="map-legend-bottom">
-          {mapData.map((marker) => (
-            <div key={marker.name} className="map-legend-item-bottom">
-              <span className="map-legend-dot-bottom" style={{ background: '#2563eb' }} />
-              <span className="map-legend-name-bottom">
-                {marker.name}{marker.value > 0 ? ` (${marker.value.toLocaleString()})` : ''}
-              </span>
+        {tooltip && (
+          <div
+            className={`map-tooltip${tooltip.flipped ? ' map-tooltip--below' : ''}`}
+            style={{ left: tooltip.x, top: tooltip.y }}
+          >
+            <div className="map-tooltip-content">
+              <span className="map-tooltip-name">{tooltip.name}</span>
+              {tooltip.value > 0 && (
+                <span className="map-tooltip-value">
+                  {tooltip.value.toLocaleString()}
+                </span>
+              )}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         <div className="map-mini-stats">
           <div className="map-mini-stat">
