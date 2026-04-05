@@ -1,5 +1,5 @@
 import React from 'react'
-import ProductPlaceholder from './ProductPlaceholder'
+import { RevenueVisual, ExpenseVisual, CustomerVisual, ProfitVisual } from './ShowcaseVisuals'
 
 const CheckIcon = () => (
   <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
@@ -10,6 +10,8 @@ const CheckIcon = () => (
     />
   </svg>
 )
+
+const visuals = [RevenueVisual, ExpenseVisual, CustomerVisual, ProfitVisual]
 
 const sections = [
   {
@@ -75,37 +77,40 @@ export default function Showcase() {
         </div>
 
         <div className="mt-20 space-y-24 lg:space-y-32">
-          {sections.map((section, i) => (
-            <div
-              key={i}
-              className={`flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-16 ${
-                i % 2 === 1 ? 'lg:flex-row-reverse' : ''
-              }`}
-            >
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-blue-600">
-                  {section.label}
-                </p>
-                <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                  {section.title}
-                </h3>
-                <p className="mt-4 text-base leading-7 text-slate-600">
-                  {section.description}
-                </p>
-                <ul className="mt-6 space-y-3">
-                  {section.bullets.map((bullet, j) => (
-                    <li key={j} className="flex items-start gap-3">
-                      <CheckIcon />
-                      <span className="text-sm text-slate-700">{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
+          {sections.map((section, i) => {
+            const Visual = visuals[i]
+            return (
+              <div
+                key={i}
+                className={`flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-16 ${
+                  i % 2 === 1 ? 'lg:flex-row-reverse' : ''
+                }`}
+              >
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-blue-600">
+                    {section.label}
+                  </p>
+                  <h3 className="mt-2 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                    {section.title}
+                  </h3>
+                  <p className="mt-4 text-base leading-7 text-slate-600">
+                    {section.description}
+                  </p>
+                  <ul className="mt-6 space-y-3">
+                    {section.bullets.map((bullet, j) => (
+                      <li key={j} className="flex items-start gap-3">
+                        <CheckIcon />
+                        <span className="text-sm text-slate-700">{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex-1">
+                  <Visual />
+                </div>
               </div>
-              <div className="flex-1">
-                <ProductPlaceholder />
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
