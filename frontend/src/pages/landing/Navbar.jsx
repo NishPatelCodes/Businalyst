@@ -26,7 +26,7 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-            <span className="text-sm font-bold text-white">B</span>
+            <span className="text-2xl font-bold text-white">B</span>
           </div>
           <span className="text-lg font-semibold tracking-tight text-slate-900 font-display">
             businalyst

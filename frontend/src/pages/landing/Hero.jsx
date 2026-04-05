@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import ProductPlaceholder from './ProductPlaceholder'
+import HeroDashboard from './HeroDashboard'
 
 export default function Hero() {
   return (
@@ -10,8 +10,8 @@ export default function Hero() {
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 pt-32 pb-16 sm:pt-40 sm:pb-24 lg:px-8 lg:pt-44 lg:pb-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-7xl">
+        <div className="mx-auto max-w-4xl text-center">
+          <h1 className="font-display text-xl font-bold tracking-tight text-slate-900sm:text-5xl lg:text-7xl">
             Analytics{' '}
             <span className="relative text-blue-600">
               made simple
@@ -35,7 +35,7 @@ export default function Hero() {
 
           <p className="mx-auto mt-8 max-w-xl text-lg leading-8 text-slate-500">
             Most analytics tools are complex and overwhelming. We give you
-            clear, actionable insights from your data — in minutes, not months.
+            clear, actionable insights from your data in minutes, not months.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -58,7 +58,7 @@ export default function Hero() {
         </div>
 
         <div className="mx-auto mt-16 max-w-5xl sm:mt-20">
-          <ProductPlaceholder />
+          <HeroDashboard />
         </div>
       </div>
     </section>
