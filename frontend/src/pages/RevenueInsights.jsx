@@ -29,14 +29,6 @@ const RevenueInsights = () => {
     ? `${fmt(dateRange.start)} – ${fmt(dateRange.end)}`
     : 'Select dates'
 
-  const fmtCur = (n) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(n)
-
   const aov = useMemo(() => {
     const rev = kpiData?.revenue_sum ?? 0
     const ord = kpiData?.orders_sum ?? 1
