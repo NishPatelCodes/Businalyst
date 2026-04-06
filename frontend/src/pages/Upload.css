@@ -40,10 +40,6 @@
 }
 
 /* Section spacing */
-.upload-showcase-section {
-  /* Showcase has its own spacing */
-}
-
 .upload-dropzone-section {
   /* Dropzone has its own spacing */
   display: flex;

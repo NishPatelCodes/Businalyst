@@ -1,6 +1,7 @@
 import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
+import TopProfitTable from '../components/TopProfitTable'
 import { KpiContext } from '../context/KpiContext'
 import InsightsTopNav from '../components/InsightsTopNav'
 import InsightsPageHeader from '../components/InsightsPageHeader'
@@ -646,6 +647,18 @@ const ProfitInsights = () => {
             <div className="pil-coming-soon">
               <span className="pil-coming-soon-text">Coming soon</span>
             </div>
+          </div>
+
+          {/* ═══ SECTION 5: Top 5 Records by Profit ════════════════════ */}
+          <div className="pil-section">
+            <div className="pil-section-header">
+              <div>
+                <p className="pil-section-title">Section 05</p>
+                <h2 className="pil-section-heading">Top 5 Records by Profit</h2>
+              </div>
+              <span className="pil-meta">Highest performing rows in the current dataset</span>
+            </div>
+            <TopProfitTable />
           </div>
 
         </div>{/* /pi-content */}

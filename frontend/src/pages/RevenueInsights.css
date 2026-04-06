@@ -387,71 +387,6 @@
   }
 }
 
-.ri-card-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 14px 0;
-  letter-spacing: -0.01em;
-}
-
-/* ── Revenue Trend (legacy, kept for card styles) ──────────────── */
-.ri-trend-card {
-  padding: 20px 22px;
-}
-
-.ri-trend-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.ri-trend-header .ri-card-title {
-  margin: 0;
-}
-
-.ri-trend-meta {
-  margin-bottom: 6px;
-}
-
-.ri-trend-date {
-  font-size: 12px;
-  color: #9ca3af;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.ri-trend-value {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ri-trend-amount {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--ri-accent);
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-}
-
-.ri-trend-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: rgba(52, 199, 89, 0.12);
-  border-radius: var(--card-border-radius);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ri-success);
-}
-
-.ri-trend-chart-area {
-  margin-top: 8px;
-  min-height: 240px;
-}
-
 /* ── Mid row ─────────────────────────────────────────────────── */
 .ri-mid-row {
   display: grid;
@@ -460,70 +395,11 @@
   min-width: 0;
 }
 
-.ri-breakdown-card {
-  min-height: 200px;
-}
-
-.ri-region-card {
-}
-
-.ri-region-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.ri-region-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.ri-region-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #374151;
-  min-width: 48px;
-}
-
-.ri-region-track {
-  flex: 1;
-  height: 10px;
-  background: #f3f4f6;
-  border-radius: var(--card-border-radius);
-  overflow: hidden;
-}
-
-.ri-region-bar {
-  height: 100%;
-  border-radius: var(--card-border-radius);
-  transition: width 0.3s ease;
-}
-
-.ri-region-value {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-  min-width: 64px;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
 /* ── Top Products table ──────────────────────────────────────── */
 .ri-table-card {
   padding: 18px 20px;
   min-width: 0;
   overflow-x: auto;
-}
-
-.ri-table-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-.ri-table-header .ri-card-title {
-  margin: 0;
 }
 
 .ri-table {
@@ -558,94 +434,8 @@
   border-bottom: none;
 }
 
-.ri-product-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ri-product-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--card-border-radius);
-  background: rgba(0, 122, 255, 0.1);
-  color: var(--ri-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
 /* ── Right panel cards ───────────────────────────────────────── */
-.ri-drivers-card {
-  min-height: 320px;
-  display: flex;
-  flex-direction: column;
-}
-
-.ri-insights-description {
-  font-size: 13px;
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0 0 18px 0;
-  padding: 0;
-}
-
-.ri-bar-chart-wrapper {
-  flex: 1;
-  min-height: 200px;
-}
-
-.ri-avg-card {
-  text-align: center;
-  padding: 24px 20px;
-}
-
-.ri-avg-value {
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--ri-accent);
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  margin-bottom: 6px;
-}
-
-.ri-avg-hint {
-  font-size: 11px;
-  color: #9ca3af;
-  margin: 0;
-}
-
 .ri-insights-card {
-}
-
-.ri-drivers-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.ri-drivers-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 13px;
-  color: #374151;
-  line-height: 1.5;
-}
-
-.ri-driver-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--card-border-radius);
-  background: var(--ri-accent);
-  flex-shrink: 0;
-  margin-top: 5px;
 }
 
 /* ── Responsive ──────────────────────────────────────────────── */

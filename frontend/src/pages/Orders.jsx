@@ -8,6 +8,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Cell,
 } from 'recharts'
+import { fmtPct, fmtDate } from '../utils/formatters'
 import './Orders.css'
 import './ProfitInsights.css'
 
@@ -47,16 +48,11 @@ const DEMO_CATEGORY = [
   { name: 'Accessories',    value: 74 },
 ]
 
-/* ── Formatting helpers ─────────────────────────────────────── */
+/* ── Order-count formatter (rounds to integer, K suffix for thousands) ── */
 const fmtOrd = (n) => {
   const abs = Math.abs(n || 0)
   if (abs >= 1000) return `${((n || 0) / 1000).toFixed(1)}K`
   return String(Math.round(n || 0))
-}
-const fmtPct = (n) => `${(n || 0).toFixed(1)}%`
-const fmtDate = (s) => {
-  try { return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
-  catch { return s }
 }
 
 /* ── Custom tooltips ────────────────────────────────────────── */
