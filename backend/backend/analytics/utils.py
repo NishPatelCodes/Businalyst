@@ -2,7 +2,11 @@
 Shared utilities: column detection, JSON serialization, type checks.
 """
 
+import logging
+
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 from .constants import (
     NUMERIC_OR_DATE_LIKE,
@@ -23,10 +27,19 @@ def filter_df_by_date(df, start_date=None, end_date=None, date_column=None):
         return df.copy()
     df = df.copy()
     df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
-    if start_date is not None:
-        df = df[df[date_col] >= pd.to_datetime(start_date)]
-    if end_date is not None:
-        df = df[df[date_col] <= pd.to_datetime(end_date)]
+    start_ts = pd.to_datetime(start_date) if start_date is not None else None
+    end_ts = pd.to_datetime(end_date) if end_date is not None else None
+    if start_ts is not None and end_ts is not None and start_ts > end_ts:
+        logger.warning(
+            "filter_df_by_date: start_date after end_date (%s > %s); using full unfiltered copy",
+            start_date,
+            end_date,
+        )
+        return df.copy()
+    if start_ts is not None:
+        df = df[df[date_col] >= start_ts]
+    if end_ts is not None:
+        df = df[df[date_col] <= end_ts]
     return df
 
 
@@ -126,7 +139,6 @@ def is_good_categorical(df, col, min_categories=2, max_categories=50):
 def dataframe_to_rows(df, columns=None):
     """Convert DataFrame to list of dicts with JSON-serializable values."""
     columns = columns or list(df.columns)
-    rows = []
-    for _, row in df.iterrows():
-        rows.append({col: to_json_value(row[col]) for col in columns})
-    return rows
+    subset = df.reindex(columns=columns)
+    records = subset.to_dict(orient="records")
+    return [{col: to_json_value(rec[col]) for col in columns} for rec in records]

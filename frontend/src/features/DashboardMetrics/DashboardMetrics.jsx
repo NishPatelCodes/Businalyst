@@ -6,18 +6,20 @@ import { KpiContext } from '../../context/KpiContext'
 /**
  * Metrics row: gauge chart + KPI metric cards.
  */
-const DashboardMetrics = () => {
+const DashboardMetrics = ({ periodTotals }) => {
   const { kpiData } = useContext(KpiContext)
-  // Compute gauge value from profit margin (target 25%) or use default
-  const profitMargin = kpiData?.revenue_sum
-    ? Math.round((kpiData.profit_sum / kpiData.revenue_sum) * 100)
+  // BUG 2 fix: use period-filtered totals for gauge so it responds to date filter
+  const revSum = periodTotals?.revenue_sum ?? kpiData?.revenue_sum
+  const profSum = periodTotals?.profit_sum ?? kpiData?.profit_sum
+  const profitMargin = revSum
+    ? Math.round((profSum / revSum) * 100)
     : 68
   const target = 28
   const gaugeValue = Math.min(100, Math.max(0, profitMargin))
   return (
     <>
       <GaugeChart value={gaugeValue} target={target} />
-      <MetricCards />
+      <MetricCards periodTotals={periodTotals} />
     </>
   )
 }

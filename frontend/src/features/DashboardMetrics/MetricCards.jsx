@@ -3,12 +3,21 @@ import { useNavigate } from 'react-router-dom'
 import { KpiContext } from '../../context/KpiContext'
 import './MetricCards.css'
 
-const formatCurrency = (n) =>
-  Number(n).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-
-const MetricCards = () => {
-  const { kpiData, isDemoData } = useContext(KpiContext)
+const MetricCards = ({ periodTotals }) => {
+  const { kpiData, isDemoData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
   const navigate = useNavigate()
+
+  const profitSum = periodTotals?.profit_sum ?? kpiData?.profit_sum
+  const revenueSum = periodTotals?.revenue_sum ?? kpiData?.revenue_sum
+  const ordersSum = periodTotals?.orders_sum ?? kpiData?.orders_sum
+
+  const formatCompactNumber = (n) => {
+    const numeric = Number(n)
+    if (!Number.isFinite(numeric)) return '--'
+    if (Math.abs(numeric) >= 1e6) return `${(numeric / 1e6).toFixed(1)}M`
+    if (Math.abs(numeric) >= 1e3) return `${(numeric / 1e3).toFixed(0)}k`
+    return `${Math.round(numeric).toLocaleString()}`
+  }
 
   const profitIcon = (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -48,33 +57,36 @@ const MetricCards = () => {
   const kpis = [
     {
       title: 'Profit',
-      value: kpiData != null ? formatCurrency(kpiData.profit_sum) : '—',
-      current: kpiData?.profit_sum ?? 0,
-      target: kpiData?.profit_sum ? Math.ceil(kpiData.profit_sum * 1.2) : 30000,
+      value: profitSum != null ? formatCurrency(profitSum) : '—',
+      current: Number(profitSum ?? 0),
+      target: profitSum ? Math.ceil(Number(profitSum) * 1.2) : 30000,
       change: '—',
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: profitIcon,
+      insightsRoute: '/profit-insights',
     },
     {
       title: 'Revenue',
-      value: kpiData != null ? formatCurrency(kpiData.revenue_sum) : '—',
-      current: kpiData?.revenue_sum ?? 0,
-      target: kpiData?.revenue_sum ? Math.ceil(kpiData.revenue_sum * 1.1) : 200000,
+      value: revenueSum != null ? formatCurrency(revenueSum) : '—',
+      current: Number(revenueSum ?? 0),
+      target: revenueSum ? Math.ceil(Number(revenueSum) * 1.1) : 200000,
       change: '—',
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: revenueIcon,
+      insightsRoute: '/revenue-insights',
     },
     {
       title: 'Orders',
-      value: kpiData != null ? Number(kpiData.orders_sum).toLocaleString() : '—',
-      current: kpiData?.orders_sum ?? 0,
-      target: kpiData?.orders_sum ? Math.ceil(kpiData.orders_sum * 1.2) : 1500,
+      value: ordersSum != null ? Number(ordersSum).toLocaleString() : '—',
+      current: Number(ordersSum ?? 0),
+      target: ordersSum ? Math.ceil(Number(ordersSum) * 1.2) : 1500,
       change: '—',
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: ordersIcon,
+      insightsRoute: '/orders',
     },
     {
       title: 'Expense',
@@ -85,6 +97,7 @@ const MetricCards = () => {
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file') : 'Upload a file to see data',
       icon: conversionIcon,
+      insightsRoute: '/expense-insights',
     },
     {
       title: 'Customers',
@@ -95,10 +108,17 @@ const MetricCards = () => {
       changeType: 'positive',
       comparison: kpiData ? (isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file (row count)') : 'Upload a file to see data',
       icon: customersIcon,
+      insightsRoute: '/analytics/customers',
     },
   ]
 
-  const formatTarget = (current, target) => {
+  const formatTarget = (title, current, target) => {
+    if (['Profit', 'Revenue', 'Expense'].includes(title)) {
+      return `${formatCompactCurrency(current)} / ${formatCompactCurrency(target)}`
+    }
+    if (['Orders', 'Customers'].includes(title)) {
+      return `${formatCompactNumber(current)} / ${formatCompactNumber(target)}`
+    }
     if (target >= 1000000) return `${(current / 1000000).toFixed(1)}M / ${(target / 1000000).toFixed(1)}M`
     if (target >= 1000) return `${(current / 1000).toFixed(0)}k / ${(target / 1000).toFixed(0)}k`
     return `${current.toFixed(1)}% / ${target.toFixed(1)}%`
@@ -113,21 +133,18 @@ const MetricCards = () => {
     <>
       {kpis.map((kpi, index) => {
         const progress = calculateProgress(kpi.current, kpi.target)
-        const isProfitCard = index === 0
         return (
           <div key={index} className="kpi-card">
-            {isProfitCard && (
-              <button 
-                className="kpi-more-insights-button"
-                onClick={() => navigate('/profit-insights')}
-                title="More Insights"
-              >
-                More Insights
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            )}
+            <button
+              className="kpi-more-insights-button"
+              onClick={() => navigate(kpi.insightsRoute)}
+              title="More Insights"
+            >
+              More Insights
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
             <div className="kpi-header">
               <div className="kpi-icon">{kpi.icon}</div>
               <div className="kpi-title">{kpi.title}</div>
@@ -137,9 +154,7 @@ const MetricCards = () => {
               <div className="kpi-progress-bar">
                 <div className="kpi-progress-fill" style={{ width: `${progress}%` }}></div>
               </div>
-              <div className="kpi-target-text">{formatTarget(kpi.current, kpi.target)}</div>
-            </div>
-            <div className="kpi-footer">
+              <div className="kpi-target-text">{formatTarget(kpi.title, kpi.current, kpi.target)}</div>
             </div>
           </div>
         )

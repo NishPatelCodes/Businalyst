@@ -1,4 +1,6 @@
 /* Top Profit Table - Apple Style */
+/* BUG 6 fix: changed overflow from hidden to visible so the inner
+   table-wrapper scrollbar isn't clipped at the card edge. */
 .top-profit-table-container {
   background: #ffffff;
   border-radius: var(--card-border-radius);
@@ -7,7 +9,7 @@
     0 1px 3px rgba(0, 0, 0, 0.04),
     0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .top-profit-table-container .table-header {
@@ -40,17 +42,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.top-profit-table-container .table-badge--button {
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.top-profit-table-container .table-badge--button:hover {
-  background: #ebebed;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
-}
-
 .top-profit-table-container .table-badge--muted {
   background: #f5f5f7;
   color: #86868b;
@@ -64,8 +55,11 @@
   text-align: center;
 }
 
+/* BUG 6 fix: always constrain the table wrapper to the card width so
+   the horizontal scrollbar stays within the card boundary. */
 .top-profit-table-container .table-wrapper {
   overflow-x: auto;
+  max-width: 100%;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -159,108 +153,6 @@
   padding-left: 32px;
 }
 
-.top-profit-table-container .name-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.top-profit-table-container .avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #007AFF, #5AC8FA);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: #ffffff;
-  flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.top-profit-table-container .name-text {
-  font-weight: 500;
-  color: #1d1d1f;
-  font-size: 14px;
-}
-
-.top-profit-table-container .date-cell {
-  color: #86868b;
-  font-size: 13px;
-  font-weight: 400;
-}
-
-.top-profit-table-container .type-cell {
-  font-weight: 500;
-  color: #1d1d1f;
-}
-
-.top-profit-table-container .amount-cell {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: #1d1d1f;
-}
-
-.top-profit-table-container .status-badge {
-  display: inline-block;
-  padding: 5px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: 0.01em;
-}
-
-.top-profit-table-container .status-badge.status-success {
-  background: #d1f2d1;
-  color: #2d5016;
-}
-
-.top-profit-table-container .status-badge.status-send {
-  background: #ffe5e5;
-  color: #8b1a1a;
-}
-
-.top-profit-table-container .status-badge.status-payment {
-  background: #e5f2ff;
-  color: #003d7a;
-}
-
-.top-profit-table-container .status-badge.status-received {
-  background: #d1f2d1;
-  color: #2d5016;
-}
-
-.top-profit-table-container .actions-cell {
-  text-align: right;
-}
-
-.top-profit-table-container .action-button {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--card-border-radius);
-  background: transparent;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #86868b;
-  transition: all 0.2s ease;
-}
-
-.top-profit-table-container .action-button:hover {
-  background: #f5f5f7;
-  color: #1d1d1f;
-}
-
-.top-profit-table-container .action-button:active {
-  background: #ebebed;
-  transform: scale(0.96);
-}
-
 /* Responsive Styles */
 @media (max-width: 768px) {
   .top-profit-table-container .table-header {
@@ -286,9 +178,5 @@
     font-size: 13px;
   }
 
-  .top-profit-table-container .avatar {
-    width: 32px;
-    height: 32px;
-    font-size: 11px;
-  }
+  /* Avatar/name-cell/status badge styles intentionally removed (unused in current table render) */
 }

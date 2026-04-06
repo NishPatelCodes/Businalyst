@@ -60,10 +60,15 @@ const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
       }, 10)
       
       if (initialRange && initialRange.start && initialRange.end) {
-        setTempRange(initialRange)
-        const startDate = new Date(initialRange.start)
-        setLeftMonth(new Date(startDate))
-        const nextMonth = new Date(startDate)
+        // Normalize to local midnight so isDateInRange / isStartDate / isEndDate
+        // comparisons match the calendar's local-midnight Date objects exactly.
+        const normStart = new Date(initialRange.start)
+        normStart.setHours(0, 0, 0, 0)
+        const normEnd = new Date(initialRange.end)
+        normEnd.setHours(0, 0, 0, 0)
+        setTempRange({ start: normStart, end: normEnd })
+        setLeftMonth(new Date(normStart))
+        const nextMonth = new Date(normStart)
         nextMonth.setMonth(nextMonth.getMonth() + 1)
         setRightMonth(nextMonth)
       } else {
@@ -142,12 +147,15 @@ const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
   const handleDateClick = (date) => {
     const normalizedDate = new Date(date)
     normalizedDate.setHours(0, 0, 0, 0)
+
+    // BUG 8 fix: prevent selecting future dates
+    const todayNorm = new Date()
+    todayNorm.setHours(0, 0, 0, 0)
+    if (normalizedDate > todayNorm) return
     
     if (!tempRange.start || (tempRange.start && tempRange.end)) {
-      // Start new selection
       setTempRange({ start: normalizedDate, end: null })
     } else {
-      // Complete the range
       const normalizedStart = new Date(tempRange.start)
       normalizedStart.setHours(0, 0, 0, 0)
       
@@ -180,7 +188,6 @@ const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
         start = new Date(today)
         start.setDate(today.getDate() - today.getDay())
         end = new Date(today)
-        end.setDate(start.getDate() + 6)
         break
       case 'lastWeek':
         start = new Date(today)
@@ -190,7 +197,7 @@ const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
         break
       case 'thisMonth':
         start = new Date(today.getFullYear(), today.getMonth(), 1)
-        end = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+        end = new Date(today)
         break
       case 'lastMonth':
         start = new Date(today.getFullYear(), today.getMonth() - 1, 1)
@@ -198,7 +205,7 @@ const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
         break
       case 'thisYear':
         start = new Date(today.getFullYear(), 0, 1)
-        end = new Date(today.getFullYear(), 11, 31)
+        end = new Date(today)
         break
       case 'lastYear':
         start = new Date(today.getFullYear() - 1, 0, 1)
@@ -207,6 +214,11 @@ const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
       case 'custom':
       default:
         return
+    }
+
+    // BUG 8 fix: clamp end date to today so presets never extend into the future
+    if (end > today) {
+      end = new Date(today)
     }
 
     setTempRange({ start, end })
@@ -303,12 +315,15 @@ const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
             const dateNormalized = new Date(date)
             dateNormalized.setHours(0, 0, 0, 0)
             const isToday = dateNormalized.getTime() === today.getTime()
+            // BUG 8 fix: gray out and disable all future dates
+            const isFuture = dateNormalized > today
 
             return (
               <button
                 key={index}
-                className={`calendar-day ${!dayObj.isCurrentMonth ? 'other-month' : ''} ${isInRange ? 'in-range' : ''} ${isStart ? 'start-date' : ''} ${isEnd ? 'end-date' : ''} ${isToday ? 'today' : ''}`}
+                className={`calendar-day ${!dayObj.isCurrentMonth ? 'other-month' : ''} ${isInRange ? 'in-range' : ''} ${isStart ? 'start-date' : ''} ${isEnd ? 'end-date' : ''} ${isToday ? 'today' : ''} ${isFuture ? 'future-date' : ''}`}
                 onClick={() => handleDateClick(date)}
+                disabled={isFuture}
               >
                 {date.getDate()}
               </button>

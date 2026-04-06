@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useContext } from 'react'
+import React, { useMemo, useContext, useState } from 'react'
 import { KpiContext } from '../../context/KpiContext'
 import './OrdersComparisonBarChart.css'
 
-const OrdersComparisonBarChart = () => {
+const OrdersComparisonBarChart = ({ periodRatio = 1 }) => {
   const { kpiData } = useContext(KpiContext)
-  const [yearDropdownOpen, setYearDropdownOpen] = useState(false)
+  const [hoverIndex, setHoverIndex] = useState(null)
 
   const { labels, currentValues, previousValues, hasComparison, totalCurrent } = useMemo(() => {
     const backendLabels = kpiData?.comparison_bar_labels
@@ -12,24 +12,27 @@ const OrdersComparisonBarChart = () => {
     const backendPrevious = kpiData?.comparison_bar_previous
     const backendHasPrevious = kpiData?.comparison_bar_has_previous ?? false
 
+    const safeRatio = periodRatio === 0 ? 1 : periodRatio
+
     if (
       Array.isArray(backendLabels) && backendLabels.length > 0 &&
       Array.isArray(backendCurrent) && backendCurrent.length > 0
     ) {
-      const total = backendCurrent.reduce((a, b) => a + b, 0)
+      const scaledCurrent = backendCurrent.map((v) => Number(v) * safeRatio)
+      const scaledPrevious = Array.isArray(backendPrevious) ? backendPrevious.map((v) => Number(v) * safeRatio) : null
+      const total = scaledCurrent.reduce((a, b) => a + b, 0)
       return {
         labels: backendLabels,
-        currentValues: backendCurrent,
-        previousValues: backendHasPrevious && Array.isArray(backendPrevious) ? backendPrevious : null,
+        currentValues: scaledCurrent,
+        previousValues: backendHasPrevious && Array.isArray(backendPrevious) ? scaledPrevious : null,
         hasComparison: backendHasPrevious && Array.isArray(backendPrevious),
         totalCurrent: Math.round(total),
       }
     }
 
-    // Demo / fallback data
     const demoLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-    const demoCurrent = [18, 22, 20, 24, 19, 26, 28]
-    const demoPrevious = [14, 18, 16, 20, 17, 22, 20]
+    const demoCurrent = [18, 22, 20, 24, 19, 26, 28].map((v) => v * safeRatio)
+    const demoPrevious = [14, 18, 16, 20, 17, 22, 20].map((v) => v * safeRatio)
     return {
       labels: demoLabels,
       currentValues: demoCurrent,
@@ -42,6 +45,7 @@ const OrdersComparisonBarChart = () => {
     kpiData?.comparison_bar_current,
     kpiData?.comparison_bar_previous,
     kpiData?.comparison_bar_has_previous,
+    periodRatio,
   ])
 
   const allSeries = hasComparison && previousValues
@@ -50,16 +54,26 @@ const OrdersComparisonBarChart = () => {
   const maxVal = Math.max(...allSeries, 1)
   const yMax = Math.ceil(maxVal * 1.15) || 10
   const chartWidth = 560
-  const chartHeight = 180
-  const padding = { top: 12, right: 32, bottom: 36, left: 36 }
+  const chartHeight = 200
+  const padding = { top: 16, right: 40, bottom: 40, left: 12 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom
 
   const groupWidth = graphWidth / labels.length
-  const gap = 8
-  const barWidth = Math.max(10, hasComparison
-    ? (groupWidth - gap) / 2
-    : groupWidth * 0.6)
+
+  // ── SPACING FIX ──────────────────────────────────────────────────────────────
+  // Root cause of the original bug: the entire groupWidth was consumed by bars
+  // (2 × barWidth + innerGap = groupWidth), leaving 0px between product groups.
+  //
+  // Fix: reserve 30% of each group as outer padding (15% each side), and use
+  // only 70% for the two bars + their inner gap.  Inner gap tightened to 4px.
+  const CAT_PAD_RATIO = 0.30          // 30% of groupWidth = space between groups
+  const innerGap = 4                  // gap between Current and Previous within one group
+  const usableWidth = groupWidth * (1 - CAT_PAD_RATIO)
+  const barWidth = Math.max(8, hasComparison
+    ? (usableWidth - innerGap) / 2
+    : usableWidth * 0.8)
+  // ─────────────────────────────────────────────────────────────────────────────
 
   const valueToY = (v) =>
     padding.top + graphHeight - (v / yMax) * graphHeight
@@ -71,6 +85,19 @@ const OrdersComparisonBarChart = () => {
     if (arr[arr.length - 1] !== yMax) arr.push(yMax)
     return arr
   }, [yMax])
+
+  const fmtTick = (tick) =>
+    tick >= 1e6
+      ? `${(tick / 1e6).toFixed(1)}M`
+      : tick >= 1e3
+        ? `${(tick / 1e3).toFixed(0)}k`
+        : tick
+
+  const hovered = hoverIndex != null ? {
+    label: labels[hoverIndex],
+    current: currentValues[hoverIndex] ?? 0,
+    previous: hasComparison && previousValues ? (previousValues[hoverIndex] ?? 0) : null,
+  } : null
 
   return (
     <div className="ocb-card">
@@ -92,25 +119,39 @@ const OrdersComparisonBarChart = () => {
               </span>
             )}
           </div>
-          <div className="ocb-dropdown-wrap">
-            <button
-              type="button"
-              className="ocb-dropdown-btn"
-              onClick={() => setYearDropdownOpen((o) => !o)}
-              aria-expanded={yearDropdownOpen}
-            >
-              Period
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </div>
         </div>
       </div>
 
-      <div className="ocb-chart-wrap">
-        <svg className="ocb-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="xMidYMid meet">
-          {/* Horizontal grid only - subtle dotted */}
+      <div className="ocb-chart-wrap" style={{ position: 'relative' }}>
+        {/* Hover tooltip */}
+        {hovered && (
+          <div
+            className="ocb-tooltip"
+            style={{
+              left: `${((padding.left + (hoverIndex + 0.5) * groupWidth) / chartWidth) * 100}%`,
+            }}
+          >
+            <div className="ocb-tooltip-label">{String(hovered.label)}</div>
+            <div className="ocb-tooltip-row">
+              <span className="ocb-tooltip-swatch ocb-tooltip-swatch--current" />
+              Current: <strong>{Math.round(hovered.current).toLocaleString()}</strong>
+            </div>
+            {hovered.previous != null && (
+              <div className="ocb-tooltip-row">
+                <span className="ocb-tooltip-swatch ocb-tooltip-swatch--prev" />
+                Previous: <strong>{Math.round(hovered.previous).toLocaleString()}</strong>
+              </div>
+            )}
+          </div>
+        )}
+
+        <svg
+          className="ocb-chart"
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+          preserveAspectRatio="xMidYMid meet"
+          onMouseLeave={() => setHoverIndex(null)}
+        >
+          {/* Horizontal grid */}
           <g className="ocb-grid">
             {yTicks.map((tick) => {
               const y = valueToY(tick)
@@ -128,6 +169,7 @@ const OrdersComparisonBarChart = () => {
               )
             })}
           </g>
+
           {/* Y-axis labels (right) */}
           <g className="ocb-y-axis">
             {yTicks.map((tick) => (
@@ -138,35 +180,60 @@ const OrdersComparisonBarChart = () => {
                 textAnchor="start"
                 className="ocb-axis-label"
               >
-                {tick >= 1e6
-                  ? `${(tick / 1e6).toFixed(1)}M`
-                  : tick >= 1e3
-                    ? `${(tick / 1e3).toFixed(0)}k`
-                    : tick}
+                {fmtTick(tick)}
               </text>
             ))}
           </g>
+
+          {/* Hover column highlight */}
+          {hoverIndex != null && (
+            <rect
+              x={padding.left + hoverIndex * groupWidth}
+              y={padding.top}
+              width={groupWidth}
+              height={graphHeight}
+              fill="rgba(0,0,0,0.04)"
+              rx="3"
+              pointerEvents="none"
+            />
+          )}
+
           {/* Bars */}
           {labels.map((label, i) => {
             const groupCenter = padding.left + (i + 0.5) * groupWidth
+            const isHovered = hoverIndex === i
+
             const currentVal = currentValues[i] || 0
             const currentH = (currentVal / yMax) * graphHeight
             const currentX = hasComparison
-              ? groupCenter - barWidth - gap / 2
+              ? groupCenter - innerGap / 2 - barWidth
               : groupCenter - barWidth / 2
 
             const prevVal = hasComparison && previousValues ? (previousValues[i] || 0) : null
             const prevH = prevVal != null ? (prevVal / yMax) * graphHeight : 0
-            const prevX = groupCenter + gap / 2
+            const prevX = groupCenter + innerGap / 2
 
             return (
-              <g key={label}>
+              <g
+                key={label}
+                className="ocb-bar-group"
+                onMouseEnter={() => setHoverIndex(i)}
+                style={{ cursor: 'default' }}
+              >
+                {/* invisible hit zone for the whole group */}
+                <rect
+                  x={padding.left + i * groupWidth}
+                  y={padding.top}
+                  width={groupWidth}
+                  height={graphHeight}
+                  fill="transparent"
+                />
                 <rect
                   x={currentX}
                   y={valueToY(currentVal)}
                   width={barWidth}
                   height={currentH}
-                  fill="#2563eb"
+                  fill={isHovered ? '#1d4ed8' : '#2563eb'}
                   rx="3"
                   className="ocb-bar"
                 />
@@ -176,7 +243,7 @@ const OrdersComparisonBarChart = () => {
                     y={valueToY(prevVal)}
                     width={barWidth}
                     height={prevH}
-                    fill="#bfdbfe"
+                    fill={isHovered ? '#93c5fd' : '#bfdbfe'}
                     rx="3"
                     className="ocb-bar"
                   />
@@ -184,13 +251,24 @@ const OrdersComparisonBarChart = () => {
               </g>
             )
           })}
+
+          {/* Baseline */}
+          <line
+            x1={padding.left}
+            y1={padding.top + graphHeight}
+            x2={padding.left + graphWidth}
+            y2={padding.top + graphHeight}
+            stroke="#e5e7eb"
+            strokeWidth="1"
+          />
+
           {/* X-axis labels */}
           <g className="ocb-x-axis">
             {labels.map((label, i) => (
               <text
                 key={label}
                 x={padding.left + (i + 0.5) * groupWidth}
-                y={chartHeight - 12}
+                y={padding.top + graphHeight + 22}
                 textAnchor="middle"
                 className="ocb-axis-label"
               >

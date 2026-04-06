@@ -14,23 +14,21 @@ const PLACEHOLDER = [
 
 function formatDateShort(str) {
   if (!str) return ''
+  // If str is already a Date object (from Dashboard seriesOverride), use it
+  // directly. For ISO strings like '2024-01-15', extract UTC year/month to
+  // avoid timezone drift (UTC midnight → wrong local day in western TZs).
+  if (str instanceof Date) {
+    const month = str.toLocaleDateString('en-US', { month: 'short' })
+    return `${month} ${str.getFullYear()}`
+  }
   const d = new Date(str)
   if (isNaN(d.getTime())) return String(str)
-  const month = d.toLocaleDateString('en-US', { month: 'short' })
-  const year = d.getFullYear()
-  return `${month} ${year}`
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return `${monthNames[d.getUTCMonth()]} ${d.getUTCFullYear()}`
 }
 
-function formatCurrency(value) {
-  const n = Number(value)
-  if (Number.isNaN(n)) return '—'
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`
-  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}k`
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
-}
-
-const LineChart = ({ hideTabs = false, metric, variant }) => {
-  const { kpiData } = useContext(KpiContext)
+const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
+  const { kpiData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
   const [selectedTab, setSelectedTab] = useState(hideTabs ? (metric === 'revenue' ? 'Revenue' : 'Profit') : 'Revenue')
   const [hoverIndex, setHoverIndex] = useState(null)
   const containerRef = useRef(null)
@@ -54,8 +52,21 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
     return () => observer.disconnect()
   }, [])
 
-  // Build chart data from backend: date_data + revenue_data or profit_data
+  // BUG 2/12 fix: when seriesOverride is supplied (Dashboard dateRange filtering),
+  // always use it as the source of truth — even when empty. Previously an empty
+  // override silently fell back to raw unfiltered kpiData, making the chart ignore
+  // the date filter and show stale data.
   const chartData = useMemo(() => {
+    const override = Array.isArray(seriesOverride) ? seriesOverride : null
+
+    if (override !== null) {
+      const valueKey = selectedTab === 'Revenue' ? 'revenue' : 'profit'
+      return override.map((pt) => ({
+        date: pt.date,
+        value: Number(pt?.[valueKey]) || 0,
+      }))
+    }
+
     const dates = kpiData?.date_data
     const revenue = kpiData?.revenue_data
     const profit = kpiData?.profit_data
@@ -68,7 +79,7 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
       }))
     }
     return PLACEHOLDER.map((d) => ({ date: d.date, value: d.value }))
-  }, [kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab])
+  }, [seriesOverride, kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab])
 
   const values = chartData.map((d) => d.value)
   const maxVal = Math.max(0, ...values)
@@ -100,13 +111,64 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
     ...d,
   }))
 
-  // Smooth bezier curve path builder
+  // Monotone cubic interpolation for smooth, data-faithful curves
   const buildSmoothPath = (pts) => {
     if (pts.length < 2) return ''
+    if (pts.length === 2) return `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y}`
+
+    const n = pts.length
+
+    // Compute slopes using Fritsch-Carlson monotone method
+    const deltas = []
+    const slopes = []
+
+    for (let i = 0; i < n - 1; i++) {
+      deltas.push({
+        dx: pts[i + 1].x - pts[i].x,
+        dy: pts[i + 1].y - pts[i].y,
+      })
+      slopes.push(deltas[i].dy / deltas[i].dx)
+    }
+
+    // Assign tangent slopes at each point
+    const tangents = new Array(n)
+    tangents[0] = slopes[0]
+    tangents[n - 1] = slopes[n - 2]
+
+    for (let i = 1; i < n - 1; i++) {
+      if (slopes[i - 1] * slopes[i] <= 0) {
+        tangents[i] = 0
+      } else {
+        tangents[i] = (slopes[i - 1] + slopes[i]) / 2
+      }
+    }
+
+    // Monotonicity adjustment
+    for (let i = 0; i < n - 1; i++) {
+      if (Math.abs(slopes[i]) < 1e-6) {
+        tangents[i] = 0
+        tangents[i + 1] = 0
+      } else {
+        const alpha = tangents[i] / slopes[i]
+        const beta = tangents[i + 1] / slopes[i]
+        const s = alpha * alpha + beta * beta
+        if (s > 9) {
+          const tau = 3 / Math.sqrt(s)
+          tangents[i] = tau * alpha * slopes[i]
+          tangents[i + 1] = tau * beta * slopes[i]
+        }
+      }
+    }
+
+    // Build SVG path with cubic bezier segments
     let d = `M ${pts[0].x} ${pts[0].y}`
-    for (let i = 0; i < pts.length - 1; i++) {
-      const cpx = (pts[i].x + pts[i + 1].x) / 2
-      d += ` C ${cpx} ${pts[i].y} ${cpx} ${pts[i + 1].y} ${pts[i + 1].x} ${pts[i + 1].y}`
+    for (let i = 0; i < n - 1; i++) {
+      const dx = deltas[i].dx / 3
+      const cp1x = pts[i].x + dx
+      const cp1y = pts[i].y + tangents[i] * dx
+      const cp2x = pts[i + 1].x - dx
+      const cp2y = pts[i + 1].y - tangents[i + 1] * dx
+      d += ` C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${pts[i + 1].x} ${pts[i + 1].y}`
     }
     return d
   }
@@ -116,12 +178,21 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
     ? ''
     : `${linePath} L ${points[points.length - 1].x} ${pad.top + graphH} L ${points[0].x} ${pad.top + graphH} Z`
 
-  // X labels: first, last, and up to 3 in between (evenly spaced by index)
+  // BUG 9 fix: deduplicate x-axis labels so consecutive ticks that format to
+  // the same "Month Year" string (e.g. two data points in March) aren't repeated.
   const xLabelIndices = useMemo(() => {
     if (n <= 2) return [...Array(n).keys()]
     const step = (n - 1) / 4
-    return [0, Math.round(step), Math.round(step * 2), Math.round(step * 3), n - 1].filter((v, i, a) => a.indexOf(v) === i)
-  }, [n])
+    const candidates = [0, Math.round(step), Math.round(step * 2), Math.round(step * 3), n - 1]
+      .filter((v, i, a) => a.indexOf(v) === i)
+    const seen = new Set()
+    return candidates.filter((idx) => {
+      const label = formatDateShort(chartData[idx]?.date)
+      if (seen.has(label)) return false
+      seen.add(label)
+      return true
+    })
+  }, [n, chartData])
 
   // Y ticks: 0 and a few steps
   const yTicks = useMemo(() => {
@@ -153,25 +224,25 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
       {!hideTabs && (
         <div className="line-chart-header">
           <div className="chart-header-left">
-            <div className="line-chart-tabs">
-              <button
-                type="button"
-                className={`line-chart-tab ${selectedTab === 'Revenue' ? 'line-chart-tab--active' : ''}`}
-                onClick={() => setSelectedTab('Revenue')}
-              >
-                Revenue
-              </button>
-              <button
-                type="button"
-                className={`line-chart-tab ${selectedTab === 'Profit' ? 'line-chart-tab--active' : ''}`}
-                onClick={() => setSelectedTab('Profit')}
-              >
-                Profit
-              </button>
-            </div>
             <div className="line-chart-current-total">
               {formatCurrency(values.reduce((a, b) => a + b, 0))}
             </div>
+          </div>
+          <div className="line-chart-tabs">
+            <button
+              type="button"
+              className={`line-chart-tab ${selectedTab === 'Revenue' ? 'line-chart-tab--active' : ''}`}
+              onClick={() => setSelectedTab('Revenue')}
+            >
+              Revenue
+            </button>
+            <button
+              type="button"
+              className={`line-chart-tab ${selectedTab === 'Profit' ? 'line-chart-tab--active' : ''}`}
+              onClick={() => setSelectedTab('Profit')}
+            >
+              Profit
+            </button>
           </div>
         </div>
       )}
@@ -203,7 +274,7 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
                 textAnchor="end"
                 className="chart-axis-label"
               >
-                {formatCurrency(tick)}
+                {formatCompactCurrency(tick)}
               </text>
             ))}
           </g>
@@ -280,10 +351,10 @@ const LineChart = ({ hideTabs = false, metric, variant }) => {
               key={i}
               cx={p.x}
               cy={p.y}
-              r={hoverIndex === i ? 5 : 3}
-              fill={hoverIndex === i ? '#2563eb' : '#2563eb'}
+              r={hoverIndex === i ? 5 : 0}
+              fill="#2563eb"
               stroke="#fff"
-              strokeWidth={hoverIndex === i ? 2 : 1.5}
+              strokeWidth={2}
               style={{ transition: 'r 0.15s ease' }}
             />
           ))}

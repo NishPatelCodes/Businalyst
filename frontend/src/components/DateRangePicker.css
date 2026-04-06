@@ -243,6 +243,18 @@
   color: #9ca3af;
 }
 
+/* BUG 8 fix: gray out and disable future dates */
+.calendar-day.future-date {
+  color: #d1d5db;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.calendar-day.future-date:hover {
+  background: transparent;
+}
+
 .calendar-day.today {
   font-weight: 700;
   color: #111827;

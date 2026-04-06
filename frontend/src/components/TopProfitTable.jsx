@@ -8,9 +8,14 @@ const SortIcon = () => (
   </svg>
 )
 
-const formatCell = (value, key) => {
+const MONEY_COLUMN_PATTERN = /(profit|revenue|sales|amount|cost|price|expense|total)/i
+
+const formatCell = (value, key, formatCurrency) => {
   if (value == null || value === '') return '—'
   if (typeof value === 'number') {
+    if (MONEY_COLUMN_PATTERN.test(String(key))) {
+      return formatCurrency(value)
+    }
     if (Number.isInteger(value)) return value.toLocaleString()
     return Number(value).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
   }
@@ -24,35 +29,29 @@ const columnLabel = (key) => {
     .join(' ')
 }
 
-const TopProfitTable = () => {
-  const { kpiData } = useContext(KpiContext)
+const TopProfitTable = ({ periodRatio = 1 }) => {
+  const { kpiData, formatCurrency } = useContext(KpiContext)
   const rows = Array.isArray(kpiData?.top5_profit) ? kpiData.top5_profit : []
   const columns = Array.isArray(kpiData?.top5_columns) && kpiData.top5_columns.length > 0
     ? kpiData.top5_columns
     : (rows.length > 0 ? Object.keys(rows[0]) : [])
 
-  const handleExportCSV = () => {
-    if (rows.length === 0 || columns.length === 0) return
-    const csvRows = [columns.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')]
-    rows.forEach((row) => {
-      csvRows.push(
-        columns.map((col) => {
-          const v = row[col]
-          const s = v == null ? '' : String(v)
-          return `"${s.replace(/"/g, '""')}"`
-        }).join(',')
-      )
-    })
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'top5-profit.csv'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+  // BUG 3 fix: when periodRatio is 0 (no data in selected range), skip scaling
+  // so dollar columns retain their original values instead of becoming $0.
+  const scaledRows =
+    periodRatio === 1 || periodRatio === 0
+      ? rows
+      : rows.map((row) => {
+          const out = { ...row }
+          columns.forEach((col) => {
+            if (!MONEY_COLUMN_PATTERN.test(col)) return
+            const numeric = Number(out[col])
+            if (Number.isFinite(numeric)) out[col] = numeric * periodRatio
+          })
+          return out
+        })
 
-  if (rows.length === 0) {
+  if (scaledRows.length === 0) {
     return (
       <div className="top-profit-table-container">
         <div className="table-header">
@@ -72,7 +71,8 @@ const TopProfitTable = () => {
         <h3 className="table-title">Top 5 by Profit</h3>
       </div>
 
-      <div className={`table-wrapper ${manyColumns ? 'table-wrapper--scroll' : ''}`}>
+      {/* BUG 6 fix: always apply scroll wrapper so columns are never clipped */}
+      <div className="table-wrapper table-wrapper--scroll">
         <table
           className="data-table data-table--dynamic"
           style={manyColumns ? { minWidth: columns.length * 120 } : undefined}
@@ -90,11 +90,11 @@ const TopProfitTable = () => {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, index) => (
+            {scaledRows.map((row, index) => (
               <tr key={index}>
                 {columns.map((col) => (
                   <td key={col} className="data-cell">
-                    {formatCell(row[col], col)}
+                    {formatCell(row[col], col, formatCurrency)}
                   </td>
                 ))}
               </tr>

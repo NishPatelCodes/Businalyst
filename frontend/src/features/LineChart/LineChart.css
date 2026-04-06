@@ -21,19 +21,20 @@
   margin-bottom: 14px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--spacing-3);
+  align-items: center;
+  gap: 24px;
 }
 
 .chart-header-left {
   flex: 1;
+  min-width: 0;
 }
 
 .line-chart-tabs {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 4px;
+  flex-shrink: 0;
 }
 
 .line-chart-tab {
@@ -93,7 +94,6 @@
   font-weight: 700;
   color: #111827;
   letter-spacing: -0.03em;
-  margin-top: 6px;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
@@ -133,6 +133,12 @@
   font-size: 10px;
   font-weight: 500;
   fill: #94a3b8;
+}
+
+.chart-y-axis-line {
+  stroke: #e5e7eb;
+  stroke-width: 1;
+  pointer-events: none;
 }
 
 .chart-tooltip--wealthsimple {

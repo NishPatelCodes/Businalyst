@@ -3,17 +3,21 @@ import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import TopProfitTable from '../components/TopProfitTable'
 import { KpiContext } from '../context/KpiContext'
+import InsightsTopNav from '../components/InsightsTopNav'
+import InsightsPageHeader from '../components/InsightsPageHeader'
+import useFilteredSeries from '../hooks/useFilteredSeries'
+import { fmtNum, fmtPct, fmtDate } from '../utils/formatters'
+import { exportCSV, exportPDF } from '../utils/exportUtils'
 import {
   ComposedChart, BarChart, LineChart as RechartLineChart,
   Area, Bar, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea,
   Cell,
 } from 'recharts'
-import { fmtCur, fmtNum, fmtPct, fmtDate } from '../utils/formatters'
 import './ProfitInsights.css'
 
 /* ── Custom tooltips ──────────────────────────────────────── */
-const TrendTooltip = ({ active, payload, label }) => {
+const TrendTooltip = ({ active, payload, label, formatCurrency }) => {
   if (!active || !payload || !payload.length) return null
   return (
     <div className="pil-tooltip">
@@ -22,14 +26,14 @@ const TrendTooltip = ({ active, payload, label }) => {
         <div key={p.dataKey} className="pil-tooltip-row">
           <span className="pil-tooltip-dot" style={{ background: p.color }} />
           <span className="pil-tooltip-label">{p.name}</span>
-          <span className="pil-tooltip-val">{fmtCur(p.value)}</span>
+          <span className="pil-tooltip-val">{formatCurrency(p.value)}</span>
         </div>
       ))}
     </div>
   )
 }
 
-const BarTooltip = ({ active, payload, label }) => {
+const BarTooltip = ({ active, payload, label, formatCurrency }) => {
   if (!active || !payload || !payload.length) return null
   return (
     <div className="pil-tooltip">
@@ -38,7 +42,7 @@ const BarTooltip = ({ active, payload, label }) => {
         <div key={p.dataKey} className="pil-tooltip-row">
           <span className="pil-tooltip-dot" style={{ background: p.color || p.fill }} />
           <span className="pil-tooltip-label">{p.name}</span>
-          <span className="pil-tooltip-val">{fmtCur(p.value)}</span>
+          <span className="pil-tooltip-val">{formatCurrency(p.value)}</span>
         </div>
       ))}
     </div>
@@ -92,54 +96,38 @@ const RiskBadge = ({ level }) => {
   )
 }
 
-/* ── Insight icon ──────────────────────────────────────────── */
-const InsightIcon = ({ type }) => {
-  const map = {
-    up:   { symbol: '▲', color: '#059669' },
-    down: { symbol: '▼', color: '#dc2626' },
-    warn: { symbol: '⚠', color: '#d97706' },
-    ok:   { symbol: '✓', color: '#6b7280' },
-  }
-  const { symbol, color } = map[type] || map['ok']
-  return <span className="pil-insight-icon" style={{ color }}>{symbol}</span>
-}
-
 /* ═══════════════════════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════ */
 const ProfitInsights = () => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
 
   const [dateRange, setDateRange] = useState('30D')
   const [showRevenue, setShowRevenue] = useState(false)
   const [showCost, setShowCost] = useState(false)
   const [marginMode, setMarginMode] = useState('pct') // 'pct' | 'abs'
+  const [exportOpen, setExportOpen] = useState(false)
 
-  /* ── Raw arrays ─────────────────────────────────────────── */
+  /* ── Raw per-row arrays ──────────────────────────────────── */
   const dateData    = useMemo(() => kpiData?.date_data || [], [kpiData])
   const profitData  = useMemo(() => (kpiData?.profit_data || []).map(Number), [kpiData])
   const revenueData = useMemo(() => (kpiData?.revenue_data || []).map(Number), [kpiData])
   const costData    = useMemo(() => revenueData.map((r, i) => r - (profitData[i] || 0)), [revenueData, profitData])
-  // Prefer profit_by_product_data (actual profit per product) over bar_data (revenue per product)
-  const profitByProductData = useMemo(
-    () => kpiData?.profit_by_product_data || kpiData?.bar_data || [],
-    [kpiData]
-  )
+  const productData = useMemo(() => kpiData?.product_data || [], [kpiData])
 
-  /* ── Date range filtering ────────────────────────────────── */
-  const filteredSeries = useMemo(() => {
+  /* ── Single filtered timeline (drives every component) ───── */
+  const allSeries = useMemo(() => {
     const all = dateData.map((d, i) => ({
       date: d,
       profit: profitData[i] || 0,
       revenue: revenueData[i] || 0,
       cost: costData[i] || 0,
+      product: productData[i] || '',
     }))
-    if (!all.length) return []
-    const sorted = [...all].sort((a, b) => new Date(a.date) - new Date(b.date))
-    const limits = { '7D': 7, '30D': 30, '90D': 90, '1Y': 365 }
-    const n = limits[dateRange]
-    return n ? sorted.slice(-n) : sorted
-  }, [dateData, profitData, revenueData, costData, dateRange])
+    return all
+  }, [dateData, profitData, revenueData, costData, productData])
+
+  const filteredSeries = useFilteredSeries(allSeries, dateRange)
 
   /* ── Negative profit periods for ReferenceArea ──────────── */
   const negativeRanges = useMemo(() => {
@@ -154,26 +142,27 @@ const ProfitInsights = () => {
     return ranges
   }, [filteredSeries])
 
-  /* ── Volatility stats ────────────────────────────────────── */
+  /* ── Volatility stats (from filtered timeline) ───────────────── */
   const stats = useMemo(() => {
-    if (!profitData.length) return { mean: 0, stdDev: 0, cv: 0, riskLevel: 'Low', best: null, worst: null, negFreq: 0 }
-    const mean = profitData.reduce((a, b) => a + b, 0) / profitData.length
-    const variance = profitData.reduce((a, b) => a + (b - mean) ** 2, 0) / profitData.length
+    if (!filteredSeries.length) return { mean: 0, stdDev: 0, cv: 0, riskLevel: 'Low', best: null, worst: null, negFreq: 0 }
+    const profits = filteredSeries.map(p => p.profit)
+    const mean = profits.reduce((a, b) => a + b, 0) / profits.length
+    const variance = profits.reduce((a, b) => a + (b - mean) ** 2, 0) / profits.length
     const stdDev = Math.sqrt(variance)
     const cv = mean !== 0 ? Math.abs(stdDev / mean) * 100 : 0
     const riskLevel = cv < 20 ? 'Low' : cv < 40 ? 'Moderate' : 'High'
 
-    const maxIdx = profitData.indexOf(Math.max(...profitData))
-    const minIdx = profitData.indexOf(Math.min(...profitData))
-    const negFreq = (profitData.filter(p => p < 0).length / profitData.length) * 100
+    const maxIdx = profits.indexOf(Math.max(...profits))
+    const minIdx = profits.indexOf(Math.min(...profits))
+    const negFreq = (profits.filter(p => p < 0).length / profits.length) * 100
 
     return {
       mean, stdDev, cv, riskLevel,
-      best: { date: dateData[maxIdx], value: profitData[maxIdx] },
-      worst: { date: dateData[minIdx], value: profitData[minIdx] },
+      best: { date: filteredSeries[maxIdx]?.date, value: profits[maxIdx] },
+      worst: { date: filteredSeries[minIdx]?.date, value: profits[minIdx] },
       negFreq,
     }
-  }, [profitData, dateData])
+  }, [filteredSeries])
 
   /* ── Drawdown series (from peak) ─────────────────────────── */
   const drawdownSeries = useMemo(() => {
@@ -206,18 +195,39 @@ const ProfitInsights = () => {
   const avgNetMargin  = useMemo(() => marginSeries.length ? marginSeries.reduce((a, b) => a + b.netMargin, 0) / marginSeries.length : 0, [marginSeries])
   const avgRollingMargin = useMemo(() => marginSeries.length ? marginSeries[marginSeries.length - 1].rollingAvgMargin : 0, [marginSeries])
 
-  /* ── Composition chart ───────────────────────────────────── */
-  const totalProductProfit = useMemo(() => profitByProductData.reduce((s, b) => s + (Number(b.value) || 0), 0), [profitByProductData])
-  const compositionData = useMemo(() =>
-    [...profitByProductData]
-      .sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0))
-      .map(b => ({
-        name: b.name,
-        profit: Number(b.value) || 0,
-        pct: totalProductProfit > 0 ? (Number(b.value) / totalProductProfit) * 100 : 0,
-      })),
-    [profitByProductData, totalProductProfit]
+  /* ── Composition chart (grouped from filtered timeline) ──── */
+  const hasProductData = useMemo(() => filteredSeries.some(pt => pt.product), [filteredSeries])
+  const profitByProductFallback = useMemo(
+    () => kpiData?.profit_by_product_data || kpiData?.bar_data || [],
+    [kpiData]
   )
+  const compositionData = useMemo(() => {
+    if (hasProductData) {
+      const byProduct = {}
+      filteredSeries.forEach(pt => {
+        if (!pt.product) return
+        byProduct[pt.product] = (byProduct[pt.product] || 0) + pt.profit
+      })
+      const entries = Object.entries(byProduct)
+        .filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6)
+      const total = entries.reduce((s, [, v]) => s + v, 0)
+      return entries.map(([name, profit]) => ({
+        name,
+        profit,
+        pct: total > 0 ? (profit / total) * 100 : 0,
+      }))
+    }
+    const fallback = [...profitByProductFallback]
+      .sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0))
+    const total = fallback.reduce((s, b) => s + (Number(b.value) || 0), 0)
+    return fallback.map(b => ({
+      name: b.name,
+      profit: Number(b.value) || 0,
+      pct: total > 0 ? ((Number(b.value) || 0) / total) * 100 : 0,
+    }))
+  }, [hasProductData, filteredSeries, profitByProductFallback])
 
   /* ── Cost series for cost-pressure chart ─────────────────── */
   const costPressureSeries = useMemo(() => filteredSeries.map(pt => ({
@@ -232,51 +242,36 @@ const ProfitInsights = () => {
     return filteredSeries.reduce((s, p) => s + p.profit, 0) / filteredSeries.length
   }, [filteredSeries])
 
-  /* ── Fixed/variable cost split ───────────────────────────── */
-  const expenseSum = kpiData?.expense_sum || 0
-  // Fixed/variable split: 35/65 is a conservative SMB approximation (SCORE.org benchmark) used when
-  // granular cost-category data is unavailable. Actual ratios vary by industry (retail ~20/80, SaaS ~60/40).
+  /* ── Fixed/variable cost split (period totals from filtered timeline) ── */
+  const periodSums = useMemo(() => {
+    if (!filteredSeries.length) return { revenue: 0, cost: 0, expense: 0 }
+    const revenue = filteredSeries.reduce((s, p) => s + p.revenue, 0)
+    const cost = filteredSeries.reduce((s, p) => s + p.cost, 0)
+    return { revenue, cost, expense: cost }
+  }, [filteredSeries])
+  const expenseSum = periodSums.expense
   const fixedCost  = expenseSum * 0.35
   const varCost    = expenseSum * 0.65
-  const revenueSum = kpiData?.revenue_sum || 1
+  const revenueSum = periodSums.revenue || 1
   const costRatio  = (expenseSum / revenueSum) * 100
 
-  /* ── Auto-generate insights ──────────────────────────────── */
-  const insights = useMemo(() => {
-    const list = []
-    if (compositionData.length) {
-      const top = compositionData[0]
-      list.push({ type: 'up', text: `${top.name} is the top profit driver at ${fmtPct(top.pct)} of total product profit (${fmtCur(top.profit)}).` })
-      const bottom = compositionData[compositionData.length - 1]
-      const bottomType = bottom.pct < 10 ? 'warn' : 'ok'
-      list.push({ type: bottomType, text: `${bottom.name} contributes only ${fmtPct(bottom.pct)} — review pricing or consider deprioritizing.` })
-    }
-    const nm = avgNetMargin
-    // 20% net margin: widely cited SMB health threshold (SBA / Harvard Business Review benchmarks)
-    if (nm < 20) {
-      list.push({ type: 'warn', text: `Net margin ${fmtPct(nm)} is below 20% threshold — cost structure review recommended.` })
-    } else {
-      list.push({ type: 'ok', text: `Net margin ${fmtPct(nm)} exceeds 20% target — margin health is acceptable.` })
-    }
-    // 80% cost-to-revenue: threshold at which profit margin drops below 20%, flagging structural cost pressure
-    if (costRatio > 80) {
-      list.push({ type: 'down', text: `Cost-to-revenue ratio is ${fmtPct(costRatio)} — expenses consume most of revenue, limiting profit ceiling.` })
-    } else {
-      list.push({ type: 'ok', text: `Cost-to-revenue ratio is ${fmtPct(costRatio)}, leaving ${fmtPct(100 - costRatio)} margin headroom.` })
-    }
-    const riskType = stats.riskLevel === 'Low' ? 'ok' : stats.riskLevel === 'Moderate' ? 'warn' : 'down'
-    list.push({ type: riskType, text: `Profit volatility is ${stats.riskLevel} (CV ${fmtPct(stats.cv)}). Std deviation: ${fmtCur(stats.stdDev)}.` })
-    if (filteredSeries.length >= 2) {
-      const first = filteredSeries[0].profit
-      const last  = filteredSeries[filteredSeries.length - 1].profit
-      const chg = first !== 0 ? ((last - first) / first) * 100 : 0
-      const changeType = chg >= 0 ? 'up' : 'down'
-      list.push({ type: changeType, text: `Period-over-period profit change: ${chg >= 0 ? '+' : ''}${fmtPct(chg)} (${fmtCur(first)} → ${fmtCur(last)}).` })
-    }
-    return list.slice(0, 6)
-  }, [compositionData, avgNetMargin, costRatio, stats, filteredSeries])
+  // (Insight panel currently hard-coded / coming soon)
 
   const RANGES = ['7D', '30D', '90D', '1Y', 'ALL']
+
+  /* ── Export handlers (use filtered data for timeline consistency) ── */
+  const handleExportCSV = () => {
+    const cols = ['date', 'profit', 'revenue', 'cost']
+    exportCSV({
+      columns: cols,
+      rows: filteredSeries,
+      filename: `profit-insights-${dateRange}.csv`,
+    })
+  }
+
+  const handleExportPDF = () => {
+    exportPDF()
+  }
 
   return (
     <div className="pi-page">
@@ -284,76 +279,38 @@ const ProfitInsights = () => {
 
       <div className="pi-shell">
         {/* ═══ TOP NAV ════════════════════════════════════════════════ */}
-        <header className="pi-topnav">
-          <div className="pi-breadcrumbs">
-            <Link to="/dashboard" className="pi-bc-link">Dashboard</Link>
-            <span className="pi-bc-sep">/</span>
-            <span className="pi-bc-link">Performance</span>
-            <span className="pi-bc-sep">/</span>
-            <span className="pi-bc-active">Profit</span>
-          </div>
-
-          <div className="pi-topnav-search">
-            <svg className="pi-search-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
-              <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M11 11L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            <input type="text" placeholder="Search Anything" className="pi-search-input" />
-          </div>
-
-          <div className="pi-topnav-actions">
-            <button className="pi-nav-btn">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M2 4C2 2.9 2.9 2 4 2H16C17.1 2 18 2.9 18 4V12C18 13.1 17.1 14 16 14H6L2 18V4Z"
-                      stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                <circle cx="6.5" cy="8" r=".8" fill="currentColor"/>
-                <circle cx="10"  cy="8" r=".8" fill="currentColor"/>
-                <circle cx="13.5" cy="8" r=".8" fill="currentColor"/>
-              </svg>
-            </button>
-            <button className="pi-nav-btn">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <circle cx="10" cy="10" r="3.5" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M10 3V4M10 16V17M17 10H16M4 10H3M15.66 4.34L14.95 5.05M5.05 14.95L4.34 15.66M15.66 15.66L14.95 14.95M5.05 5.05L4.34 4.34"
-                      stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
-            <div className="pi-profile">
-              <img src="https://i.pravatar.cc/150?img=12" alt="Profile" className="pi-avatar"/>
-              <span className="pi-profile-name">Nish Patel</span>
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5"
-                      strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+        <InsightsTopNav
+          topNavPrefix="pi"
+          breadcrumbs={
+            <div className="pi-breadcrumbs">
+              <Link to="/dashboard" className="pi-bc-link">Dashboard</Link>
+              <span className="pi-bc-sep">/</span>
+              <span className="pi-bc-link">Performance</span>
+              <span className="pi-bc-sep">/</span>
+              <span className="pi-bc-active">Profit</span>
             </div>
-          </div>
-        </header>
+          }
+          profileName="Nish Patel"
+          avatarUrl="https://i.pravatar.cc/150?img=12"
+        />
 
         {/* ═══ SCROLLABLE CONTENT ════════════════════════════════════ */}
         <div className="pi-content">
 
-          {/* ── Page Header ─────────────────────────────────────────── */}
-          <div className="pil-page-header">
-            <div>
-              <h1 className="pil-page-title">Profit Intelligence</h1>
-              <p className="pil-page-subtitle">Financial diagnostic analysis · Current dataset</p>
-            </div>
-            <div className="pil-page-actions">
-              <button className="pil-btn-ghost">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Export CSV
-              </button>
-              <button className="pil-btn-ghost">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M5 8h6M5 5h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                Export PDF
-              </button>
-            </div>
-          </div>
+          {/* ── Page Header (gap below top nav): title + time range + export ── */}
+          <InsightsPageHeader
+            titlePrefix="pil"
+            exportPrefix="pi"
+            title="Profit Intelligence"
+            subtitle={`Financial diagnostic analysis · ${dateRange} timeline`}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            RANGES={RANGES}
+            exportOpen={exportOpen}
+            setExportOpen={setExportOpen}
+            onExportCSV={handleExportCSV}
+            onExportPDF={handleExportPDF}
+          />
 
           {/* ═══ SECTION 1: Profit Trend Analysis (Hero, full width) ═ */}
           <div className="pil-section">
@@ -363,19 +320,6 @@ const ProfitInsights = () => {
                 <h2 className="pil-section-heading">Profit Trend Analysis</h2>
               </div>
               <div className="pil-trend-controls">
-                {/* Date range tabs */}
-                <div className="pil-range-tabs">
-                  {RANGES.map(r => (
-                    <button
-                      key={r}
-                      className={`pil-range-tab${dateRange === r ? ' pil-range-tab--active' : ''}`}
-                      onClick={() => setDateRange(r)}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-                {/* Overlay toggles */}
                 <div className="pil-overlays">
                   <label className="pil-overlay-toggle">
                     <input type="checkbox" checked={showRevenue} onChange={e => setShowRevenue(e.target.checked)} />
@@ -403,13 +347,13 @@ const ProfitInsights = () => {
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tickFormatter={v => `$${fmtNum(v)}`}
+                  tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
                   tick={{ fontSize: 11, fill: '#9ca3af' }}
                   axisLine={false}
                   tickLine={false}
                   width={56}
                 />
-                <Tooltip content={<TrendTooltip />} />
+                <Tooltip content={<TrendTooltip formatCurrency={formatCurrency} />} />
                 {negativeRanges.map((r, i) => (
                   <ReferenceArea key={i} x1={r.x1} x2={r.x2} fill="#fee2e2" fillOpacity={0.4} />
                 ))}
@@ -421,7 +365,7 @@ const ProfitInsights = () => {
                     strokeDasharray="5 3"
                     strokeWidth={1}
                     strokeOpacity={0.45}
-                    label={{ value: `Avg ${fmtCur(filteredMean)}`, fill: '#2563eb', fontSize: 10, position: 'insideTopRight' }}
+                    label={{ value: `Avg ${formatCompactCurrency(filteredMean)}`, fill: '#2563eb', fontSize: 10, position: 'insideTopRight' }}
                   />
                 )}
                 <Area
@@ -474,38 +418,44 @@ const ProfitInsights = () => {
                 <span className="pil-meta">by product, sorted by contribution</span>
               </div>
 
-              <ResponsiveContainer width="100%" height={compositionData.length * 38 + 20}>
-                <BarChart
-                  layout="vertical"
-                  data={compositionData}
-                  margin={{ top: 0, right: 72, bottom: 0, left: 0 }}
-                >
-                  <CartesianGrid horizontal={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                  <XAxis
-                    type="number"
-                    tickFormatter={v => `$${fmtNum(v)}`}
-                    tick={{ fontSize: 11, fill: '#9ca3af' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={{ fontSize: 11, fill: '#374151' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={110}
-                  />
-                  <Tooltip content={<BarTooltip />} />
-                  <Bar dataKey="profit" name="Profit" fill="#2563eb" radius={[0, 2, 2, 0]} barSize={16}
-                    label={(props) => <CompositionLabel {...props} pct={compositionData[props.index]?.pct} />}
+              {compositionData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={compositionData.length * 38 + 20}>
+                  <BarChart
+                    layout="vertical"
+                    data={compositionData}
+                    margin={{ top: 0, right: 72, bottom: 0, left: 0 }}
                   >
-                    {compositionData.map((entry, index) => (
-                      <Cell key={index} fill="#2563eb" />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                    <CartesianGrid horizontal={false} stroke="#f0f0f0" strokeDasharray="3 0" />
+                    <XAxis
+                      type="number"
+                      tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
+                      tick={{ fontSize: 11, fill: '#9ca3af' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      tick={{ fontSize: 11, fill: '#374151' }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={110}
+                    />
+                    <Tooltip content={<BarTooltip formatCurrency={formatCurrency} />} />
+                    <Bar dataKey="profit" name="Profit" fill="#2563eb" radius={[0, 2, 2, 0]} barSize={16}
+                      label={(props) => <CompositionLabel {...props} pct={compositionData[props.index]?.pct} />}
+                    >
+                      {compositionData.map((entry, index) => (
+                        <Cell key={index} fill="#2563eb" />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p style={{ color: '#9ca3af', fontSize: 13, textAlign: 'center', padding: '24px 0' }}>
+                  No product-level profit data for the selected period.
+                </p>
+              )}
             </div>
 
             {/* Right: Margin Intelligence */}
@@ -539,13 +489,13 @@ const ProfitInsights = () => {
                     interval="preserveStartEnd"
                   />
                   <YAxis
-                    tickFormatter={marginMode === 'pct' ? v => `${v.toFixed(0)}%` : v => `$${fmtNum(v)}`}
+                    tickFormatter={marginMode === 'pct' ? (v) => `${v.toFixed(0)}%` : (v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
                     tick={{ fontSize: 11, fill: '#9ca3af' }}
                     axisLine={false}
                     tickLine={false}
                     width={44}
                   />
-                  <Tooltip content={marginMode === 'pct' ? <MarginTooltip /> : <TrendTooltip />} />
+                  <Tooltip content={marginMode === 'pct' ? <MarginTooltip /> : <TrendTooltip formatCurrency={formatCurrency} />} />
                   {marginMode === 'pct' ? (
                     <>
                       <Line type="monotone" dataKey="netMargin" name="Net Margin" stroke="#059669" strokeWidth={2} dot={false} activeDot={{ r: 3 }} />
@@ -593,14 +543,14 @@ const ProfitInsights = () => {
                   <div className="pil-cost-bar-track">
                     <div className="pil-cost-bar-fill" style={{ width: '35%', background: '#2563eb' }} />
                   </div>
-                  <span className="pil-cost-value">{fmtCur(fixedCost)}</span>
+                  <span className="pil-cost-value">{formatCurrency(fixedCost)}</span>
                 </div>
                 <div className="pil-cost-row">
                   <span className="pil-cost-label">Variable Cost</span>
                   <div className="pil-cost-bar-track">
                     <div className="pil-cost-bar-fill" style={{ width: '65%', background: '#9ca3af' }} />
                   </div>
-                  <span className="pil-cost-value">{fmtCur(varCost)}</span>
+                  <span className="pil-cost-value">{formatCurrency(varCost)}</span>
                 </div>
                 <div className="pil-cost-row">
                   <span className="pil-cost-label">Cost / Revenue</span>
@@ -615,8 +565,8 @@ const ProfitInsights = () => {
                 <BarChart data={costPressureSeries.slice(-20)} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
                   <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={3} />
-                  <YAxis tickFormatter={v => `$${fmtNum(v)}`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
-                  <Tooltip content={<BarTooltip />} />
+                  <YAxis tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
+                  <Tooltip content={<BarTooltip formatCurrency={formatCurrency} />} />
                   <Bar dataKey="profit" name="Profit" fill="#2563eb" barSize={6} radius={[2, 2, 0, 0]} />
                   <Bar dataKey="cost"   name="Cost"   fill="#fca5a5" barSize={6} radius={[2, 2, 0, 0]} />
                 </BarChart>
@@ -637,18 +587,18 @@ const ProfitInsights = () => {
                 <tbody>
                   <tr>
                     <td className="pil-stats-label">Std Deviation</td>
-                    <td className="pil-stats-val">{fmtCur(stats.stdDev)}</td>
+                    <td className="pil-stats-val">{formatCurrency(stats.stdDev)}</td>
                   </tr>
                   <tr>
                     <td className="pil-stats-label">Best Period</td>
                     <td className="pil-stats-val pil-stats-val--pos">
-                      {stats.best ? `${fmtDate(stats.best.date)} · ${fmtCur(stats.best.value)}` : '—'}
+                      {stats.best ? `${fmtDate(stats.best.date)} · ${formatCurrency(stats.best.value)}` : '—'}
                     </td>
                   </tr>
                   <tr>
                     <td className="pil-stats-label">Worst Period</td>
                     <td className="pil-stats-val pil-stats-val--neg">
-                      {stats.worst ? `${fmtDate(stats.worst.date)} · ${fmtCur(stats.worst.value)}` : '—'}
+                      {stats.worst ? `${fmtDate(stats.worst.date)} · ${formatCurrency(stats.worst.value)}` : '—'}
                     </td>
                   </tr>
                   <tr>
@@ -693,16 +643,9 @@ const ProfitInsights = () => {
                 <p className="pil-section-title">Section 04</p>
                 <h2 className="pil-section-heading">Insight &amp; Action</h2>
               </div>
-              <span className="pil-meta">Diagnostics updated from current dataset</span>
             </div>
-
-            <div className="pil-insights-grid">
-              {insights.map((ins, i) => (
-                <div key={i} className="pil-insight-item">
-                  <InsightIcon type={ins.type} />
-                  <p className="pil-insight-text">{ins.text}</p>
-                </div>
-              ))}
+            <div className="pil-coming-soon">
+              <span className="pil-coming-soon-text">Coming soon</span>
             </div>
           </div>
 

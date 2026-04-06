@@ -64,39 +64,85 @@
   overscroll-behavior: contain;
 }
 
-/* Tooltip: place name + value when hovering a dot */
+/* Tooltip — appears above marker dot, fixed to viewport */
 .map-tooltip {
   position: fixed;
-  transform: translate(-50%, -100%);
-  margin-top: -12px;
-  padding: 8px 12px;
-  background: #1d1d1f;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   pointer-events: none;
-  z-index: 100;
-  white-space: nowrap;
+  z-index: 1000;
+  transform: translate(-50%, calc(-100% - 10px));
+  animation: mapTooltipIn 0.14s ease-out;
+}
+
+.map-tooltip--below {
+  transform: translate(-50%, 10px);
+}
+
+.map-tooltip-content {
+  position: relative;
+  padding: 6px 12px;
+  background: rgba(29, 29, 31, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22),
+              inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  white-space: nowrap;
+}
+
+.map-tooltip-content::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  background: rgba(29, 29, 31, 0.94);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.map-tooltip:not(.map-tooltip--below) .map-tooltip-content::after {
+  bottom: -3.5px;
+}
+
+.map-tooltip--below .map-tooltip-content::after {
+  top: -3.5px;
 }
 
 .map-tooltip-name {
+  font-size: 12px;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .map-tooltip-value {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
-  opacity: 0.9;
+  opacity: 0.7;
 }
 
+@keyframes mapTooltipIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Marker dot states */
 .map-marker-g {
+  cursor: default;
+}
+
+.map-marker-interactive {
   cursor: pointer;
+  transition: transform 0.15s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.map-marker-interactive:hover {
+  transform: scale(1.15);
 }
 
 .composable-map {

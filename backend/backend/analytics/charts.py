@@ -17,9 +17,22 @@ from . import utils as analytics_utils
 TOP_PRODUCTS_MAX = 6
 
 
+def _find_product_col(df):
+    """Return the first product/category column found in df."""
+    for c in ("product name", "product_name", "productname", "product"):
+        if c in df.columns:
+            return c
+    for c in ("category", "sub-category", "sub_category"):
+        if c in df.columns:
+            return c
+    return None
+
+
 def linechart(df):
     """
-    Build line chart data: revenue_data, profit_data, date_data.
+    Build line chart data: revenue_data, profit_data, date_data,
+    and optionally product_data (per-row product name for client-side
+    composition filtering by date range).
     """
     date_col = find_date_col(df)
     missing = []
@@ -35,12 +48,25 @@ def linechart(df):
     df = df.copy()
     df["revenue"] = pd.to_numeric(df["revenue"], errors="coerce")
     df["profit"] = pd.to_numeric(df["profit"], errors="coerce")
+    # Orders are optional for the line chart (used by some client-side comparisons).
+    if "orders" in df.columns:
+        df["orders"] = pd.to_numeric(df["orders"], errors="coerce").fillna(0)
     date_series = df[date_col].astype(str)
-    return {
+
+    result = {
         "revenue_data": df["revenue"].tolist(),
         "profit_data": df["profit"].tolist(),
         "date_data": date_series.tolist(),
     }
+
+    product_col = _find_product_col(df)
+    if product_col is not None:
+        result["product_data"] = df[product_col].astype(str).str.strip().tolist()
+
+    if "orders" in df.columns:
+        result["orders_data"] = df["orders"].tolist()
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -171,19 +197,6 @@ def _find_order_id_col(df):
         if c in df.columns:
             return c
     return None
-
-
-def _infer_orders_series(df_bucket):
-    """
-    For a grouped bucket DataFrame, count orders.
-    Priority: 'orders' column sum > unique order_id count > row count.
-    """
-    if "orders" in df_bucket.columns:
-        return pd.to_numeric(df_bucket["orders"], errors="coerce").fillna(0).sum()
-    order_id_col = _find_order_id_col(df_bucket)
-    if order_id_col is not None:
-        return df_bucket[order_id_col].nunique()
-    return len(df_bucket)
 
 
 def multiline_chart(df, granularity="monthly"):
@@ -318,6 +331,12 @@ def profit_by_product_chart(df):
     # Sort descending; stable sort (mergesort) preserves insertion order for products with equal profit
     agg = agg.sort_values(ascending=False, kind="mergesort")
     agg = agg.head(TOP_PRODUCTS_MAX)
+
+    if len(agg) < 1:
+        return None
+
+    data = [{"name": str(n), "value": float(v)} for n, v in agg.items()]
+    return {"profit_by_product_column": product_col, "profit_by_product_data": data}
 
 
 def top_products_by_revenue_chart(df):

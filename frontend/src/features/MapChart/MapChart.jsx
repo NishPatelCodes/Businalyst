@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useCallback } from 'react'
 import {
   ComposableMap,
   Geographies,
@@ -11,6 +11,8 @@ import './MapChart.css'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
 
+const MIN_ZOOM_FOR_TOOLTIP = 1.5
+
 const DEFAULT_MARKERS = [
   { name: 'North America', value: 0, coordinates: [-100, 45] },
   { name: 'South America', value: 0, coordinates: [-60, -15] },
@@ -20,20 +22,42 @@ const DEFAULT_MARKERS = [
   { name: 'Australia', value: 0, coordinates: [120, -25] },
 ]
 
-const formatValue = (v) => {
-  if (v == null || typeof v !== 'number') return ''
-  return Number(v).toLocaleString()
-}
-
-const MapChart = () => {
+const MapChart = ({ periodRatio = 1 }) => {
   const { kpiData } = useContext(KpiContext)
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
   const [tooltip, setTooltip] = useState(null)
-  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
 
-  const mapData = Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
+  const isZoomedEnough = position.zoom >= MIN_ZOOM_FOR_TOOLTIP
+
+  const handleMarkerEnter = useCallback((marker, e) => {
+    if (position.zoom < MIN_ZOOM_FOR_TOOLTIP || e.buttons !== 0) return
+    const mr = e.currentTarget.getBoundingClientRect()
+    const cx = mr.left + mr.width / 2
+    const cy = mr.top
+    const cyBottom = mr.bottom
+    const flipped = cy < 80
+    setTooltip({
+      name: marker.name,
+      value: marker.value,
+      x: cx,
+      y: flipped ? cyBottom : cy,
+      flipped,
+    })
+  }, [position.zoom])
+
+  const handleMarkerLeave = useCallback(() => {
+    setTooltip(null)
+  }, [])
+
+  const mapDataRaw = Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
     ? kpiData.map_data
     : DEFAULT_MARKERS
+  // BUG 10 fix: skip scaling when periodRatio is 0 to prevent all markers showing 0
+  const safeRatio = periodRatio === 0 ? 1 : periodRatio
+  const mapData = mapDataRaw.map((m) => ({
+    ...m,
+    value: Math.round((Number(m?.value) || 0) * safeRatio),
+  }))
   const mapColumn = kpiData?.map_column || 'region'
   const topName = mapData[0]?.name ?? '—'
   const marketCount = mapData.length
@@ -41,32 +65,22 @@ const MapChart = () => {
   const handleZoomIn = () => {
     if (position.zoom >= 4) return
     setPosition((pos) => ({ ...pos, zoom: pos.zoom * 1.5 }))
+    setTooltip(null)
   }
 
   const handleZoomOut = () => {
     if (position.zoom <= 1) return
     setPosition((pos) => ({ ...pos, zoom: pos.zoom / 1.5 }))
+    setTooltip(null)
   }
 
   const handleMoveEnd = ({ coordinates, zoom }) => {
     setPosition({ coordinates: coordinates ?? position.coordinates, zoom: zoom ?? position.zoom })
+    setTooltip(null)
   }
 
   const handleWheel = (e) => {
     e.stopPropagation()
-  }
-
-  const onMarkerEnter = (marker, e) => {
-    setTooltip({ name: marker.name, value: marker.value, percentage: marker.percentage })
-    setTooltipPos({ x: e.clientX, y: e.clientY })
-  }
-
-  const onMarkerMove = (e) => {
-    if (tooltip) setTooltipPos({ x: e.clientX, y: e.clientY })
-  }
-
-  const onMarkerLeave = () => {
-    setTooltip(null)
   }
 
   return (
@@ -82,20 +96,6 @@ const MapChart = () => {
 
       <div className="map-container">
         <div className="map-wrapper" onWheel={handleWheel}>
-          {tooltip && (
-            <div
-              className="map-tooltip"
-              style={{ left: tooltipPos.x, top: tooltipPos.y }}
-            >
-              <span className="map-tooltip-name">{tooltip.name}</span>
-              {(tooltip.value != null && tooltip.value !== 0) && (
-                <span className="map-tooltip-value">
-                  {formatValue(tooltip.value)} orders
-                  {tooltip.percentage != null ? ` (${tooltip.percentage}%)` : ''}
-                </span>
-              )}
-            </div>
-          )}
           <ComposableMap
             projection="geoMercator"
             projectionConfig={{
@@ -143,14 +143,12 @@ const MapChart = () => {
                   ))
                 }
               </Geographies>
-              {/* Dots = areas; hover shows place name + value */}
               {mapData.map((marker, index) => (
                 <Marker key={marker.name ?? index} coordinates={marker.coordinates}>
                   <g
-                    className="map-marker-g"
-                    onMouseEnter={(e) => onMarkerEnter(marker, e)}
-                    onMouseMove={(e) => onMarkerMove(e)}
-                    onMouseLeave={onMarkerLeave}
+                    className={`map-marker-g${isZoomedEnough ? ' map-marker-interactive' : ''}`}
+                    onMouseEnter={isZoomedEnough ? (e) => handleMarkerEnter(marker, e) : undefined}
+                    onMouseLeave={isZoomedEnough ? handleMarkerLeave : undefined}
                   >
                     <circle r={16} fill="#2563eb" fillOpacity={0.08} />
                     <circle r={14} fill="#2563eb" fillOpacity={0.12} />
@@ -194,7 +192,34 @@ const MapChart = () => {
               </svg>
             </button>
           </div>
+
+          <div className="map-legend-bottom">
+            {mapData.map((marker) => (
+              <div key={marker.name} className="map-legend-item-bottom">
+                <span className="map-legend-dot-bottom" style={{ background: '#2563eb' }} />
+                <span className="map-legend-name-bottom">
+                  {marker.name}{marker.value > 0 ? ` (${marker.value.toLocaleString()})` : ''}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {tooltip && (
+          <div
+            className={`map-tooltip${tooltip.flipped ? ' map-tooltip--below' : ''}`}
+            style={{ left: tooltip.x, top: tooltip.y }}
+          >
+            <div className="map-tooltip-content">
+              <span className="map-tooltip-name">{tooltip.name}</span>
+              {tooltip.value > 0 && (
+                <span className="map-tooltip-value">
+                  {tooltip.value.toLocaleString()}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="map-mini-stats">
           <div className="map-mini-stat">
