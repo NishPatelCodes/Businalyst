@@ -91,16 +91,6 @@
   gap: 4px;
 }
 
-.gauge-label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0;
-  line-height: var(--line-height-tight);
-}
-
 .gauge-value {
   font-size: 42px;
   font-weight: 700;
@@ -130,29 +120,6 @@
   white-space: nowrap;
 }
 
-.gauge-target-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px 8px;
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: 999px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-secondary);
-  line-height: var(--line-height-tight);
-  margin: 0;
-}
-
-.gauge-segment {
-  transition: all 0.4s ease;
-}
-
-.target-marker {
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
-}
-
 /* Responsive */
 @media (max-width: 1280px) {
   .gauge-value {
@@ -169,8 +136,4 @@
     font-size: var(--font-size-lg);
   }
   
-  .gauge-label,
-  .gauge-target-chip {
-    font-size: 10px;
-  }
 }

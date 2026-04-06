@@ -139,39 +139,6 @@ h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, label 
    UTILITY CLASSES
    ============================================ */
 
-.dashboard-card {
-  background: var(--card-bg);
-  -webkit-backdrop-filter: blur(var(--card-backdrop-blur));
-  backdrop-filter: blur(var(--card-backdrop-blur));
-  border-radius: var(--card-border-radius);
-  padding: var(--card-padding);
-  box-shadow: var(--card-shadow);
-  border: var(--card-border);
-  transition: all var(--transition-base);
-  display: flex;
-  flex-direction: column;
-}
-
-.dashboard-card:hover {
-  box-shadow: var(--card-shadow-hover);
-}
-
-.dashboard-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-4);
-}
-
-.dashboard-card-title {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
-  margin: 0;
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-normal);
-}
-
 /* Compact Card Utility */
 .card {
   background: var(--card-bg);

@@ -40,30 +40,6 @@
   line-height: 1.3;
 }
 
-.map-lightning-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: #f5f5f7;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  color: #1d1d1f;
-  flex-shrink: 0;
-}
-
-.map-lightning-btn:hover {
-  background: #e8e8ed;
-}
-
-.map-lightning-btn:active {
-  background: #d1d1d6;
-  transform: scale(0.96);
-}
-
 .map-container {
   flex: 1;
   display: flex;
@@ -177,40 +153,6 @@
   cursor: not-allowed;
 }
 
-/* Legend - Bottom Left */
-.map-legend-bottom {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 10;
-}
-
-.map-legend-item-bottom {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0;
-  background: transparent;
-}
-
-.map-legend-dot-bottom {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.map-legend-name-bottom {
-  font-size: 11px;
-  font-weight: 500;
-  color: #1d1d1f;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
 /* Mini stats - compact inline */
 .map-mini-stats {
   display: flex;
@@ -253,14 +195,5 @@
 @media (max-width: 768px) {
   .map-wrapper {
     min-height: 100px;
-  }
-
-  .map-legend {
-    flex-direction: column;
-  }
-  
-  .map-legend-item {
-    flex: none;
-    width: 100%;
   }
 }

@@ -137,18 +137,6 @@
   stroke-width: 1.5;
 }
 
-.nav-badge {
-  background: var(--color-success);
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: var(--font-weight-semibold);
-  padding: 1px var(--spacing-1);
-  border-radius: 4px;
-  min-width: 15px;
-  text-align: center;
-  line-height: var(--line-height-tight);
-}
-
 .nav-item-expandable {
   justify-content: space-between;
 }
