@@ -33,6 +33,7 @@ const Dashboard = () => {
   const { kpiData, isDemoData, currencies, selectedCurrency, setSelectedCurrency } = useContext(KpiContext)
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
+  const [activeQuickRangeMonths, setActiveQuickRangeMonths] = useState(null)
   // Derive initial date range from actual data bounds using local-midnight dates
   // so they match the calendar picker's dates and filtering works correctly.
   const [dateRange, setDateRange] = useState(() => {
@@ -99,6 +100,34 @@ const Dashboard = () => {
 
   const handleDateRangeApply = (range) => {
     setDateRange(range)
+    setActiveQuickRangeMonths(null)
+  }
+
+  const dataDateBounds = useMemo(() => {
+    const dates = Array.isArray(kpiData?.date_data) ? kpiData.date_data : []
+    const parsed = dates.map((d) => parseDateLocal(d)).filter(Boolean)
+    if (!parsed.length) return null
+    const min = new Date(Math.min(...parsed))
+    const max = new Date(Math.max(...parsed))
+    min.setHours(0, 0, 0, 0)
+    max.setHours(0, 0, 0, 0)
+    return { min, max }
+  }, [kpiData?.date_data])
+
+  const handleQuickRangeSelect = (months) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const end = dataDateBounds?.max && dataDateBounds.max < today ? new Date(dataDateBounds.max) : new Date(today)
+    const start = new Date(end)
+    start.setMonth(end.getMonth() - months)
+    start.setHours(0, 0, 0, 0)
+
+    const boundedStart = dataDateBounds?.min && start < dataDateBounds.min ? new Date(dataDateBounds.min) : start
+
+    setDateRange({ start: boundedStart, end })
+    setActiveQuickRangeMonths(months)
+    setIsDatePickerOpen(false)
   }
 
   // Calculate dropdown position and handle click outside
@@ -284,6 +313,30 @@ const Dashboard = () => {
           <div className="dashboard-header">
             <h1 className="dashboard-title">Dashboard</h1>
             <div className="dashboard-actions">
+              <div className="quick-range-group" role="group" aria-label="Quick date ranges">
+                <button
+                  type="button"
+                  className={`quick-range-button ${activeQuickRangeMonths === 1 ? 'active' : ''}`}
+                  onClick={() => handleQuickRangeSelect(1)}
+                >
+                  1 month
+                </button>
+                <button
+                  type="button"
+                  className={`quick-range-button ${activeQuickRangeMonths === 3 ? 'active' : ''}`}
+                  onClick={() => handleQuickRangeSelect(3)}
+                >
+                  3 months
+                </button>
+                <button
+                  type="button"
+                  className={`quick-range-button ${activeQuickRangeMonths === 6 ? 'active' : ''}`}
+                  onClick={() => handleQuickRangeSelect(6)}
+                >
+                  6 months
+                </button>
+              </div>
+
               <div className="time-period-selector" style={{ position: 'relative' }}>
                 <button 
                   className="time-period-button"

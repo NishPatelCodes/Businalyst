@@ -33,7 +33,6 @@ const Sidebar = () => {
         </div>
         <span className="sidebar-brand">Businalyst</span>
       </div>
-
       {/* Search */}
       <div className="sidebar-search">
         <div className="sidebar-search-inner">
