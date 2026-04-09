@@ -91,7 +91,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  --topbar-control-height: 34px;
+  --topbar-control-height: 30px;
   --topbar-control-radius: 8px;
   flex-wrap: nowrap;
   flex-shrink: 0;
@@ -113,15 +113,16 @@
 /* ============================================
    TOP BAR CONTROLS
    ============================================ */
-
 .quick-range-group {
   display: inline-flex;
   align-items: center;
   height: var(--topbar-control-height);
   background: var(--bg-primary);
-  border: 1px solid var(--color-neutral-400);
+  border: 1px solid #e5e7eb; /* lighter border */
   border-radius: var(--topbar-control-radius);
-  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset; /* premium inner highlight */
   overflow: hidden;
 }
 
@@ -131,7 +132,7 @@
   justify-content: center;
   height: var(--topbar-control-height);
   border: 0;
-  border-right: 1px solid var(--color-neutral-300);
+  border-right: 1px solid #f0f1f3; /* softer divider */
   background: transparent;
   color: var(--text-primary);
   padding: 6px 11px;
@@ -139,7 +140,7 @@
   font-weight: var(--font-weight-medium);
   line-height: 1;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .quick-range-button:last-child {
@@ -147,11 +148,11 @@
 }
 
 .quick-range-button:hover {
-  background: var(--bg-secondary);
+  background: #f9fafb;
 }
 
 .quick-range-button.active {
-  background: var(--bg-secondary);
+  background: #f3f4f6;
   color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
 }
@@ -163,22 +164,27 @@
   height: var(--topbar-control-height);
   padding: 6px 11px;
   background: var(--bg-primary);
-  border: 1px solid var(--color-neutral-400);
+  border: 1px solid #e5e7eb;
   border-radius: var(--topbar-control-radius);
-  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
   font-size: 0.8rem;
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: all 0.15s ease;
   white-space: nowrap;
   box-sizing: border-box;
   font-family: inherit;
 }
 
 .time-period-button:hover {
-  background: var(--bg-secondary);
-  border-color: var(--color-neutral-400);
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 
 .time-period-button svg {
@@ -191,9 +197,11 @@
   top: calc(100% + 8px);
   right: 0;
   background: var(--bg-primary);
-  border: var(--card-border);
+  border: 1px solid #e5e7eb;
   border-radius: var(--card-border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.05);
   min-width: 280px;
   z-index: 1000;
   padding: 8px;
@@ -236,11 +244,11 @@
 }
 
 .dropdown-item:hover {
-  background: var(--bg-secondary);
+  background: #f9fafb;
 }
 
 .dropdown-item.active {
-  background: var(--bg-secondary);
+  background: #f3f4f6;
   color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
 }
@@ -259,7 +267,7 @@
 
 .dropdown-divider {
   height: 1px;
-  background: var(--color-neutral-200);
+  background: #f0f1f3;
   margin: 8px 0;
 }
 
@@ -287,7 +295,7 @@
 .date-input-group input[type="date"] {
   padding: 8px 12px;
   background: var(--bg-primary);
-  border: var(--card-border);
+  border: 1px solid #e5e7eb;
   border-radius: var(--card-border-radius);
   font-size: var(--font-size-sm);
   color: var(--text-primary);
@@ -297,7 +305,7 @@
 }
 
 .date-input-group input[type="date"]:hover {
-  border-color: var(--color-neutral-300);
+  border-color: #d1d5db;
 }
 
 .date-input-group input[type="date"]:focus {
@@ -312,29 +320,32 @@
   gap: 6px;
   height: var(--topbar-control-height);
   padding: 6px 11px;
+
   background: var(--bg-primary);
-  border: 1px solid var(--color-neutral-400);
+  border: 1px solid #e5e7eb;
   border-radius: var(--topbar-control-radius);
-  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04);
+
   font-size: 0.8rem;
-  color: var(--text-primary);
   font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-width: fit-content;
-  overflow: visible;
   box-sizing: border-box;
+  white-space: nowrap;
+
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+
+  transition: all 0.15s ease;
 }
 
 .action-button:hover {
-  background: var(--bg-secondary);
-  border-color: var(--color-neutral-400);
-}
-
-.action-button:active {
-  transform: none;
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 
 .action-button svg {
@@ -346,16 +357,14 @@
 
 .action-button.primary {
   background: var(--bg-primary);
-  border-color: var(--color-neutral-400);
+  border-color: #e5e7eb;
   color: var(--text-primary);
 }
 
 .action-button.primary:hover {
-  background: var(--bg-secondary);
-  border-color: var(--color-neutral-400);
-}
-
-/* ============================================
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}/* ============================================
    CURRENCY SELECTOR
    ============================================ */
 
@@ -367,30 +376,16 @@
 }
 
 .currency-button {
-  display: inline-flex;
-  align-items: center;
+  min-width: 50px;
   justify-content: space-between;
-  color: var(--text-primary);
-  background: var(--bg-primary) !important;
-  border: 1px solid var(--color-neutral-400) !important;
-  border-radius: var(--topbar-control-radius);
-  padding: 6px 11px;
-  gap: 6px;
-  min-width: 126px;
-  height: var(--topbar-control-height);
-  font-size: 0.8rem;
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-  white-space: nowrap;
-  box-sizing: border-box;
-  font-family: inherit;
-  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04);
 }
 
 .currency-button:hover {
-  background: var(--bg-secondary) !important;
-  border-color: var(--color-neutral-500) !important;
+  background: #f9fafb !important;
+  border-color: #e5e7eb !important;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 
 .currency-button svg {
@@ -406,50 +401,24 @@
   letter-spacing: 0.01em;
 }
 
+/* Dropdown stays mostly same, just softer border/shadow */
+
 .currency-dropdown {
   position: fixed !important;
   background: #ffffff !important;
-  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #e5e7eb !important;
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.1) !important;
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.05);
   width: 240px !important;
   max-height: 280px !important;
-  height: auto !important;
-  overflow-y: scroll !important;
+  overflow-y: auto !important;
   overflow-x: hidden !important;
   z-index: 99999 !important;
   animation: currencyDropdownFadeIn 0.2s ease-out;
   padding: 4px !important;
-  margin: 0 !important;
-  isolation: isolate;
-  opacity: 1 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
   box-sizing: border-box !important;
-}
-
-.currency-dropdown::-webkit-scrollbar {
-  width: 8px !important;
-  display: block !important;
-}
-
-.currency-dropdown::-webkit-scrollbar-track {
-  background: #f1f5f9 !important;
-  border-radius: 4px;
-  margin: 4px 0;
-}
-
-.currency-dropdown::-webkit-scrollbar-thumb {
-  background: #94a3b8 !important;
-  border-radius: 4px;
-  min-height: 20px;
-}
-
-.currency-dropdown::-webkit-scrollbar-thumb:hover {
-  background: #64748b !important;
 }
 
 @keyframes currencyDropdownFadeIn {
@@ -469,20 +438,17 @@
   font-size: var(--font-size-sm);
   color: #111827 !important;
   font-weight: var(--font-weight-medium);
-  text-align: left;
   cursor: pointer;
   transition: all 0.15s ease;
-  font-family: inherit;
-  opacity: 1 !important;
 }
 
 .currency-option:hover {
-  background: #f3f4f6 !important;
+  background: #f9fafb !important;
 }
 
 .currency-option.active {
-  background: #e0f2fe !important;
-  color: #0c4a6e !important;
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
   font-weight: var(--font-weight-semibold);
 }
 
@@ -504,37 +470,31 @@
 }
 
 /* ============================================
-   EXPORT BUTTON
+   EXPORT BUTTON (PRIMARY)
    ============================================ */
-
 .export-button {
-  color: var(--text-primary);
-  background: var(--bg-primary);
-  border: 1px solid var(--color-neutral-400);
-  border-radius: var(--topbar-control-radius);
-  min-width: fit-content;
-  min-height: var(--topbar-control-height);
-  padding: 6px 11px;
-  font-size: 0.8rem;
-  font-weight: var(--font-weight-medium);
-  flex-shrink: 0;
-  overflow: visible;
-  position: relative;
-  z-index: 1;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+  color: #ffffff;
+  font-weight: var(--font-weight-semibold);
+
+  box-shadow:
+    0 2px 6px rgba(37, 99, 235, 0.35),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset;
 }
 
 .export-button:hover {
-  background: var(--bg-secondary);
-  border-color: var(--color-neutral-400);
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+
+  box-shadow:
+    0 4px 10px rgba(37, 99, 235, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.25) inset;
 }
 
 .export-button svg {
-  color: var(--color-primary);
-  width: 12px;
-  height: 12px;
+  color: #ffffff;
 }
-
 /* ============================================
    KPI SECTION - 6 EQUAL COLUMNS
    ============================================ */
