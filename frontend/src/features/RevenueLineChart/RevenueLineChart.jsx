@@ -10,6 +10,7 @@ import {
   Legend,
 } from 'recharts'
 import { KpiContext } from '../../context/KpiContext'
+import { aggregateSeriesByTimeframe, getXAxisConfig } from '../../utils/chartAggregation'
 import './RevenueLineChart.css'
 
 const THIS_PERIOD_COLOR = '#2563eb'
@@ -21,7 +22,7 @@ const formatDateLabel = (d) => {
   return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-function buildChartDataFromSeries(filteredSeries) {
+function buildChartDataFromSeries(filteredSeries, formatLabel) {
   if (!filteredSeries || !filteredSeries.length) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     return months.map((name, i) => ({
@@ -33,36 +34,10 @@ function buildChartDataFromSeries(filteredSeries) {
     }))
   }
 
-  if (filteredSeries.length > 120) {
-    const monthMap = new Map()
-    filteredSeries.forEach(pt => {
-      const date = new Date(pt.date)
-      if (isNaN(date.getTime())) return
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`
-      if (!monthMap.has(monthKey)) {
-        monthMap.set(monthKey, {
-          key: monthKey,
-          thisPeriod: 0,
-          month: date.toLocaleDateString('en-US', { month: 'short' }),
-        })
-      }
-      monthMap.get(monthKey).thisPeriod += pt.revenue
-    })
-    const sorted = Array.from(monthMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
-    return sorted.map(([, row]) => ({
-      name: row.month,
-      thisPeriod: Math.round(row.thisPeriod * 100) / 100,
-      previousPeriod: Math.round(row.thisPeriod * 0.65 * 100) / 100,
-      dateLabel: `${row.month} ${row.key.split('-')[0]}`,
-      prevDateLabel: `${row.month} ${parseInt(row.key.split('-')[0], 10) - 1}`,
-    }))
-  }
-
   return filteredSeries.map(pt => {
     const date = new Date(pt.date)
-    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     return {
-      name: dateStr,
+      name: formatLabel ? formatLabel(date) : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       thisPeriod: pt.revenue,
       previousPeriod: Math.round(pt.revenue * 0.65 * 100) / 100,
       dateLabel: formatDateLabel(pt.date),
@@ -94,12 +69,35 @@ const CustomTooltip = ({ active, payload, formatCurrency }) => {
   )
 }
 
-const RevenueLineChart = ({ filteredSeries = [], totalRevenue, changePercent = 15 }) => {
+const RevenueLineChart = ({ filteredSeries = [], totalRevenue, changePercent = 15, timeframe = '30D' }) => {
   const { kpiData, formatCurrency } = useContext(KpiContext)
+  const xAxisConfig = useMemo(() => getXAxisConfig(timeframe), [timeframe])
 
+  // First aggregate the series based on timeframe
+  const aggregatedSeries = useMemo(
+    () => {
+      if (!filteredSeries.length) return []
+      // Convert to format expected by aggregateSeriesByTimeframe
+      const convertedSeries = filteredSeries.map(pt => ({
+        date: pt.date,
+        value: pt.revenue || 0,
+      }))
+      return aggregateSeriesByTimeframe(convertedSeries, timeframe)
+    },
+    [filteredSeries, timeframe]
+  )
+
+  // Then build chart data from aggregated series
   const chartData = useMemo(
-    () => buildChartDataFromSeries(filteredSeries),
-    [filteredSeries]
+    () => {
+      // Convert back to the format buildChartDataFromSeries expects
+      const revenueOnlySeries = aggregatedSeries.map(pt => ({
+        ...pt,
+        revenue: pt.value,
+      }))
+      return buildChartDataFromSeries(revenueOnlySeries, xAxisConfig.formatLabel)
+    },
+    [aggregatedSeries, xAxisConfig]
   )
 
   const displayTotal = totalRevenue ?? kpiData?.revenue_sum ?? 88820.44
@@ -132,7 +130,7 @@ const RevenueLineChart = ({ filteredSeries = [], totalRevenue, changePercent = 1
               tickLine={false}
               tick={{ fill: '#8E8E93', fontSize: 12 }}
               dy={8}
-              interval="preserveStartEnd"
+              interval={xAxisConfig.getInterval(chartData.length)}
             />
             <YAxis hide domain={['auto', 'auto']} />
             <Tooltip content={<CustomTooltip formatCurrency={formatCurrency} />} cursor={{ stroke: '#e5e5ea', strokeWidth: 1 }} />

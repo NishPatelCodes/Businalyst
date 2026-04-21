@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useContext, useRef, useEffect } from 'react'
 import { KpiContext } from '../../context/KpiContext'
+import { aggregateSeriesByTimeframe, getXAxisConfig } from '../../utils/chartAggregation'
 import './LineChart.css'
 
 // Fallback when no backend data
@@ -12,22 +13,7 @@ const PLACEHOLDER = [
   { date: 'Dec', value: 452264 },
 ]
 
-function formatDateShort(str) {
-  if (!str) return ''
-  // If str is already a Date object (from Dashboard seriesOverride), use it
-  // directly. For ISO strings like '2024-01-15', extract UTC year/month to
-  // avoid timezone drift (UTC midnight → wrong local day in western TZs).
-  if (str instanceof Date) {
-    const month = str.toLocaleDateString('en-US', { month: 'short' })
-    return `${month} ${str.getFullYear()}`
-  }
-  const d = new Date(str)
-  if (isNaN(d.getTime())) return String(str)
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-  return `${monthNames[d.getUTCMonth()]} ${d.getUTCFullYear()}`
-}
-
-const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
+const LineChart = ({ hideTabs = false, metric, variant, seriesOverride, timeframe = '30D' }) => {
   const { kpiData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
   const [selectedTab, setSelectedTab] = useState(hideTabs ? (metric === 'revenue' ? 'Revenue' : 'Profit') : 'Revenue')
   const [hoverIndex, setHoverIndex] = useState(null)
@@ -59,27 +45,32 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
   const chartData = useMemo(() => {
     const override = Array.isArray(seriesOverride) ? seriesOverride : null
 
+    let baseData
     if (override !== null) {
       const valueKey = selectedTab === 'Revenue' ? 'revenue' : 'profit'
-      return override.map((pt) => ({
+      baseData = override.map((pt) => ({
         date: pt.date,
         value: Number(pt?.[valueKey]) || 0,
       }))
+    } else {
+      const dates = kpiData?.date_data
+      const revenue = kpiData?.revenue_data
+      const profit = kpiData?.profit_data
+      const values = selectedTab === 'Revenue' ? revenue : profit
+      if (dates?.length && values?.length) {
+        const len = Math.min(dates.length, values.length)
+        baseData = Array.from({ length: len }, (_, i) => ({
+          date: dates[i],
+          value: Number(values[i]) || 0,
+        }))
+      } else {
+        baseData = PLACEHOLDER.map((d) => ({ date: d.date, value: d.value }))
+      }
     }
 
-    const dates = kpiData?.date_data
-    const revenue = kpiData?.revenue_data
-    const profit = kpiData?.profit_data
-    const values = selectedTab === 'Revenue' ? revenue : profit
-    if (dates?.length && values?.length) {
-      const len = Math.min(dates.length, values.length)
-      return Array.from({ length: len }, (_, i) => ({
-        date: dates[i],
-        value: Number(values[i]) || 0,
-      }))
-    }
-    return PLACEHOLDER.map((d) => ({ date: d.date, value: d.value }))
-  }, [seriesOverride, kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab])
+    // Apply aggregation based on timeframe
+    return aggregateSeriesByTimeframe(baseData, timeframe)
+  }, [seriesOverride, kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab, timeframe])
 
   const values = chartData.map((d) => d.value)
   const maxVal = Math.max(0, ...values)
@@ -102,6 +93,8 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
   const graphH = height - pad.top - pad.bottom
 
   const n = chartData.length
+  const xAxisConfig = useMemo(() => getXAxisConfig(timeframe), [timeframe])
+  const formatXLabel = (date) => xAxisConfig.formatLabel(date)
   const indexToX = (i) => (n <= 1 ? pad.left : pad.left + (i / (n - 1)) * graphW)
   const valueToY = (v) => pad.top + graphH - (Number(v) / yMax) * graphH
 
@@ -178,21 +171,35 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
     ? ''
     : `${linePath} L ${points[points.length - 1].x} ${pad.top + graphH} L ${points[0].x} ${pad.top + graphH} Z`
 
-  // BUG 9 fix: deduplicate x-axis labels so consecutive ticks that format to
-  // the same "Month Year" string (e.g. two data points in March) aren't repeated.
+  // Use shared interval logic so dashboard SVG charts match Recharts behavior.
   const xLabelIndices = useMemo(() => {
     if (n <= 2) return [...Array(n).keys()]
-    const step = (n - 1) / 4
-    const candidates = [0, Math.round(step), Math.round(step * 2), Math.round(step * 3), n - 1]
+    const interval = xAxisConfig.getInterval(n)
+    const intervalStride = Math.max(1, interval + 1)
+    const pixelsPerStep = graphW / Math.max(1, n - 1)
+    const minLabelGapPx = 72
+    const widthStride = Math.max(1, Math.ceil(minLabelGapPx / Math.max(1, pixelsPerStep)))
+    const stride = Math.max(intervalStride, widthStride)
+    const candidates = []
+    for (let i = 0; i < n; i += stride) candidates.push(i)
+    if (candidates[candidates.length - 1] !== n - 1) {
+      const gapToEnd = (n - 1) - candidates[candidates.length - 1]
+      if (gapToEnd < Math.ceil(stride * 0.6)) {
+        candidates[candidates.length - 1] = n - 1
+      } else {
+        candidates.push(n - 1)
+      }
+    }
+    const uniqueCandidates = candidates
       .filter((v, i, a) => a.indexOf(v) === i)
     const seen = new Set()
-    return candidates.filter((idx) => {
-      const label = formatDateShort(chartData[idx]?.date)
+    return uniqueCandidates.filter((idx) => {
+      const label = formatXLabel(chartData[idx]?.date)
       if (seen.has(label)) return false
       seen.add(label)
       return true
     })
-  }, [n, chartData])
+  }, [n, chartData, xAxisConfig, graphW])
 
   // Y ticks: 0 and a few steps
   const yTicks = useMemo(() => {
@@ -389,7 +396,7 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
                   textAnchor={isFirst ? 'start' : isLast ? 'end' : 'middle'}
                   className="chart-axis-label"
                 >
-                  {formatDateShort(p.date)}
+                  {formatXLabel(p.date)}
                 </text>
               )
             })}
@@ -403,7 +410,7 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride }) => {
             className="chart-tooltip chart-tooltip--wealthsimple chart-tooltip--visible"
             style={{ position: 'absolute', left: '50%', top: '12px', transform: 'translateX(-50%)' }}
           >
-            <div className="tooltip-date">{formatDateShort(chartData[hoverIndex].date)}</div>
+            <div className="tooltip-date">{formatXLabel(chartData[hoverIndex].date)}</div>
             <div className="tooltip-value">{formatCurrency(chartData[hoverIndex].value)}</div>
           </div>
         )}

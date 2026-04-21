@@ -1,5 +1,6 @@
 import React, { useMemo, useContext, useRef, useEffect, useState } from 'react'
 import { KpiContext } from '../../context/KpiContext'
+import { aggregateSeriesByTimeframe, getXAxisConfig } from '../../utils/chartAggregation'
 import './DashboardMultilineChart.css'
 
 const COLORS = {
@@ -18,8 +19,9 @@ function buildSmoothPath(pts) {
   return d
 }
 
-const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
+const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1, timeframe = '30D' }) => {
   const { kpiData, formatCurrency } = useContext(KpiContext)
+  const xAxisConfig = useMemo(() => getXAxisConfig(timeframe), [timeframe])
   const containerRef = useRef(null)
   const [size, setSize] = useState({ width: 0, height: 0 })
   const [hoverIndex, setHoverIndex] = useState(null)
@@ -38,21 +40,63 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
     return () => observer.disconnect()
   }, [])
 
+  // Aggregate the raw data based on timeframe
+  const aggregatedData = useMemo(() => {
+    const dates = kpiData?.date_data || []
+    const revenue = kpiData?.revenue_data || []
+    const orders = kpiData?.multiline_orders || []
+    const aov = kpiData?.multiline_aov || []
+
+    // Build series objects for aggregation
+    const len = Math.min(dates.length, revenue.length)
+    if (len === 0) {
+      return {
+        dates: [],
+        revenue: [],
+        orders: [],
+        aov: [],
+      }
+    }
+
+    // Create series for each metric
+    const revenueSeries = Array.from({ length: len }, (_, i) => ({
+      date: dates[i],
+      value: Number(revenue[i]) || 0,
+    }))
+    const ordersSeries = Array.from({ length: len }, (_, i) => ({
+      date: dates[i],
+      value: Number(orders[i]) || 0,
+    }))
+    const aovSeries = Array.from({ length: len }, (_, i) => ({
+      date: dates[i],
+      value: Number(aov[i]) || 0,
+    }))
+
+    // Aggregate each series
+    const aggRevenue = aggregateSeriesByTimeframe(revenueSeries, timeframe)
+    const aggOrders = aggregateSeriesByTimeframe(ordersSeries, timeframe)
+    const aggAov = aggregateSeriesByTimeframe(aovSeries, timeframe)
+
+    // Extract back into arrays
+    return {
+      dates: aggRevenue.map(pt => pt.date),
+      revenue: aggRevenue.map(pt => pt.value),
+      orders: aggOrders.map(pt => pt.value),
+      aov: aggAov.map(pt => pt.value),
+    }
+  }, [kpiData?.date_data, kpiData?.revenue_data, kpiData?.multiline_orders, kpiData?.multiline_aov, timeframe])
+
   // BUG 4 fix: Revenue ($1M+), Orders (~1000s), and AOV (~$280) have vastly
   // different scales. A single y-axis made Revenue dominate and AOV/Orders
   // invisible. Fix: normalize each series to 0–1 range for plotting, but
   // show actual values in tooltips. This keeps all three lines visible.
   const { chartData, paths, pad, indexToX, n, xLabelIndices, seriesMax } = useMemo(() => {
-    const labels = kpiData?.multiline_labels || kpiData?.date_data || []
-    const revenue = kpiData?.multiline_revenue || kpiData?.revenue_data || []
-    const orders = kpiData?.multiline_orders || []
-    const aov = kpiData?.multiline_aov || []
+    const labels = aggregatedData?.dates?.map(d => xAxisConfig.formatLabel(d)) || []
+    const revenue = aggregatedData?.revenue || []
+    const orders = aggregatedData?.orders || []
+    const aov = aggregatedData?.aov || []
 
-    const len = Math.min(
-      labels.length || 1,
-      revenue.length || 1,
-      Math.max(orders.length, 1),
-    ) || 1
+    const len = Math.min(labels.length, revenue.length) || 1
     const safelen = Math.min(len, labels.length, revenue.length) || 1
 
     const chartData = Array.from({ length: safelen }, (_, i) => ({
@@ -98,11 +142,22 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
       aov: buildSmoothPath(pts('aov', maxAov)),
     }
 
-    const xLabelIndices =
-      nPts <= 2
-        ? [...Array(nPts).keys()]
-        : [0, Math.round((nPts - 1) / 4), Math.round((nPts - 1) / 2), Math.round((3 * (nPts - 1)) / 4), nPts - 1]
-            .filter((v, i, a) => a.indexOf(v) === i)
+    const interval = xAxisConfig.getInterval(nPts)
+    const intervalStride = Math.max(1, interval + 1)
+    const pixelsPerStep = graphW / Math.max(1, nPts - 1)
+    const minLabelGapPx = 72
+    const widthStride = Math.max(1, Math.ceil(minLabelGapPx / Math.max(1, pixelsPerStep)))
+    const stride = Math.max(intervalStride, widthStride)
+    const xLabelIndices = []
+    for (let i = 0; i < nPts; i += stride) xLabelIndices.push(i)
+    if (nPts > 1 && xLabelIndices[xLabelIndices.length - 1] !== nPts - 1) {
+      const gapToEnd = (nPts - 1) - xLabelIndices[xLabelIndices.length - 1]
+      if (gapToEnd < Math.ceil(stride * 0.6)) {
+        xLabelIndices[xLabelIndices.length - 1] = nPts - 1
+      } else {
+        xLabelIndices.push(nPts - 1)
+      }
+    }
 
     return {
       chartData,
@@ -114,12 +169,8 @@ const DashboardMultilineChart = ({ revenueRatio = 1, ordersRatio = 1 }) => {
       seriesMax,
     }
   }, [
-    kpiData?.multiline_labels,
-    kpiData?.multiline_revenue,
-    kpiData?.multiline_orders,
-    kpiData?.multiline_aov,
-    kpiData?.date_data,
-    kpiData?.revenue_data,
+    aggregatedData,
+    xAxisConfig,
     revenueRatio,
     ordersRatio,
     size.width,

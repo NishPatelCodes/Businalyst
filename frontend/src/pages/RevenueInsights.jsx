@@ -184,6 +184,7 @@ const RevenueInsights = () => {
               filteredSeries={filteredSeries}
               totalRevenue={periodRevenue}
               changePercent={changePercent}
+              timeframe={dateRange}
             />
           </div>
 

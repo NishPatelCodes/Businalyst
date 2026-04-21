@@ -6,6 +6,7 @@ import InsightsTopNav from '../components/InsightsTopNav'
 import InsightsPageHeader from '../components/InsightsPageHeader'
 import useFilteredSeries from '../hooks/useFilteredSeries'
 import { fmtNum, fmtPct, fmtDate } from '../utils/formatters'
+import { aggregateSeriesByTimeframe, getXAxisConfig } from '../utils/chartAggregation'
 import { exportCSV, exportPDF } from '../utils/exportUtils'
 import {
   ComposedChart, BarChart, LineChart as RechartLineChart,
@@ -127,19 +128,40 @@ const ProfitInsights = () => {
   }, [dateData, profitData, revenueData, costData, productData])
 
   const filteredSeries = useFilteredSeries(allSeries, dateRange)
+  const xAxisConfig = useMemo(() => getXAxisConfig(dateRange), [dateRange])
+
+  const aggregatedSeries = useMemo(() => {
+    if (!filteredSeries.length) return []
+    const aggregateMetric = (key) =>
+      aggregateSeriesByTimeframe(
+        filteredSeries.map((pt) => ({ date: pt.date, value: Number(pt[key]) || 0 })),
+        dateRange
+      )
+
+    const profitSeries = aggregateMetric('profit')
+    const revenueSeries = aggregateMetric('revenue')
+    const costSeries = aggregateMetric('cost')
+
+    return profitSeries.map((pt, idx) => ({
+      date: pt.date,
+      profit: pt.value,
+      revenue: revenueSeries[idx]?.value || 0,
+      cost: costSeries[idx]?.value || 0,
+    }))
+  }, [filteredSeries, dateRange])
 
   /* ── Negative profit periods for ReferenceArea ──────────── */
   const negativeRanges = useMemo(() => {
     const ranges = []
     let inNeg = false
     let start = null
-    filteredSeries.forEach((pt, i) => {
+    aggregatedSeries.forEach((pt, i) => {
       if (pt.profit < 0 && !inNeg) { inNeg = true; start = pt.date }
-      if (pt.profit >= 0 && inNeg) { inNeg = false; ranges.push({ x1: start, x2: filteredSeries[i - 1].date }) }
+      if (pt.profit >= 0 && inNeg) { inNeg = false; ranges.push({ x1: start, x2: aggregatedSeries[i - 1].date }) }
     })
-    if (inNeg && start) ranges.push({ x1: start, x2: filteredSeries[filteredSeries.length - 1].date })
+    if (inNeg && start) ranges.push({ x1: start, x2: aggregatedSeries[aggregatedSeries.length - 1].date })
     return ranges
-  }, [filteredSeries])
+  }, [aggregatedSeries])
 
   /* ── Volatility stats (from filtered timeline) ───────────────── */
   const stats = useMemo(() => {
@@ -166,16 +188,16 @@ const ProfitInsights = () => {
   /* ── Drawdown series (from peak) ─────────────────────────── */
   const drawdownSeries = useMemo(() => {
     let peak = -Infinity
-    return filteredSeries.map(pt => {
+    return aggregatedSeries.map(pt => {
       if (pt.profit > peak) peak = pt.profit
       const dd = peak > 0 ? ((pt.profit - peak) / peak) * 100 : 0
       return { date: pt.date, drawdown: dd }
     })
-  }, [filteredSeries])
+  }, [aggregatedSeries])
 
   /* ── Margin series ───────────────────────────────────────── */
   const marginSeries = useMemo(() => {
-    const series = filteredSeries.map(pt => ({
+    const series = aggregatedSeries.map(pt => ({
       date: pt.date,
       netMargin: pt.revenue > 0 ? (pt.profit / pt.revenue) * 100 : 0,
       profit: pt.profit,
@@ -189,7 +211,7 @@ const ProfitInsights = () => {
       const avg = slice.reduce((s, p) => s + p.netMargin, 0) / slice.length
       return { ...pt, rollingAvgMargin: avg }
     })
-  }, [filteredSeries])
+  }, [aggregatedSeries])
 
   const avgNetMargin  = useMemo(() => marginSeries.length ? marginSeries.reduce((a, b) => a + b.netMargin, 0) / marginSeries.length : 0, [marginSeries])
   const avgRollingMargin = useMemo(() => marginSeries.length ? marginSeries[marginSeries.length - 1].rollingAvgMargin : 0, [marginSeries])
@@ -229,11 +251,12 @@ const ProfitInsights = () => {
   }, [hasProductData, filteredSeries, profitByProductFallback])
 
   /* ── Cost series for cost-pressure chart ─────────────────── */
-  const costPressureSeries = useMemo(() => filteredSeries.map(pt => ({
-    date: fmtDate(pt.date),
+  const costPressureSeries = useMemo(() => aggregatedSeries.map(pt => ({
+    date: pt.date,
     profit: pt.profit,
     cost: pt.cost,
-  })), [filteredSeries])
+  })), [aggregatedSeries])
+  const costPressureWindow = useMemo(() => costPressureSeries.slice(-20), [costPressureSeries])
 
   /* ── Mean profit for filtered range (reference line) ────── */
   const filteredMean = useMemo(() => {
@@ -335,15 +358,15 @@ const ProfitInsights = () => {
             </div>
 
             <ResponsiveContainer width="100%" height={320}>
-              <ComposedChart data={filteredSeries} margin={{ top: 8, right: 24, bottom: 0, left: 10 }}>
+              <ComposedChart data={aggregatedSeries} margin={{ top: 8, right: 24, bottom: 0, left: 10 }}>
                 <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={fmtDate}
+                  tickFormatter={xAxisConfig.formatLabel}
                   tick={{ fontSize: 11, fill: '#9ca3af' }}
                   axisLine={false}
                   tickLine={false}
-                  interval="preserveStartEnd"
+                  interval={xAxisConfig.getInterval(aggregatedSeries.length)}
                 />
                 <YAxis
                   tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
@@ -481,11 +504,11 @@ const ProfitInsights = () => {
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
                   <XAxis
                     dataKey="date"
-                    tickFormatter={fmtDate}
+                    tickFormatter={xAxisConfig.formatLabel}
                     tick={{ fontSize: 11, fill: '#9ca3af' }}
                     axisLine={false}
                     tickLine={false}
-                    interval="preserveStartEnd"
+                    interval={xAxisConfig.getInterval(marginSeries.length)}
                   />
                   <YAxis
                     tickFormatter={marginMode === 'pct' ? (v) => `${v.toFixed(0)}%` : (v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
@@ -561,9 +584,9 @@ const ProfitInsights = () => {
               </div>
 
               <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={costPressureSeries.slice(-20)} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
+                <BarChart data={costPressureWindow} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={3} />
+                  <XAxis dataKey="date" tickFormatter={xAxisConfig.formatLabel} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={xAxisConfig.getInterval(costPressureWindow.length)} />
                   <YAxis tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
                   <Tooltip content={<BarTooltip formatCurrency={formatCurrency} />} />
                   <Bar dataKey="profit" name="Profit" fill="#2563eb" barSize={6} radius={[2, 2, 0, 0]} />
@@ -611,7 +634,7 @@ const ProfitInsights = () => {
               <ResponsiveContainer width="100%" height={120}>
                 <RechartLineChart data={drawdownSeries} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                  <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                  <XAxis dataKey="date" tickFormatter={xAxisConfig.formatLabel} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={xAxisConfig.getInterval(drawdownSeries.length)} />
                   <YAxis tickFormatter={v => `${v.toFixed(0)}%`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={40} />
                   <Tooltip
                     content={({ active, payload, label }) => {

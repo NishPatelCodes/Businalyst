@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { KpiContext } from '../context/KpiContext'
 import { filterSeriesByCalendarRange } from '../utils/timeRangeFilter'
+import { aggregateSeriesByTimeframe, getXAxisConfig } from '../utils/chartAggregation'
 import {
   ComposedChart, BarChart, Area, Bar, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -135,6 +136,7 @@ const Orders = () => {
   const [showRevenue, setShowRevenue] = useState(false)
   const [productSort, setProductSort] = useState('orders')
   const [exportOpen, setExportOpen] = useState(false)
+  const xAxisConfig = useMemo(() => getXAxisConfig(range), [range])
 
   /* ── Raw per-row arrays ──────────────────────────────────── */
   const dateData    = useMemo(() => kpiData?.date_data    || [], [kpiData])
@@ -175,20 +177,40 @@ const Orders = () => {
     return n ? sorted.slice(-n) : sorted
   }, [trendData, range])
 
+  // Apply the same adaptive aggregation logic used by other line charts.
+  const aggregatedTrend = useMemo(() => {
+    if (!filteredTrend.length) return []
+
+    const ordersSeries = filteredTrend.map((pt) => ({
+      date: pt.date,
+      value: Number(pt.orders) || 0,
+    }))
+    const revenueSeries = filteredTrend.map((pt) => ({
+      date: pt.date,
+      value: Number(pt.revenue) || 0,
+    }))
+
+    const aggOrders = aggregateSeriesByTimeframe(ordersSeries, range)
+    const aggRevenue = aggregateSeriesByTimeframe(revenueSeries, range)
+
+    return aggOrders.map((pt, idx) => ({
+      date: pt.date,
+      orders: pt.value,
+      revenue: aggRevenue[idx]?.value || 0,
+    }))
+  }, [filteredTrend, range])
+
   // Ratio of filtered rows to total — used to scale pre-aggregated data
   const periodRatio = useMemo(() =>
     trendData.length > 0 ? filteredTrend.length / trendData.length : 1,
     [filteredTrend, trendData]
   )
 
-  /* ── Label density for X-axis ────────────────────────────── */
-  const xTickInterval = useMemo(() => {
-    const len = filteredTrend.length
-    if (len <= 10) return 0
-    if (len <= 30) return 3
-    if (len <= 90) return 9
-    return Math.floor(len / 10)
-  }, [filteredTrend])
+  /* ── Label density for X-axis (sequential, adaptive) ─────── */
+  const xTickInterval = useMemo(
+    () => xAxisConfig.getInterval(aggregatedTrend.length),
+    [xAxisConfig, aggregatedTrend.length]
+  )
 
   /* ── Period totals from filtered timeline ─────────────────── */
   const periodTotals = useMemo(() => ({
@@ -416,7 +438,7 @@ const Orders = () => {
             </div>
 
             <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={filteredTrend} margin={{ top: 4, right: showRevenue ? 48 : 12, left: 8, bottom: 0 }}>
+              <ComposedChart data={aggregatedTrend} margin={{ top: 4, right: showRevenue ? 48 : 12, left: 8, bottom: 0 }}>
                 <CartesianGrid vertical={false} stroke="#f0f0f0" />
                 <XAxis
                   dataKey="date"
@@ -424,7 +446,7 @@ const Orders = () => {
                   axisLine={false}
                   tickLine={false}
                   interval={xTickInterval}
-                  tickFormatter={(v) => fmtDate(v) || v}
+                  tickFormatter={(v) => xAxisConfig.formatLabel(v)}
                 />
                 <YAxis
                   yAxisId="orders"

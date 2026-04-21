@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { KpiContext } from '../context/KpiContext'
 import { fmtNum, fmtPct, fmtDate } from '../utils/formatters'
+import { aggregateSeriesByTimeframe, getXAxisConfig } from '../utils/chartAggregation'
 import { filterSeriesByCalendarRange } from '../utils/timeRangeFilter'
 import { exportCSV, exportPDF } from '../utils/exportUtils'
 import {
@@ -139,14 +140,39 @@ const CustomersInsights = () => {
     () => filterSeriesByCalendarRange(baseSeries, dateRange),
     [baseSeries, dateRange]
   )
+  const xAxisConfig = useMemo(() => getXAxisConfig(dateRange), [dateRange])
+  const aggregatedSeries = useMemo(() => {
+    if (!filteredSeries.length) return []
+    const aggregateMetric = (key) =>
+      aggregateSeriesByTimeframe(
+        filteredSeries.map((pt) => ({ date: pt.date, value: Number(pt[key]) || 0 })),
+        dateRange
+      )
+
+    const totalCustomersSeries = aggregateMetric('totalCustomers')
+    const newCustomersSeries = aggregateMetric('newCustomers')
+    const returningCustomersSeries = aggregateMetric('returningCustomers')
+    const avgCustomersSeries = aggregateMetric('avgCustomers')
+    const engagementSeries = aggregateMetric('engagement')
+
+    return totalCustomersSeries.map((pt, idx) => ({
+      date: pt.date,
+      totalCustomers: pt.value,
+      newCustomers: newCustomersSeries[idx]?.value || 0,
+      returningCustomers: returningCustomersSeries[idx]?.value || 0,
+      avgCustomers: avgCustomersSeries[idx]?.value || 0,
+      engagement: engagementSeries[idx]?.value || 0,
+    }))
+  }, [filteredSeries, dateRange])
 
   /** No per-day customer IDs from API; series is modeled from revenue/KPIs */
   const showEstimatedBadge = true
 
   const averageCustomers = useMemo(() => {
-    if (!filteredSeries.length) return 0
-    return filteredSeries.reduce((sum, point) => sum + point.totalCustomers, 0) / filteredSeries.length
-  }, [filteredSeries])
+    if (!aggregatedSeries.length) return 0
+    return aggregatedSeries.reduce((sum, point) => sum + point.totalCustomers, 0) / aggregatedSeries.length
+  }, [aggregatedSeries])
+  const acquisitionWindow = useMemo(() => aggregatedSeries.slice(-20), [aggregatedSeries])
 
   const segmentData = useMemo(() => {
     const totals = filteredSeries.reduce(
@@ -412,15 +438,15 @@ const CustomersInsights = () => {
             </div>
 
             <ResponsiveContainer width="100%" height={320}>
-              <ComposedChart data={filteredSeries} margin={{ top: 8, right: 24, bottom: 0, left: 10 }}>
+              <ComposedChart data={aggregatedSeries} margin={{ top: 8, right: 24, bottom: 0, left: 10 }}>
                 <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={fmtDate}
+                  tickFormatter={xAxisConfig.formatLabel}
                   tick={{ fontSize: 11, fill: '#9ca3af' }}
                   axisLine={false}
                   tickLine={false}
-                  interval="preserveStartEnd"
+                  interval={xAxisConfig.getInterval(aggregatedSeries.length)}
                 />
                 <YAxis
                   tickFormatter={(v) => fmtNum(v)}
@@ -609,9 +635,9 @@ const CustomersInsights = () => {
               </div>
 
               <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={filteredSeries.slice(-20)} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
+                <BarChart data={acquisitionWindow} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                  <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={3} />
+                  <XAxis dataKey="date" tickFormatter={xAxisConfig.formatLabel} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={xAxisConfig.getInterval(acquisitionWindow.length)} />
                   <YAxis tickFormatter={(v) => fmtNum(v)} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={40} />
                   <Tooltip content={<TrendTooltip />} />
                   <Bar dataKey="newCustomers" name="New Customers" fill="#059669" barSize={6} radius={[2, 2, 0, 0]} />
@@ -655,9 +681,9 @@ const CustomersInsights = () => {
 
               <p className="pil-chart-sublabel">Engagement trend</p>
               <ResponsiveContainer width="100%" height={120}>
-                <RechartLineChart data={filteredSeries} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+                <RechartLineChart data={aggregatedSeries} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                  <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                  <XAxis dataKey="date" tickFormatter={xAxisConfig.formatLabel} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={xAxisConfig.getInterval(aggregatedSeries.length)} />
                   <YAxis tickFormatter={(v) => `${v.toFixed(0)}%`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={40} />
                   <Tooltip
                     content={({ active, payload, label }) => {

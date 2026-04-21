@@ -190,6 +190,7 @@ const Dashboard = () => {
         orders: hasOrdersData && orders[i] !== undefined ? Number(orders[i]) || 0 : 0,
       })
     }
+    allSeries.sort((a, b) => a.date - b.date)
 
     const start = dateRange?.start
     const end = dateRange?.end
@@ -295,6 +296,17 @@ const Dashboard = () => {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [exportOpen])
+
+  // Determine timeframe based on date range
+  const timeframe = useMemo(() => {
+    if (!dateRange?.start || !dateRange?.end) return '30D'
+    const daysDiff = Math.floor((dateRange.end - dateRange.start) / (1000 * 60 * 60 * 24))
+    if (daysDiff <= 7) return '7D'
+    if (daysDiff <= 30) return '30D'
+    if (daysDiff <= 90) return '90D'
+    if (daysDiff <= 365) return '1Y'
+    return 'ALL'
+  }, [dateRange?.start, dateRange?.end])
 
   return (
     <div className="dashboard-container">
@@ -478,7 +490,7 @@ const Dashboard = () => {
 
           <div className="charts-row">
             <div className="chart-left">
-              <LineChart seriesOverride={lineSeriesOverride} />
+              <LineChart seriesOverride={lineSeriesOverride} timeframe={timeframe} />
             </div>
             <div className="chart-right">
               <OrdersComparisonBarChart periodRatio={dashboardSeries.ratios.revenueRatio} />
@@ -491,6 +503,7 @@ const Dashboard = () => {
                 <DashboardMultilineChart
                   revenueRatio={dashboardSeries.ratios.revenueRatio}
                   ordersRatio={dashboardSeries.ratios.ordersRatio}
+                  timeframe={timeframe}
                 />
               </div>
             </div>

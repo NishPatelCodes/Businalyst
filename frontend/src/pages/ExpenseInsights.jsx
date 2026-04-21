@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar'
 import { KpiContext } from '../context/KpiContext'
 import useFilteredSeries from '../hooks/useFilteredSeries'
 import { fmtNum, fmtPct, fmtDate } from '../utils/formatters'
+import { aggregateSeriesByTimeframe, getXAxisConfig } from '../utils/chartAggregation'
 import { exportCSV, exportPDF } from '../utils/exportUtils'
 import InsightsTopNav from '../components/InsightsTopNav'
 import InsightsPageHeader from '../components/InsightsPageHeader'
@@ -124,12 +125,34 @@ const ExpenseInsights = () => {
   }), [dateData, costData, revenueData])
 
   const filteredSeries = useFilteredSeries(allSeries, dateRange)
+  const xAxisConfig = useMemo(() => getXAxisConfig(dateRange), [dateRange])
+  const aggregatedSeries = useMemo(() => {
+    if (!filteredSeries.length) return []
+    const aggregateMetric = (key) =>
+      aggregateSeriesByTimeframe(
+        filteredSeries.map((pt) => ({ date: pt.date, value: Number(pt[key]) || 0 })),
+        dateRange
+      )
+
+    const totalExpenseSeries = aggregateMetric('totalExpense')
+    const fixedExpenseSeries = aggregateMetric('fixedExpense')
+    const variableExpenseSeries = aggregateMetric('variableExpense')
+    const revenueSeries = aggregateMetric('revenue')
+
+    return totalExpenseSeries.map((pt, idx) => ({
+      date: pt.date,
+      totalExpense: pt.value,
+      fixedExpense: fixedExpenseSeries[idx]?.value || 0,
+      variableExpense: variableExpenseSeries[idx]?.value || 0,
+      revenue: revenueSeries[idx]?.value || 0,
+    }))
+  }, [filteredSeries, dateRange])
 
   /* ── Average expense line value ────────────────────────── */
   const avgExpense = useMemo(() => {
-    if (!filteredSeries.length) return 0
-    return filteredSeries.reduce((s, pt) => s + pt.totalExpense, 0) / filteredSeries.length
-  }, [filteredSeries])
+    if (!aggregatedSeries.length) return 0
+    return aggregatedSeries.reduce((s, pt) => s + pt.totalExpense, 0) / aggregatedSeries.length
+  }, [aggregatedSeries])
 
   /* ── Period-level sums (driven by filtered timeline) ───── */
   const expenseSum = useMemo(() => filteredSeries.reduce((s, pt) => s + pt.totalExpense, 0), [filteredSeries])
@@ -181,11 +204,12 @@ const ExpenseInsights = () => {
   const varCost    = expenseSum * 0.65
   const marketingRatio = (expenseSum * 0.12 / revenueSum) * 100
 
-  const dailyExpenseVsRevenue = useMemo(() => filteredSeries.map(pt => ({
-    date: fmtDate(pt.date),
+  const dailyExpenseVsRevenue = useMemo(() => aggregatedSeries.map(pt => ({
+    date: pt.date,
     expense: pt.totalExpense,
     revenue: pt.revenue,
-  })), [filteredSeries])
+  })), [aggregatedSeries])
+  const expenseVsRevenueWindow = useMemo(() => dailyExpenseVsRevenue.slice(-20), [dailyExpenseVsRevenue])
 
   /* ── Expense Volatility stats ──────────────────────────────── */
   const volatilityStats = useMemo(() => {
@@ -218,14 +242,14 @@ const ExpenseInsights = () => {
 
   /* ── Volatility line chart series ─────────────────────────── */
   const volatilitySeries = useMemo(() => {
-    const expenses = filteredSeries.map(pt => pt.totalExpense)
+    const expenses = aggregatedSeries.map(pt => pt.totalExpense)
     if (!expenses.length) return []
     const mean = expenses.reduce((a, b) => a + b, 0) / expenses.length
-    return filteredSeries.map(pt => ({
+    return aggregatedSeries.map(pt => ({
       date: pt.date,
       deviation: mean > 0 ? ((pt.totalExpense - mean) / mean) * 100 : 0,
     }))
-  }, [filteredSeries])
+  }, [aggregatedSeries])
 
   /* ── Auto-generate insights ──────────────────────────────── */
   const insights = useMemo(() => {
@@ -358,15 +382,15 @@ const ExpenseInsights = () => {
             </div>
 
             <ResponsiveContainer width="100%" height={320}>
-              <ComposedChart data={filteredSeries} margin={{ top: 8, right: 24, bottom: 0, left: 10 }}>
+              <ComposedChart data={aggregatedSeries} margin={{ top: 8, right: 24, bottom: 0, left: 10 }}>
                 <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={fmtDate}
+                  tickFormatter={xAxisConfig.formatLabel}
                   tick={{ fontSize: 11, fill: '#9ca3af' }}
                   axisLine={false}
                   tickLine={false}
-                  interval="preserveStartEnd"
+                  interval={xAxisConfig.getInterval(aggregatedSeries.length)}
                 />
                 <YAxis
                   tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })}
@@ -554,9 +578,9 @@ const ExpenseInsights = () => {
 
               <p className="eil-chart-sublabel">Daily Expenses vs Revenue</p>
               <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={dailyExpenseVsRevenue.slice(-20)} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
+                <BarChart data={expenseVsRevenueWindow} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barGap={2}>
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={3} />
+                  <XAxis dataKey="date" tickFormatter={xAxisConfig.formatLabel} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={xAxisConfig.getInterval(expenseVsRevenueWindow.length)} />
                   <YAxis tickFormatter={(v) => formatCompactCurrency(v, { maximumFractionDigits: 0 })} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={44} />
                   <Tooltip content={<BarTooltip formatCurrency={formatCurrency} />} />
                   <Bar dataKey="expense" name="Expense" fill="#ef4444" barSize={6} radius={[2, 2, 0, 0]} />
@@ -604,7 +628,7 @@ const ExpenseInsights = () => {
               <ResponsiveContainer width="100%" height={120}>
                 <RechartLineChart data={volatilitySeries} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
                   <CartesianGrid vertical={false} stroke="#f0f0f0" strokeDasharray="3 0" />
-                  <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                  <XAxis dataKey="date" tickFormatter={xAxisConfig.formatLabel} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} interval={xAxisConfig.getInterval(volatilitySeries.length)} />
                   <YAxis tickFormatter={v => `${v.toFixed(0)}%`} tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={40} />
                   <Tooltip
                     content={({ active, payload, label }) => {
