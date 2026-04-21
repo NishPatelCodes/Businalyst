@@ -14,9 +14,9 @@
 
 .dashboard-main {
   flex: 1;
-  /* Sidebar is 220px wide + 1px border. Leave a 19px breathing gap so the
-     dashboard no longer sits under the sidebar. */
-  margin-left: 240px;
+  /* Sidebar is 220px wide + 1px border. Leave a tight ~9px breathing gap
+     so the dashboard sits close to the sidebar without touching it. */
+  margin-left: 215px;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -27,7 +27,7 @@
 /* Keep the fixed top navigation flush with the new dashboard content
    edge (other pages keep their existing alignment). */
 .dashboard-main > .top-navigation {
-  left: 240px;
+  left: 230px;
 }
 
 .dashboard-content {

@@ -90,21 +90,21 @@
 }
 
 .line-chart-current-total {
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 700;
   color: #111827;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
   line-height: 1.05;
 }
 
 .line-chart-current-subtitle {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 500;
   color: #86868b;
   letter-spacing: -0.005em;
   line-height: 1.2;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .line-chart-container {
