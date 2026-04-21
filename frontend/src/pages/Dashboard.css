@@ -14,7 +14,9 @@
 
 .dashboard-main {
   flex: 1;
-  margin-left: 210px;
+  /* Sidebar is 220px wide + 1px border. Leave a 19px breathing gap so the
+     dashboard no longer sits under the sidebar. */
+  margin-left: 240px;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -22,9 +24,22 @@
   overflow-y: auto;
 }
 
+/* Keep the fixed top navigation flush with the new dashboard content
+   edge (other pages keep their existing alignment). */
+.dashboard-main > .top-navigation {
+  left: 240px;
+}
+
 .dashboard-content {
+  /* Round every card on the dashboard. Scoped here so other pages stay
+     unchanged — any component that uses var(--card-border-radius) (metric
+     cards, chart cards, analytics wrappers, demo banner, etc.) will pick
+     this up automatically. */
+  --card-border-radius: 16px;
+  --card-radius: 16px;
+
   margin-top: var(--layout-content-margin-top);
-  padding: var(--spacing-4) var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-5);
   flex: 1;
   max-width: 100%;
   overflow-x: visible;
@@ -645,6 +660,7 @@
 
 @media (max-width: 1024px) {
   .dashboard-main { margin-left: 0; }
+  .dashboard-main > .top-navigation { left: 0; }
   .dashboard-header { flex-direction: column; align-items: flex-start; }
   .dashboard-actions { width: 100%; flex-wrap: wrap; justify-content: flex-start; }
   .dashboard-metrics { grid-template-columns: repeat(3, 1fr); min-height: auto; }

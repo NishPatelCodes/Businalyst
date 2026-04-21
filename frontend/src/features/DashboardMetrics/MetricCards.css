@@ -89,11 +89,11 @@
 }
 
 .kpi-value {
-  font-size: 20px;
+  font-size: 28px;
   font-weight: 700;
   color: #000000;
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   position: relative;
@@ -254,7 +254,7 @@
 /* Responsive */
 @media (max-width: 1280px) {
   .kpi-value {
-    font-size: 18px;
+    font-size: 24px;
   }
   
   .kpi-title {
@@ -264,7 +264,7 @@
 
 @media (max-width: 1024px) {
   .kpi-value {
-    font-size: 16px;
+    font-size: 21px;
   }
   
   .kpi-title {
