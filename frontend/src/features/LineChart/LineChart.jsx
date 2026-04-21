@@ -231,6 +231,9 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride, timefram
       {!hideTabs && (
         <div className="line-chart-header">
           <div className="chart-header-left">
+            <div className="line-chart-current-subtitle">
+              Total {selectedTab}
+            </div>
             <div className="line-chart-current-total">
               {formatCurrency(values.reduce((a, b) => a + b, 0))}
             </div>
