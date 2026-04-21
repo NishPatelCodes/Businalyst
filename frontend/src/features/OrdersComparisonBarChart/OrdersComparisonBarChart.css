@@ -114,6 +114,14 @@
   transition: fill 0.15s ease;
 }
 
+.ocb-bar-label {
+  font-size: 10px;
+  font-weight: 600;
+  fill: #fff;
+  pointer-events: none;
+  letter-spacing: 0.005em;
+}
+
 .ocb-bar-group {
   cursor: default;
 }

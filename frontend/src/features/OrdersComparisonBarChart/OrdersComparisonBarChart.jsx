@@ -55,7 +55,7 @@ const OrdersComparisonBarChart = ({ periodRatio = 1 }) => {
   const yMax = Math.ceil(maxVal * 1.15) || 10
   const chartWidth = 560
   const chartHeight = 200
-  const padding = { top: 16, right: 40, bottom: 40, left: 12 }
+  const padding = { top: 16, right: 40, bottom: 10, left: 12 }
   const graphWidth = chartWidth - padding.left - padding.right
   const graphHeight = chartHeight - padding.top - padding.bottom
 
@@ -151,6 +151,28 @@ const OrdersComparisonBarChart = ({ periodRatio = 1 }) => {
           preserveAspectRatio="xMidYMid meet"
           onMouseLeave={() => setHoverIndex(null)}
         >
+          <defs>
+            {labels.map((label, i) => {
+              const groupCenter = padding.left + (i + 0.5) * groupWidth
+              const currentVal = currentValues[i] || 0
+              const currentH = (currentVal / yMax) * graphHeight
+              const currentX = hasComparison
+                ? groupCenter - innerGap / 2 - barWidth
+                : groupCenter - barWidth / 2
+              return (
+                <clipPath key={`ocb-clip-${String(label)}-${i}`} id={`ocb-clip-${i}`}>
+                  <rect
+                    x={currentX}
+                    y={valueToY(currentVal)}
+                    width={barWidth}
+                    height={currentH}
+                    rx="3"
+                  />
+                </clipPath>
+              )
+            })}
+          </defs>
+
           {/* Horizontal grid */}
           <g className="ocb-grid">
             {yTicks.map((tick) => {
@@ -248,6 +270,27 @@ const OrdersComparisonBarChart = ({ periodRatio = 1 }) => {
                     className="ocb-bar"
                   />
                 )}
+                {currentH >= 28 && (() => {
+                  const cx = currentX + barWidth / 2
+                  const cy = valueToY(currentVal) + currentH / 2
+                  const fittedTextLength = Math.max(10, currentH - 12)
+                  return (
+                    <text
+                      x={cx}
+                      y={cy}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      transform={`rotate(-90 ${cx} ${cy})`}
+                      clipPath={`url(#ocb-clip-${i})`}
+                      className="ocb-bar-label"
+                      textLength={fittedTextLength}
+                      lengthAdjust="spacing"
+                      style={{ fontSize: `${Math.max(7, Math.min(10, barWidth - 2))}px` }}
+                    >
+                      {String(label)}
+                    </text>
+                  )
+                })()}
               </g>
             )
           })}
@@ -262,20 +305,6 @@ const OrdersComparisonBarChart = ({ periodRatio = 1 }) => {
             strokeWidth="1"
           />
 
-          {/* X-axis labels */}
-          <g className="ocb-x-axis">
-            {labels.map((label, i) => (
-              <text
-                key={label}
-                x={padding.left + (i + 0.5) * groupWidth}
-                y={padding.top + graphHeight + 22}
-                textAnchor="middle"
-                className="ocb-axis-label"
-              >
-                {String(label).length > 8 ? String(label).slice(0, 7) + '…' : label}
-              </text>
-            ))}
-          </g>
         </svg>
       </div>
     </div>
