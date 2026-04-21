@@ -1,0 +1,237 @@
+/* Sales vs Average bar chart — matches the reference
+   ("Bar Chart - Negative") shadcn design using vanilla CSS. */
+
+/* Round the surrounding card only for this chart.
+   The app's global --card-border-radius is 0 (intentionally sharp for
+   the rest of the dashboard), so we override locally via :has(). */
+.chart-right:has(.svab-wrapper) {
+  border-radius: 16px;
+}
+
+.svab-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  font-family: inherit;
+  color: #1d1d1f;
+}
+
+/* ─── Header ────────────────────────────────────────────────── */
+
+.svab-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.svab-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.svab-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.svab-description {
+  font-size: 13px;
+  color: #86868b;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ─── Timeframe toggle ─────────────────────────────────────── */
+
+.svab-timeframe {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: #f4f4f5;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.svab-timeframe-btn {
+  padding: 5px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b6b70;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.svab-timeframe-btn:hover:not(:disabled) {
+  color: #1d1d1f;
+}
+
+.svab-timeframe-btn[data-active='true'] {
+  background: #ffffff;
+  color: #1d1d1f;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.svab-timeframe-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ─── Chart body ───────────────────────────────────────────── */
+
+.svab-chart-wrap {
+  flex: 1;
+  min-height: 220px;
+  width: 100%;
+  min-width: 0;
+}
+
+.svab-empty {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #86868b;
+  font-size: 13px;
+}
+
+.svab-bar-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Footer ───────────────────────────────────────────────── */
+
+.svab-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-top: 4px;
+}
+
+.svab-footer-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.svab-footer-line--primary {
+  color: #1d1d1f;
+  font-weight: 500;
+  padding-top: 8px;
+}
+
+.svab-footer-line--muted {
+  color: #86868b;
+  font-weight: 400;
+}
+
+.svab-trend-icon {
+  color: #1d1d1f;
+}
+
+.svab-trend-icon--down {
+  transform: scaleY(-1);
+}
+
+/* ─── Tooltip ──────────────────────────────────────────────── */
+
+.svab-tooltip {
+  min-width: 160px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+  font-size: 12px;
+  color: #1d1d1f;
+}
+
+.svab-tooltip-label {
+  font-weight: 600;
+  font-size: 12px;
+  color: #1d1d1f;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 6px;
+}
+
+.svab-tooltip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b6b70;
+}
+
+.svab-tooltip-row strong {
+  color: #1d1d1f;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.svab-tooltip-diff {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-top: 4px;
+  padding-top: 6px;
+}
+
+.svab-tooltip-key {
+  color: #6b6b70;
+}
+
+.svab-diff-up {
+  color: #0a7a2f;
+}
+
+.svab-diff-down {
+  color: #c62828;
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .svab-header {
+    gap: 10px;
+  }
+
+  .svab-title {
+    font-size: 15px;
+  }
+
+  .svab-description,
+  .svab-footer-line {
+    font-size: 12px;
+  }
+
+  .svab-chart-wrap {
+    min-height: 200px;
+  }
+}

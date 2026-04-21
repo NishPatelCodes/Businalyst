@@ -1,0 +1,257 @@
+/* Trends Radar Chart — matches the "Radar Chart - Legend" shadcn
+   reference design using vanilla CSS. */
+
+/* Round the containing card only for this chart. The app's global
+   --card-border-radius is 0 (intentionally sharp for other cards). */
+.analytics-left:has(.trc-wrapper),
+.analytics-card-wrapper:has(.trc-wrapper) {
+  border-radius: 16px;
+}
+
+.trc-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  font-family: inherit;
+  color: #1d1d1f;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+
+.trc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.trc-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.trc-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.trc-description {
+  font-size: 12px;
+  color: #86868b;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Dimension selector ─────────────────────────────────── */
+
+.trc-select-wrap {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.trc-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 5px 26px 5px 10px;
+  background: #ffffff
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231d1d1f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
+    no-repeat right 8px center;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1d1d1f;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.trc-select:hover {
+  background-color: #fafafa;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.trc-select:focus {
+  outline: none;
+  border-color: rgba(37, 99, 235, 0.5);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ─── Chart body ─────────────────────────────────────────── */
+
+.trc-chart-wrap {
+  flex: 1 1 auto;
+  min-height: 140px;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trc-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #86868b;
+  font-size: 12px;
+  text-align: center;
+  padding: 0 12px;
+}
+
+.trc-axis-label {
+  fill: #6b6b70;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  pointer-events: auto;
+}
+
+/* ─── Legend ─────────────────────────────────────────────── */
+
+.trc-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 4px 0 2px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.trc-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #4a4a4f;
+  font-weight: 500;
+}
+
+.trc-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.trc-legend-dot--revenue {
+  background: #93c5fd;
+}
+
+.trc-legend-dot--profit {
+  background: #2563eb;
+}
+
+/* ─── Tooltip ────────────────────────────────────────────── */
+
+.trc-tooltip {
+  min-width: 170px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+  font-size: 12px;
+  color: #1d1d1f;
+}
+
+.trc-tooltip-label {
+  font-weight: 600;
+  color: #1d1d1f;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.trc-tooltip-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b6b70;
+}
+
+.trc-tooltip-row strong {
+  color: #1d1d1f;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.trc-tooltip-row--muted {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-top: 4px;
+  padding-top: 6px;
+  grid-template-columns: auto auto;
+  justify-content: space-between;
+}
+
+.trc-tooltip-key {
+  color: #6b6b70;
+}
+
+.trc-tooltip-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.trc-tooltip-swatch--revenue {
+  background: #93c5fd;
+}
+
+.trc-tooltip-swatch--profit {
+  background: #2563eb;
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .trc-title {
+    font-size: 14px;
+  }
+
+  .trc-description,
+  .trc-footer-line {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 768px) {
+  .trc-header {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .trc-axis-label {
+    font-size: 10px;
+  }
+}

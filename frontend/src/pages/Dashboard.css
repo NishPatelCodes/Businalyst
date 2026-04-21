@@ -573,12 +573,16 @@
 }
 
 /* Analytics Row */
+/* The first column holds the Trends radar chart — by design it's
+   ~20% narrower than its height (portrait) so that radar labels have
+   room without cropping. The extra width goes to the middle column
+   ("Top by product name" bar chart), which benefits from more space. */
 .analytics-map-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 0.78fr 1.22fr 1fr;
   gap: 16px;
   align-items: stretch;
-  height: 300px;
+  height: 380px;
 }
 
 .analytics-left,

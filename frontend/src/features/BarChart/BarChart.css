@@ -1,103 +1,212 @@
 /* ============================================
-   ORDERS LIST - Revenue Summary Style
+   TOP BY <DIMENSION> — horizontal bar chart
    ============================================ */
 
-.orders-list {
-  width: 100%;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+/* Round the containing card only for this chart. */
+.orders-middle:has(.tbpn-wrapper),
+.analytics-card-wrapper:has(.tbpn-wrapper) {
+  border-radius: 16px;
 }
 
-.orders-header {
+.tbpn-wrapper {
   display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  font-family: inherit;
+  color: #1d1d1f;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+
+.tbpn-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: nowrap;
   flex-shrink: 0;
 }
 
-.orders-title {
+.tbpn-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.tbpn-title {
   font-size: 15px;
   font-weight: 600;
   color: #1d1d1f;
   margin: 0;
+  letter-spacing: -0.01em;
   line-height: 1.2;
-  letter-spacing: -0.015em;
+  text-transform: capitalize;
 }
 
-.orders-chart-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+.tbpn-description {
+  font-size: 12px;
+  color: #86868b;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Dimension selector (button + dropdown) ─────────────── */
+
+.tbpn-menu-wrap {
   position: relative;
-  min-height: 200px;
-  overflow: visible; /* Allow labels to show */
+  flex-shrink: 0;
 }
 
-.orders-chart-empty {
+.tbpn-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1d1d1f;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.tbpn-menu-btn:hover {
+  background-color: #fafafa;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.tbpn-menu-btn:focus-visible {
+  outline: none;
+  border-color: rgba(37, 99, 235, 0.5);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.tbpn-menu-label {
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.tbpn-menu-chevron {
+  transition: transform 0.15s ease;
+  color: #6b7280;
+}
+
+.tbpn-menu-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.tbpn-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 160px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  z-index: 50;
+  animation: tbpn-menu-in 0.12s ease-out;
+}
+
+@keyframes tbpn-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tbpn-menu li {
+  margin: 0;
+}
+
+.tbpn-menu-item {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1d1d1f;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: capitalize;
+  transition: background-color 0.12s ease;
+}
+
+.tbpn-menu-item:hover {
+  background-color: #f3f4f6;
+}
+
+.tbpn-menu-item--active {
+  background-color: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+}
+
+.tbpn-menu-item--active:hover {
+  background-color: rgba(37, 99, 235, 0.12);
+}
+
+/* ─── Chart body ─────────────────────────────────────────── */
+
+.tbpn-chart-wrap {
+  flex: 1 1 auto;
+  min-height: 120px;
+  width: 100%;
+  min-width: 0;
+  position: relative;
+}
+
+.tbpn-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.bar-chart-empty-message {
-  margin: 0;
-  font-size: 13px;
   color: #86868b;
+  font-size: 12px;
   text-align: center;
+  padding: 0 12px;
 }
 
-.orders-chart {
-  width: 100%;
-  flex: 1;
-  min-height: 200px;
-  overflow: visible;
-}
+/* ─── Tooltip ────────────────────────────────────────────── */
 
-/* Grid lines - horizontal grey lines */
-.grid-lines line {
-  /* Styles are set inline in TopMonthsBarChart for better control */
-}
-
-/* Axis labels */
-.axis-label {
-  font-size: 11px;
-  fill: #64748b;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  font-variant-numeric: tabular-nums;
-}
-
-/* TopMonthsBarChart - Larger axis labels */
-.top-months-bar-chart .axis-label {
-  font-size: 14px;
-}
-
-.bar-chart-tooltip {
-  position: absolute;
-  transform: translate(-50%, calc(-100% - 12px));
-  padding: 8px 12px 9px;
+.tbpn-tooltip {
   background: #1f2937;
   color: #f9fafb;
-  font-size: 12px;
+  padding: 8px 12px 9px;
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  font-size: 12px;
+  min-width: 120px;
   pointer-events: none;
-  z-index: 200;
-  white-space: nowrap;
-  min-width: 110px;
-  text-align: left;
-  animation: bar-tip-in 0.1s ease;
 }
 
-@keyframes bar-tip-in {
-  from { opacity: 0; transform: translate(-50%, calc(-100% - 8px)) scale(0.95); }
-  to   { opacity: 1; transform: translate(-50%, calc(-100% - 12px)) scale(1); }
-}
-
-.bar-tooltip-header {
+.tbpn-tooltip-row {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -106,66 +215,31 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.bar-tooltip-swatch {
+.tbpn-tooltip-swatch {
   width: 9px;
   height: 9px;
   border-radius: 2px;
-  background: linear-gradient(135deg, #2563eb, #93c5fd);
   flex-shrink: 0;
 }
 
-.bar-tooltip-name {
+.tbpn-tooltip-name {
   font-weight: 600;
   font-size: 11px;
   color: #fff;
 }
 
-.bar-tooltip-value {
+.tbpn-tooltip-value {
   font-size: 13px;
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
-/* General bar segment styles for other charts (not TopMonthsBarChart) */
-.bar-segment {
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.bar-segment:hover {
-  opacity: 0.85;
-  filter: brightness(1.05);
-}
-
-/* TopMonthsBarChart uses inline styles for hover effects via React state */
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .orders-chart-container {
-    min-height: 180px;
-  }
-  
-  .orders-chart {
-    min-height: 180px;
-  }
-}
+/* ─── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 768px) {
-  .orders-title {
+  .tbpn-title {
     font-size: 14px;
   }
-  
-  .orders-chart-container {
-    min-height: 160px;
-  }
-  
-  .orders-chart {
-    min-height: 160px;
-  }
-  
-  .axis-label {
-    font-size: 10px;
-  }
 }
-

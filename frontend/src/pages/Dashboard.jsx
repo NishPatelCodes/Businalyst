@@ -5,11 +5,11 @@ import Sidebar from '../components/Sidebar'
 import TopNavigation from '../components/TopNavigation'
 import DashboardMetrics from '../features/DashboardMetrics'
 import LineChart from '../features/LineChart'
-import OrdersComparisonBarChart from '../features/OrdersComparisonBarChart/OrdersComparisonBarChart'
-import DashboardMultilineChart from '../features/DashboardMultilineChart/DashboardMultilineChart'
+import SalesVsAverageBarChart from '../features/SalesVsAverageBarChart/SalesVsAverageBarChart'
+import TrendsRadarChart from '../features/TrendsRadarChart/TrendsRadarChart'
 import BarChart from '../features/BarChart'
 import MapChart from '../features/MapChart'
-import TopProfitTable from '../components/TopProfitTable'
+import OrdersStatusTable from '../components/OrdersStatusTable'
 import { KpiContext } from '../context/KpiContext'
 import DateRangePicker from '../components/DateRangePicker'
 import './Dashboard.css'
@@ -493,18 +493,14 @@ const Dashboard = () => {
               <LineChart seriesOverride={lineSeriesOverride} timeframe={timeframe} />
             </div>
             <div className="chart-right">
-              <OrdersComparisonBarChart periodRatio={dashboardSeries.ratios.revenueRatio} />
+              <SalesVsAverageBarChart periodRatio={dashboardSeries.ratios.ordersRatio} />
             </div>
           </div>
           
           <div className="analytics-map-row">
             <div className="analytics-left">
               <div className="analytics-card-wrapper">
-                <DashboardMultilineChart
-                  revenueRatio={dashboardSeries.ratios.revenueRatio}
-                  ordersRatio={dashboardSeries.ratios.ordersRatio}
-                  timeframe={timeframe}
-                />
+                <TrendsRadarChart periodRatio={dashboardSeries.ratios.revenueRatio} />
               </div>
             </div>
             <div className="orders-middle">
@@ -520,7 +516,7 @@ const Dashboard = () => {
           </div>
 
           <div className="dashboard-top-profit-section">
-            <TopProfitTable periodRatio={dashboardSeries.ratios.profitRatio} />
+            <OrdersStatusTable periodRatio={dashboardSeries.ratios.profitRatio} />
           </div>
         </div>
       </div>

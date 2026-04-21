@@ -1,0 +1,513 @@
+/* Orders Status Table - matches the shadcn/ui reference design
+   but implemented with vanilla CSS to stay consistent with the rest
+   of the Businalyst frontend. */
+
+.ost-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: transparent;
+  color: #1d1d1f;
+  font-family: inherit;
+}
+
+/* ─── Toolbar ──────────────────────────────────────────────── */
+
+.ost-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 4px;
+  flex-wrap: wrap;
+}
+
+.ost-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: #f4f4f5;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.ost-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b6b70;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.ost-tab:hover {
+  color: #1d1d1f;
+}
+
+.ost-tab[data-active='true'] {
+  background: #ffffff;
+  color: #1d1d1f;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.ost-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+  color: #1d1d1f;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.ost-tab[data-active='true'] .ost-tab-badge {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.ost-toolbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ─── Buttons ──────────────────────────────────────────────── */
+
+.ost-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  font-family: inherit;
+  line-height: 1.2;
+}
+
+.ost-button:hover {
+  background: #fafafa;
+  border-color: rgba(0, 0, 0, 0.14);
+}
+
+.ost-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ost-button-label-full {
+  display: inline;
+}
+
+.ost-button-label-short {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .ost-button-label-full {
+    display: none;
+  }
+  .ost-button-label-short {
+    display: inline;
+  }
+}
+
+/* ─── Dropdown menu (column visibility) ────────────────────── */
+
+.ost-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.ost-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 220px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+  z-index: 20;
+}
+
+.ost-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #1d1d1f;
+  cursor: pointer;
+  border-radius: 6px;
+  user-select: none;
+  text-transform: capitalize;
+}
+
+.ost-dropdown-item:hover {
+  background: #f5f5f7;
+}
+
+.ost-dropdown-item input[type='checkbox'] {
+  accent-color: #1d1d1f;
+}
+
+/* ─── Table ────────────────────────────────────────────────── */
+
+.ost-table-container {
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.02),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ost-table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ost-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ost-table thead {
+  background: #f5f5f7;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.ost-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b6b70;
+  letter-spacing: 0.01em;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.ost-table th.ost-th-right {
+  text-align: right;
+}
+
+.ost-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #1d1d1f;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.ost-table td.ost-td-right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ost-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ost-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.ost-table tbody tr[data-selected='true'] {
+  background: #f5f5f7;
+}
+
+.ost-primary-cell {
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+.ost-select-cell {
+  width: 40px;
+  padding-left: 16px !important;
+  padding-right: 8px !important;
+  text-align: center;
+}
+
+.ost-empty-row {
+  text-align: center;
+  padding: 48px 16px !important;
+  color: #6b6b70;
+}
+
+/* ─── Checkbox ─────────────────────────────────────────────── */
+
+.ost-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: #ffffff;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  margin: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.ost-checkbox:hover {
+  border-color: rgba(0, 0, 0, 0.32);
+}
+
+.ost-checkbox:checked {
+  background: #1d1d1f;
+  border-color: #1d1d1f;
+}
+
+.ost-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 5px;
+  height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ─── Badges ───────────────────────────────────────────────── */
+
+.ost-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #4a4a4f;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.ost-status-badge svg {
+  flex-shrink: 0;
+}
+
+.ost-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #86868b;
+  display: inline-block;
+}
+
+.ost-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6b6b70;
+  font-weight: 500;
+  line-height: 1.4;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Footer / Pagination ──────────────────────────────────── */
+
+.ost-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 8px 0;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.ost-footer-info {
+  color: #6b6b70;
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+.ost-footer-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.ost-page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ost-page-size-label {
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+.ost-select {
+  padding: 5px 28px 5px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #ffffff
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231d1d1f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
+    no-repeat right 8px center;
+  font-size: 13px;
+  color: #1d1d1f;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+}
+
+.ost-select:hover {
+  background-color: #fafafa;
+}
+
+.ost-page-info {
+  color: #1d1d1f;
+  font-weight: 500;
+  min-width: 84px;
+  text-align: center;
+}
+
+.ost-page-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ost-icon-button {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: #ffffff;
+  cursor: pointer;
+  color: #1d1d1f;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  font-family: inherit;
+}
+
+.ost-icon-button:hover:not(:disabled) {
+  background: #fafafa;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.ost-icon-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ─── Empty state ──────────────────────────────────────────── */
+
+.ost-empty {
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  text-align: center;
+  color: #6b6b70;
+  font-size: 14px;
+}
+
+.ost-empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0 0 6px 0;
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .ost-icon-button--wide {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .ost-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .ost-tabs {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .ost-toolbar-actions {
+    justify-content: flex-end;
+  }
+
+  .ost-table th,
+  .ost-table td {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .ost-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .ost-footer-controls {
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .ost-page-info {
+    min-width: auto;
+  }
+}
