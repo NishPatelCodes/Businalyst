@@ -11,8 +11,6 @@ import './MapChart.css'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
 
-const MIN_ZOOM_FOR_TOOLTIP = 1.5
-
 const DEFAULT_MARKERS = [
   { name: 'North America', value: 0, coordinates: [-100, 45] },
   { name: 'South America', value: 0, coordinates: [-60, -15] },
@@ -22,31 +20,51 @@ const DEFAULT_MARKERS = [
   { name: 'Australia', value: 0, coordinates: [120, -25] },
 ]
 
+const getMarkerTier = (value, maxValue) => {
+  if (maxValue <= 0) return 'low'
+  const ratio = value / maxValue
+  if (ratio >= 0.66) return 'high'
+  if (ratio >= 0.33) return 'medium'
+  return 'low'
+}
+
+const getMarkerColor = (value, maxValue) => {
+  const tier = getMarkerTier(value, maxValue)
+  if (tier === 'high') return '#16a34a'
+  if (tier === 'medium') return '#f59e0b'
+  return '#ef4444'
+}
+
+const getMarkerLocationLabel = (marker) => {
+  if (marker?.city && marker?.country) return `${marker.city}, ${marker.country}`
+  if (marker?.state && marker?.country) return `${marker.state}, ${marker.country}`
+  if (marker?.city) return marker.city
+  if (marker?.state) return marker.state
+  if (marker?.country) return marker.country
+  return marker?.name || 'Unknown location'
+}
+
 const MapChart = ({ periodRatio = 1 }) => {
   const { kpiData } = useContext(KpiContext)
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
-  const [tooltip, setTooltip] = useState(null)
+  const [activeMarker, setActiveMarker] = useState(null)
+  const [cursorPos, setCursorPos] = useState(null)
 
-  const isZoomedEnough = position.zoom >= MIN_ZOOM_FOR_TOOLTIP
+  const handleWrapperMouseMove = useCallback((e) => {
+    setCursorPos({ x: e.clientX, y: e.clientY })
+  }, [])
 
-  const handleMarkerEnter = useCallback((marker, e) => {
-    if (position.zoom < MIN_ZOOM_FOR_TOOLTIP || e.buttons !== 0) return
-    const mr = e.currentTarget.getBoundingClientRect()
-    const cx = mr.left + mr.width / 2
-    const cy = mr.top
-    const cyBottom = mr.bottom
-    const flipped = cy < 80
-    setTooltip({
-      name: marker.name,
-      value: marker.value,
-      x: cx,
-      y: flipped ? cyBottom : cy,
-      flipped,
-    })
-  }, [position.zoom])
+  const handleWrapperMouseLeave = useCallback(() => {
+    setActiveMarker(null)
+    setCursorPos(null)
+  }, [])
+
+  const handleMarkerEnter = useCallback((marker) => {
+    setActiveMarker(marker)
+  }, [])
 
   const handleMarkerLeave = useCallback(() => {
-    setTooltip(null)
+    setActiveMarker(null)
   }, [])
 
   const mapDataRaw = Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
@@ -58,6 +76,7 @@ const MapChart = ({ periodRatio = 1 }) => {
     ...m,
     value: Math.round((Number(m?.value) || 0) * safeRatio),
   }))
+  const maxOrderValue = Math.max(...mapData.map((m) => Number(m.value) || 0), 0)
   const mapColumn = kpiData?.map_column || 'region'
   const topName = mapData[0]?.name ?? '—'
   const marketCount = mapData.length
@@ -65,18 +84,18 @@ const MapChart = ({ periodRatio = 1 }) => {
   const handleZoomIn = () => {
     if (position.zoom >= 4) return
     setPosition((pos) => ({ ...pos, zoom: pos.zoom * 1.5 }))
-    setTooltip(null)
+    setActiveMarker(null)
   }
 
   const handleZoomOut = () => {
     if (position.zoom <= 1) return
     setPosition((pos) => ({ ...pos, zoom: pos.zoom / 1.5 }))
-    setTooltip(null)
+    setActiveMarker(null)
   }
 
   const handleMoveEnd = ({ coordinates, zoom }) => {
     setPosition({ coordinates: coordinates ?? position.coordinates, zoom: zoom ?? position.zoom })
-    setTooltip(null)
+    setActiveMarker(null)
   }
 
   const handleWheel = (e) => {
@@ -95,7 +114,12 @@ const MapChart = ({ periodRatio = 1 }) => {
       </div>
 
       <div className="map-container">
-        <div className="map-wrapper" onWheel={handleWheel}>
+        <div
+          className="map-wrapper"
+          onWheel={handleWheel}
+          onMouseMove={handleWrapperMouseMove}
+          onMouseLeave={handleWrapperMouseLeave}
+        >
           <ComposableMap
             projection="geoMercator"
             projectionConfig={{
@@ -143,21 +167,24 @@ const MapChart = ({ periodRatio = 1 }) => {
                   ))
                 }
               </Geographies>
-              {mapData.map((marker, index) => (
+              {mapData.map((marker, index) => {
+                const markerColor = getMarkerColor(marker.value, maxOrderValue)
+                return (
                 <Marker key={marker.name ?? index} coordinates={marker.coordinates}>
                   <g
-                    className={`map-marker-g${isZoomedEnough ? ' map-marker-interactive' : ''}`}
-                    onMouseEnter={isZoomedEnough ? (e) => handleMarkerEnter(marker, e) : undefined}
-                    onMouseLeave={isZoomedEnough ? handleMarkerLeave : undefined}
+                    className="map-marker-g map-marker-interactive"
+                    pointerEvents="all"
+                    onMouseEnter={() => handleMarkerEnter(marker)}
+                    onMouseLeave={handleMarkerLeave}
                   >
-                    <circle r={16} fill="#2563eb" fillOpacity={0.08} />
-                    <circle r={14} fill="#2563eb" fillOpacity={0.12} />
-                    <circle r={12} fill="#2563eb" fillOpacity={0.18} />
-                    <circle r={10} fill="#2563eb" fillOpacity={0.22} />
-                    <circle r={8} fill="#2563eb" fillOpacity={0.28} />
+                    <circle r={16} fill={markerColor} fillOpacity={0.08} />
+                    <circle r={14} fill={markerColor} fillOpacity={0.12} />
+                    <circle r={12} fill={markerColor} fillOpacity={0.18} />
+                    <circle r={10} fill={markerColor} fillOpacity={0.22} />
+                    <circle r={8} fill={markerColor} fillOpacity={0.28} />
                     <circle
                       r={6}
-                      fill="#2563eb"
+                      fill={markerColor}
                       fillOpacity={0.9}
                       stroke="#ffffff"
                       strokeWidth={1.5}
@@ -166,7 +193,8 @@ const MapChart = ({ periodRatio = 1 }) => {
                     <circle r={2.5} fill="#ffffff" fillOpacity={0.9} />
                   </g>
                 </Marker>
-              ))}
+                )
+              })}
             </ZoomableGroup>
           </ComposableMap>
           
@@ -192,31 +220,33 @@ const MapChart = ({ periodRatio = 1 }) => {
               </svg>
             </button>
           </div>
-
-          <div className="map-legend-bottom">
-            {mapData.map((marker) => (
-              <div key={marker.name} className="map-legend-item-bottom">
-                <span className="map-legend-dot-bottom" style={{ background: '#2563eb' }} />
-                <span className="map-legend-name-bottom">
-                  {marker.name}{marker.value > 0 ? ` (${marker.value.toLocaleString()})` : ''}
-                </span>
-              </div>
-            ))}
+          <div className="map-tier-legend">
+            <div className="map-tier-legend-item">
+              <span className="map-tier-dot map-tier-dot--high" />
+              <span>High</span>
+            </div>
+            <div className="map-tier-legend-item">
+              <span className="map-tier-dot map-tier-dot--medium" />
+              <span>Medium</span>
+            </div>
+            <div className="map-tier-legend-item">
+              <span className="map-tier-dot map-tier-dot--low" />
+              <span>Low</span>
+            </div>
           </div>
+
         </div>
 
-        {tooltip && (
+        {activeMarker && cursorPos && (
           <div
-            className={`map-tooltip${tooltip.flipped ? ' map-tooltip--below' : ''}`}
-            style={{ left: tooltip.x, top: tooltip.y }}
+            className={`map-tooltip${cursorPos.y < 80 ? ' map-tooltip--below' : ''}`}
+            style={{ left: cursorPos.x, top: cursorPos.y }}
           >
             <div className="map-tooltip-content">
-              <span className="map-tooltip-name">{tooltip.name}</span>
-              {tooltip.value > 0 && (
-                <span className="map-tooltip-value">
-                  {tooltip.value.toLocaleString()}
-                </span>
-              )}
+              <span className="map-tooltip-name">{getMarkerLocationLabel(activeMarker)}</span>
+              <span className="map-tooltip-value">
+                {(Number(activeMarker.value) || 0).toLocaleString()} orders received
+              </span>
             </div>
           </div>
         )}

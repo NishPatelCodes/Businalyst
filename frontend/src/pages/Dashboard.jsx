@@ -388,6 +388,7 @@ const Dashboard = () => {
                   onClose={() => setIsDatePickerOpen(false)}
                   onApply={handleDateRangeApply}
                   initialRange={dateRange}
+                  dataBounds={dataDateBounds}
                 />
               </div>
               

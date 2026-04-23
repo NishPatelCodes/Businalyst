@@ -7,17 +7,15 @@ const PREDEFINED_RANGES = [
   { label: 'Today', value: 'today' },
   { label: 'Yesterday', value: 'yesterday' },
   { label: 'This Week', value: 'thisWeek' },
-  { label: 'Last Week', value: 'lastWeek' },
   { label: 'This Month', value: 'thisMonth' },
-  { label: 'Last Month', value: 'lastMonth' },
   { label: 'This Year', value: 'thisYear' },
-  { label: 'Last Year', value: 'lastYear' },
+  { label: 'Lifetime', value: 'lifetime' },
 ]
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
+const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null, dataBounds = null }) => {
   const [tempRange, setTempRange] = useState({ start: null, end: null })
   const [leftMonth, setLeftMonth] = useState(new Date())
   const [rightMonth, setRightMonth] = useState(() => {
@@ -175,6 +173,13 @@ const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
     let start, end
 
     switch (preset.value) {
+      case 'lifetime': {
+        const minBound = dataBounds?.min instanceof Date ? new Date(dataBounds.min) : null
+        const maxBound = dataBounds?.max instanceof Date ? new Date(dataBounds.max) : null
+        start = minBound || new Date(today.getFullYear(), 0, 1)
+        end = maxBound || new Date(today)
+        break
+      }
       case 'today':
         start = new Date(today)
         end = new Date(today)
@@ -189,27 +194,13 @@ const DateRangePicker = ({ isOpen, onClose, onApply, initialRange = null }) => {
         start.setDate(today.getDate() - today.getDay())
         end = new Date(today)
         break
-      case 'lastWeek':
-        start = new Date(today)
-        start.setDate(today.getDate() - today.getDay() - 7)
-        end = new Date(start)
-        end.setDate(start.getDate() + 6)
-        break
       case 'thisMonth':
         start = new Date(today.getFullYear(), today.getMonth(), 1)
         end = new Date(today)
         break
-      case 'lastMonth':
-        start = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-        end = new Date(today.getFullYear(), today.getMonth(), 0)
-        break
       case 'thisYear':
         start = new Date(today.getFullYear(), 0, 1)
         end = new Date(today)
-        break
-      case 'lastYear':
-        start = new Date(today.getFullYear() - 1, 0, 1)
-        end = new Date(today.getFullYear() - 1, 11, 31)
         break
       case 'custom':
       default:
