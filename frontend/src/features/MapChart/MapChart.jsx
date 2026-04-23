@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from 'react'
+import React, { useContext, useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import {
   ComposableMap,
   Geographies,
@@ -6,7 +6,7 @@ import {
   Marker,
   ZoomableGroup
 } from 'react-simple-maps'
-import { KpiContext } from '../../context/KpiContext'
+import { KpiDataContext } from '../../context/KpiContext'
 import './MapChart.css'
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
@@ -45,18 +45,34 @@ const getMarkerLocationLabel = (marker) => {
 }
 
 const MapChart = ({ periodRatio = 1 }) => {
-  const { kpiData } = useContext(KpiContext)
+  const { kpiData } = useContext(KpiDataContext)
   const [position, setPosition] = useState({ coordinates: [0, 0], zoom: 1 })
   const [activeMarker, setActiveMarker] = useState(null)
   const [cursorPos, setCursorPos] = useState(null)
+  const rafRef = useRef(null)
+  const latestCursorRef = useRef(null)
 
   const handleWrapperMouseMove = useCallback((e) => {
-    setCursorPos({ x: e.clientX, y: e.clientY })
+    latestCursorRef.current = { x: e.clientX, y: e.clientY }
+    if (rafRef.current) return
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null
+      if (latestCursorRef.current) {
+        setCursorPos(latestCursorRef.current)
+      }
+    })
   }, [])
 
   const handleWrapperMouseLeave = useCallback(() => {
     setActiveMarker(null)
     setCursorPos(null)
+    latestCursorRef.current = null
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
   }, [])
 
   const handleMarkerEnter = useCallback((marker) => {
@@ -67,16 +83,27 @@ const MapChart = ({ periodRatio = 1 }) => {
     setActiveMarker(null)
   }, [])
 
-  const mapDataRaw = Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
-    ? kpiData.map_data
-    : DEFAULT_MARKERS
+  const mapDataRaw = useMemo(
+    () =>
+      Array.isArray(kpiData?.map_data) && kpiData.map_data.length > 0
+        ? kpiData.map_data
+        : DEFAULT_MARKERS,
+    [kpiData?.map_data]
+  )
   // BUG 10 fix: skip scaling when periodRatio is 0 to prevent all markers showing 0
   const safeRatio = periodRatio === 0 ? 1 : periodRatio
-  const mapData = mapDataRaw.map((m) => ({
-    ...m,
-    value: Math.round((Number(m?.value) || 0) * safeRatio),
-  }))
-  const maxOrderValue = Math.max(...mapData.map((m) => Number(m.value) || 0), 0)
+  const mapData = useMemo(
+    () =>
+      mapDataRaw.map((m) => ({
+        ...m,
+        value: Math.round((Number(m?.value) || 0) * safeRatio),
+      })),
+    [mapDataRaw, safeRatio]
+  )
+  const maxOrderValue = useMemo(
+    () => Math.max(...mapData.map((m) => Number(m.value) || 0), 0),
+    [mapData]
+  )
   const mapColumn = kpiData?.map_column || 'region'
   const topName = mapData[0]?.name ?? '—'
   const marketCount = mapData.length

@@ -76,6 +76,7 @@ SIMPLE_JWT = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -156,3 +157,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Feature flags for staged low-latency rollout.
+FEATURE_BOOTSTRAP_PAYLOAD = os.environ.get("FEATURE_BOOTSTRAP_PAYLOAD", "1").lower() in ("true", "1", "yes")
+FEATURE_DEFER_HEAVY_DASHBOARD = os.environ.get("FEATURE_DEFER_HEAVY_DASHBOARD", "1").lower() in ("true", "1", "yes")

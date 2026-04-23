@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useContext, useRef, useEffect } from 'react'
-import { KpiContext } from '../../context/KpiContext'
+import React, { useState, useMemo, useContext, useRef, useEffect, useCallback } from 'react'
+import { KpiDataContext, CurrencyContext } from '../../context/KpiContext'
 import { aggregateSeriesByTimeframe, getXAxisConfig } from '../../utils/chartAggregation'
 import './LineChart.css'
 
@@ -14,7 +14,8 @@ const PLACEHOLDER = [
 ]
 
 const LineChart = ({ hideTabs = false, metric, variant, seriesOverride, timeframe = '30D' }) => {
-  const { kpiData, formatCurrency, formatCompactCurrency } = useContext(KpiContext)
+  const { kpiData } = useContext(KpiDataContext)
+  const { formatCurrency, formatCompactCurrency } = useContext(CurrencyContext)
   const [selectedTab, setSelectedTab] = useState(hideTabs ? (metric === 'revenue' ? 'Revenue' : 'Profit') : 'Revenue')
   const [hoverIndex, setHoverIndex] = useState(null)
   const containerRef = useRef(null)
@@ -72,7 +73,7 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride, timefram
     return aggregateSeriesByTimeframe(baseData, timeframe)
   }, [seriesOverride, kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, selectedTab, timeframe])
 
-  const values = chartData.map((d) => d.value)
+  const values = useMemo(() => chartData.map((d) => d.value), [chartData])
   const maxVal = Math.max(0, ...values)
   const overallAverage = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0
   const yMax = Math.max(maxVal, overallAverage) * 1.05 || 1
@@ -98,11 +99,15 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride, timefram
   const indexToX = (i) => (n <= 1 ? pad.left : pad.left + (i / (n - 1)) * graphW)
   const valueToY = (v) => pad.top + graphH - (Number(v) / yMax) * graphH
 
-  const points = chartData.map((d, i) => ({
-    x: indexToX(i),
-    y: valueToY(d.value),
-    ...d,
-  }))
+  const points = useMemo(
+    () =>
+      chartData.map((d, i) => ({
+        x: indexToX(i),
+        y: valueToY(d.value),
+        ...d,
+      })),
+    [chartData, n, graphW, graphH, yMax, pad.left, pad.top]
+  )
 
   // Monotone cubic interpolation for smooth, data-faithful curves
   const buildSmoothPath = (pts) => {
@@ -166,10 +171,14 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride, timefram
     return d
   }
 
-  const linePath = buildSmoothPath(points)
-  const areaPath = points.length < 2
-    ? ''
-    : `${linePath} L ${points[points.length - 1].x} ${pad.top + graphH} L ${points[0].x} ${pad.top + graphH} Z`
+  const linePath = useMemo(() => buildSmoothPath(points), [points])
+  const areaPath = useMemo(
+    () =>
+      points.length < 2
+        ? ''
+        : `${linePath} L ${points[points.length - 1].x} ${pad.top + graphH} L ${points[0].x} ${pad.top + graphH} Z`,
+    [linePath, points, pad.top, graphH]
+  )
 
   // Use shared interval logic so dashboard SVG charts match Recharts behavior.
   const xLabelIndices = useMemo(() => {
@@ -208,7 +217,8 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride, timefram
     return [0, step, step * 2, step * 3, yMax].map((v) => Math.round(v))
   }, [yMax])
 
-  const handleMouseMove = (e) => {
+  const hoverIndexRef = useRef(null)
+  const handleMouseMove = useCallback((e) => {
     if (!e.currentTarget || !hasSize) return
     const rect = e.currentTarget.getBoundingClientRect()
     const x = ((e.clientX - rect.left) / rect.width) * width
@@ -221,10 +231,16 @@ const LineChart = ({ hideTabs = false, metric, variant, seriesOverride, timefram
         idx = i
       }
     }
-    setHoverIndex(idx)
-  }
+    if (hoverIndexRef.current !== idx) {
+      hoverIndexRef.current = idx
+      setHoverIndex(idx)
+    }
+  }, [hasSize, width, n, indexToX])
 
-  const handleMouseLeave = () => setHoverIndex(null)
+  const handleMouseLeave = useCallback(() => {
+    hoverIndexRef.current = null
+    setHoverIndex(null)
+  }, [])
 
   return (
     <div className={`line-chart line-chart--wealthsimple ${isTotalSales ? 'line-chart--total-sales' : ''}`}>

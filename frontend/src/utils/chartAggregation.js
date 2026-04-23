@@ -36,10 +36,6 @@ function getAggregationGranularity(timeframe, dateRange) {
   return 'month'
 }
 
-export function getGranularityForTimeframe(timeframe, dateRange = null) {
-  return getAggregationGranularity(timeframe, dateRange)
-}
-
 function toDate(input) {
   if (input instanceof Date) return input
   const parsed = new Date(input)
@@ -215,16 +211,3 @@ export function aggregateSeriesByTimeframe(series, timeframe) {
   return aggregateSeries(series, granularity);
 }
 
-/**
- * Gets appropriate date format label based on granularity
- * Useful for updating x-axis labels
- */
-export function getDateFormatForGranularity(granularity) {
-  if (granularity === 'month') {
-    return 'month'; // e.g., "Jan 2024"
-  }
-  if (granularity === 'week') {
-    return 'week'; // e.g., "Week 1 2024"
-  }
-  return 'day'; // e.g., "Jan 15"
-}

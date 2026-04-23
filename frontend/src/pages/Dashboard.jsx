@@ -10,7 +10,7 @@ import TrendsRadarChart from '../features/TrendsRadarChart/TrendsRadarChart'
 import BarChart from '../features/BarChart'
 import MapChart from '../features/MapChart'
 import OrdersStatusTable from '../components/OrdersStatusTable'
-import { KpiContext } from '../context/KpiContext'
+import { KpiDataContext, CurrencyContext } from '../context/KpiContext'
 import DateRangePicker from '../components/DateRangePicker'
 import './Dashboard.css'
 
@@ -28,12 +28,37 @@ function parseDateLocal(dateStr) {
   if (isNaN(d.getTime())) return null
   return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
 }
+const FEATURE_DEFER_HEAVY_DASHBOARD = (import.meta.env.VITE_FEATURE_DEFER_HEAVY_DASHBOARD ?? 'true') !== 'false'
 
 const Dashboard = () => {
-  const { kpiData, isDemoData, currencies, selectedCurrency, setSelectedCurrency } = useContext(KpiContext)
+  const { kpiData, isDemoData } = useContext(KpiDataContext)
+  const { currencies, selectedCurrency, setSelectedCurrency } = useContext(CurrencyContext)
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false)
   const [activeQuickRangeMonths, setActiveQuickRangeMonths] = useState(null)
+  const normalizedSeries = useMemo(() => {
+    const dates = Array.isArray(kpiData?.date_data) ? kpiData.date_data : []
+    const revenues = Array.isArray(kpiData?.revenue_data) ? kpiData.revenue_data : []
+    const profits = Array.isArray(kpiData?.profit_data) ? kpiData.profit_data : []
+    const orders = Array.isArray(kpiData?.orders_data) ? kpiData.orders_data : []
+    const hasOrdersData = Array.isArray(kpiData?.orders_data) && kpiData.orders_data.length > 0
+    const len = Math.min(dates.length, revenues.length, profits.length)
+    const allSeries = []
+
+    for (let i = 0; i < len; i++) {
+      const dt = parseDateLocal(dates[i])
+      if (!dt) continue
+      allSeries.push({
+        date: dt,
+        revenue: Number(revenues[i]) || 0,
+        profit: Number(profits[i]) || 0,
+        orders: hasOrdersData && orders[i] !== undefined ? Number(orders[i]) || 0 : 0,
+      })
+    }
+
+    allSeries.sort((a, b) => a.date - b.date)
+    return { allSeries, hasOrdersData }
+  }, [kpiData?.date_data, kpiData?.revenue_data, kpiData?.profit_data, kpiData?.orders_data])
   // Derive initial date range from actual data bounds using local-midnight dates
   // so they match the calendar picker's dates and filtering works correctly.
   const [dateRange, setDateRange] = useState(() => {
@@ -61,17 +86,14 @@ const Dashboard = () => {
     const curr = kpiData?.date_data
     if (curr === prev) return
     prevDateDataRef.current = curr
-    if (Array.isArray(curr) && curr.length > 0) {
-      const parsed = curr.map(d => parseDateLocal(d)).filter(Boolean)
-      if (parsed.length > 0) {
-        const min = new Date(Math.min(...parsed))
-        const max = new Date(Math.max(...parsed))
+    if (normalizedSeries.allSeries.length > 0) {
+        const min = new Date(normalizedSeries.allSeries[0].date)
+        const max = new Date(normalizedSeries.allSeries[normalizedSeries.allSeries.length - 1].date)
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         setDateRange({ start: min, end: max > today ? today : max })
-      }
     }
-  }, [kpiData?.date_data])
+  }, [kpiData?.date_data, normalizedSeries])
 
   const currencyDropdownRef = useRef(null)
   const currencyButtonRef = useRef(null)
@@ -80,10 +102,26 @@ const Dashboard = () => {
   const [exportOpen, setExportOpen] = useState(false)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
   const [exportDropdownPosition, setExportDropdownPosition] = useState({ top: 0, right: 0 })
+  const [showDeferredSections, setShowDeferredSections] = useState(false)
 
   // BUG 5 fix: force scroll to top on mount so KPI cards aren't hidden
   useEffect(() => {
     window.scrollTo(0, 0)
+  }, [])
+
+  useEffect(() => {
+    if (!FEATURE_DEFER_HEAVY_DASHBOARD) {
+      setShowDeferredSections(true)
+      return undefined
+    }
+    let timeoutId
+    const defer = () => setShowDeferredSections(true)
+    if (typeof window.requestIdleCallback === 'function') {
+      const idleId = window.requestIdleCallback(defer, { timeout: 400 })
+      return () => window.cancelIdleCallback(idleId)
+    }
+    timeoutId = window.setTimeout(defer, 180)
+    return () => window.clearTimeout(timeoutId)
   }, [])
 
   const formatDate = (date) => {
@@ -104,15 +142,13 @@ const Dashboard = () => {
   }
 
   const dataDateBounds = useMemo(() => {
-    const dates = Array.isArray(kpiData?.date_data) ? kpiData.date_data : []
-    const parsed = dates.map((d) => parseDateLocal(d)).filter(Boolean)
-    if (!parsed.length) return null
-    const min = new Date(Math.min(...parsed))
-    const max = new Date(Math.max(...parsed))
+    if (!normalizedSeries.allSeries.length) return null
+    const min = new Date(normalizedSeries.allSeries[0].date)
+    const max = new Date(normalizedSeries.allSeries[normalizedSeries.allSeries.length - 1].date)
     min.setHours(0, 0, 0, 0)
     max.setHours(0, 0, 0, 0)
     return { min, max }
-  }, [kpiData?.date_data])
+  }, [normalizedSeries])
 
   const handleQuickRangeSelect = (months) => {
     const today = new Date()
@@ -170,27 +206,7 @@ const Dashboard = () => {
   }
 
   const dashboardSeries = useMemo(() => {
-    const dates = Array.isArray(kpiData?.date_data) ? kpiData.date_data : []
-    const revenues = Array.isArray(kpiData?.revenue_data) ? kpiData.revenue_data : []
-    const profits = Array.isArray(kpiData?.profit_data) ? kpiData.profit_data : []
-    const orders = Array.isArray(kpiData?.orders_data) ? kpiData.orders_data : []
-    const hasOrdersData = Array.isArray(kpiData?.orders_data) && kpiData.orders_data.length > 0
-
-    const len = Math.min(dates.length, revenues.length, profits.length)
-    const allSeries = []
-    for (let i = 0; i < len; i++) {
-      // Parse as local midnight so comparisons with the date picker
-      // (which also uses local midnight) are timezone-consistent.
-      const dt = parseDateLocal(dates[i])
-      if (!dt) continue
-      allSeries.push({
-        date: dt,
-        revenue: Number(revenues[i]) || 0,
-        profit: Number(profits[i]) || 0,
-        orders: hasOrdersData && orders[i] !== undefined ? Number(orders[i]) || 0 : 0,
-      })
-    }
-    allSeries.sort((a, b) => a.date - b.date)
+    const { allSeries, hasOrdersData } = normalizedSeries
 
     const start = dateRange?.start
     const end = dateRange?.end
@@ -223,7 +239,7 @@ const Dashboard = () => {
       },
       ratios: { revenueRatio, profitRatio, ordersRatio },
     }
-  }, [kpiData, dateRange?.start, dateRange?.end])
+  }, [kpiData, dateRange?.start, dateRange?.end, normalizedSeries])
 
   // BUG 2/12 fix: always pass filtered series so LineChart never falls back to
   // raw unfiltered kpiData. When the date range yields no data, the chart correctly
@@ -494,31 +510,44 @@ const Dashboard = () => {
               <LineChart seriesOverride={lineSeriesOverride} timeframe={timeframe} />
             </div>
             <div className="chart-right">
-              <SalesVsAverageBarChart periodRatio={dashboardSeries.ratios.ordersRatio} />
+              <SalesVsAverageBarChart series={dashboardSeries.filteredSeries} />
             </div>
           </div>
           
-          <div className="analytics-map-row">
-            <div className="analytics-left">
-              <div className="analytics-card-wrapper">
-                <TrendsRadarChart periodRatio={dashboardSeries.ratios.revenueRatio} />
+          {showDeferredSections ? (
+            <>
+              <div className="analytics-map-row">
+                <div className="analytics-left">
+                  <div className="analytics-card-wrapper">
+                    <TrendsRadarChart periodRatio={dashboardSeries.ratios.revenueRatio} />
+                  </div>
+                </div>
+                <div className="orders-middle">
+                  <div className="analytics-card-wrapper">
+                    <BarChart periodRatio={dashboardSeries.ratios.revenueRatio} />
+                  </div>
+                </div>
+                <div className="map-right">
+                  <div className="analytics-card-wrapper">
+                    <MapChart periodRatio={dashboardSeries.ratios.ordersRatio} />
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="orders-middle">
-              <div className="analytics-card-wrapper">
-                <BarChart periodRatio={dashboardSeries.ratios.revenueRatio} />
-              </div>
-            </div>
-            <div className="map-right">
-              <div className="analytics-card-wrapper">
-                <MapChart periodRatio={dashboardSeries.ratios.ordersRatio} />
-              </div>
-            </div>
-          </div>
 
-          <div className="dashboard-top-profit-section">
-            <OrdersStatusTable periodRatio={dashboardSeries.ratios.profitRatio} />
-          </div>
+              <div className="dashboard-top-profit-section">
+                <OrdersStatusTable periodRatio={dashboardSeries.ratios.profitRatio} />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="analytics-map-row">
+                <div className="analytics-card-wrapper" style={{ minHeight: 260 }}>Loading insights...</div>
+                <div className="analytics-card-wrapper" style={{ minHeight: 260 }}>Loading top products...</div>
+                <div className="analytics-card-wrapper" style={{ minHeight: 260 }}>Loading map...</div>
+              </div>
+              <div className="analytics-card-wrapper" style={{ minHeight: 280, marginTop: 16 }}>Loading orders table...</div>
+            </>
+          )}
         </div>
       </div>
     </div>

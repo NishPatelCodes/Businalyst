@@ -4,7 +4,7 @@ Orders overview: trend, by status, by channel, by region, top products.
 
 import pandas as pd
 
-from .utils import find_date_col, find_column_by_keywords
+from .utils import find_date_col, find_column_by_keywords, parse_datetime_series
 from .constants import STATUS_COLORS, CHANNEL_COLORS
 
 
@@ -17,7 +17,7 @@ def orders_trend_daily(df):
     date_col = find_date_col(df)
     if date_col is None or date_col not in df.columns:
         return None
-    df["_dt"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
+    df["_dt"] = parse_datetime_series(df[date_col])
     df = df.dropna(subset=["_dt"])
     if len(df) == 0:
         return None
