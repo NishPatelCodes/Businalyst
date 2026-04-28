@@ -15,6 +15,7 @@ import RevenueInsights from './pages/RevenueInsights'
 import Orders from './pages/Orders'
 import ExpenseInsights from './pages/ExpenseInsights'
 import CustomersInsights from './pages/CustomersInsights'
+import Settings from './pages/Settings'
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
             <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
             <Route path="/expense-insights" element={<ProtectedRoute><ExpenseInsights /></ProtectedRoute>} />
             <Route path="/analytics/customers" element={<ProtectedRoute><CustomersInsights /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           </Routes>
         </Router>
       </KpiProvider>

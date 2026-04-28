@@ -2,7 +2,14 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from backend.api.auth_views import register, login, me
+from backend.api.auth_views import (
+    register,
+    login,
+    me,
+    update_profile,
+    change_password,
+    delete_account,
+)
 from backend.api.dataset_views import (
     upload_dataset,
     get_active_dataset,
@@ -20,6 +27,9 @@ urlpatterns = [
     path("api/auth/login/", login, name="auth-login"),
     path("api/auth/refresh/", TokenRefreshView.as_view(), name="auth-refresh"),
     path("api/auth/me/", me, name="auth-me"),
+    path("api/auth/profile/", update_profile, name="auth-profile"),
+    path("api/auth/change-password/", change_password, name="auth-change-password"),
+    path("api/auth/account/", delete_account, name="auth-delete-account"),
 
     # Dataset (authenticated)
     path("api/upload/", upload_dataset, name="dataset-upload"),

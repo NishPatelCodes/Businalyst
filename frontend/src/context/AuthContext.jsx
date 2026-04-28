@@ -47,6 +47,12 @@ export function AuthProvider({ children }) {
     removeStored(USER_KEY)
   }, [])
 
+  const updateUser = useCallback((nextUser) => {
+    if (!nextUser) return
+    setUser(nextUser)
+    setStored(USER_KEY, JSON.stringify(nextUser))
+  }, [])
+
   const refreshAccessToken = useCallback(async () => {
     const rt = getStored(REFRESH_KEY)
     if (!rt) return null
@@ -177,6 +183,7 @@ export function AuthProvider({ children }) {
         loginUser,
         registerUser,
         logout,
+        updateUser,
         authFetch,
         API_BASE,
       }}

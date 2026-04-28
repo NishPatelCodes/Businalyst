@@ -101,6 +101,20 @@
   --transition-slow: 0.3s ease;
 }
 
+html[data-theme="dark"] {
+  --bg-primary: #111827;
+  --bg-secondary: #0b1220;
+  --bg-tertiary: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-muted: #9ca3af;
+  --card-bg: #111827;
+  --card-border: 1px solid rgba(255, 255, 255, 0.14);
+  --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 8px 20px rgba(0, 0, 0, 0.35);
+  --card-shadow-hover: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
 /* ============================================
    RESET & BASE STYLES
    Wrapped in @layer base so Tailwind's @layer
