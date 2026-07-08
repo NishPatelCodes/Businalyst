@@ -2,17 +2,26 @@
 Shared utilities: column detection, JSON serialization, type checks.
 """
 
-import logging
-
 import pandas as pd
-
-logger = logging.getLogger(__name__)
+DEFAULT_DATE_PARSE_DAYFIRST = True
 
 from .constants import (
     NUMERIC_OR_DATE_LIKE,
     GEOGRAPHY_KEYWORDS,
     PAYMENT_KEYWORDS,
 )
+
+
+def parse_datetime_series(series, dayfirst=DEFAULT_DATE_PARSE_DAYFIRST):
+    """Parse a pandas Series into datetimes using one shared policy."""
+    return pd.to_datetime(series, errors="coerce", dayfirst=dayfirst)
+
+
+def parse_datetime_value(value, dayfirst=DEFAULT_DATE_PARSE_DAYFIRST):
+    """Parse a single date-like input into pandas Timestamp or NaT."""
+    if value is None:
+        return None
+    return pd.to_datetime(value, errors="coerce", dayfirst=dayfirst)
 
 
 def filter_df_by_date(df, start_date=None, end_date=None, date_column=None):
@@ -26,16 +35,15 @@ def filter_df_by_date(df, start_date=None, end_date=None, date_column=None):
     if date_col is None:
         return df.copy()
     df = df.copy()
-    df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
-    start_ts = pd.to_datetime(start_date) if start_date is not None else None
-    end_ts = pd.to_datetime(end_date) if end_date is not None else None
+    df[date_col] = parse_datetime_series(df[date_col])
+    start_ts = parse_datetime_value(start_date)
+    end_ts = parse_datetime_value(end_date)
+    if start_ts is not None and pd.isna(start_ts):
+        raise ValueError(f"Invalid start_date: {start_date}")
+    if end_ts is not None and pd.isna(end_ts):
+        raise ValueError(f"Invalid end_date: {end_date}")
     if start_ts is not None and end_ts is not None and start_ts > end_ts:
-        logger.warning(
-            "filter_df_by_date: start_date after end_date (%s > %s); using full unfiltered copy",
-            start_date,
-            end_date,
-        )
-        return df.copy()
+        raise ValueError(f"start_date must be before or equal to end_date ({start_date} > {end_date})")
     if start_ts is not None:
         df = df[df[date_col] >= start_ts]
     if end_ts is not None:

@@ -2,7 +2,6 @@ import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { KpiContext } from '../context/KpiContext'
-import { filterSeriesByCalendarRange } from '../utils/timeRangeFilter'
 import { aggregateSeriesByTimeframe, getXAxisConfig } from '../utils/chartAggregation'
 import {
   ComposedChart, BarChart, Area, Bar, Line,

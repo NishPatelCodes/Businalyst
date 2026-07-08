@@ -1,10 +1,20 @@
-import os
 from django.conf import settings
 from django.db import models
 
 
 def user_csv_upload_path(instance, filename):
     return f"datasets/user_{instance.user.id}/{filename}"
+
+
+class WaitlistEmail(models.Model):
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.email
 
 
 class UserDataset(models.Model):

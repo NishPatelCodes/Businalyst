@@ -4,7 +4,7 @@ Chart data builders: line, bar, pie, map, comparison, multiline, top-products, m
 
 import pandas as pd
 
-from .utils import find_date_col, find_column_by_keywords
+from .utils import find_date_col, find_column_by_keywords, parse_datetime_series
 from .constants import (
     PIE_MAX_SEGMENTS,
     REGION_COORDS,
@@ -131,7 +131,7 @@ def comparison_bar_chart(df):
         return {"error": "No suitable grouping dimension (product / category / location) found"}
 
     df = df.copy()
-    df["_dt"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
+    df["_dt"] = parse_datetime_series(df[date_col])
     df[sales_col] = pd.to_numeric(df[sales_col], errors="coerce")
     df[dim_col] = df[dim_col].astype(str).str.strip()
 
@@ -227,7 +227,7 @@ def multiline_chart(df, granularity="monthly"):
         return {"error": "Revenue / sales column missing or not detected"}
 
     df = df.copy()
-    df["_dt"] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
+    df["_dt"] = parse_datetime_series(df[date_col])
     df[revenue_col] = pd.to_numeric(df[revenue_col], errors="coerce").fillna(0)
     df = df.dropna(subset=["_dt"])
 

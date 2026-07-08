@@ -1,13 +1,19 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DEMO_KPI_DATA } from '../data/demoData'
 import { useAuth } from './AuthContext'
 
 export const KpiContext = createContext(null)
+export const KpiDataContext = createContext(null)
+export const CurrencyContext = createContext(null)
+export const DatasetMetaContext = createContext(null)
 
 const DATA_STORAGE_KEY = 'businalyst_kpi_data'
 const CURRENCY_STORAGE_KEY = 'businalyst_currency_code'
 const STORAGE_VERSION_KEY = 'businalyst_kpi_version'
 const CURRENT_VERSION = 2
+const DATA_SCOPE_BOOTSTRAP = 'bootstrap'
+const DATA_SCOPE_FULL = 'full'
+const FEATURE_BOOTSTRAP_PAYLOAD = (import.meta.env.VITE_FEATURE_BOOTSTRAP_PAYLOAD ?? 'true') !== 'false'
 
 const CURRENCY_LOCALES = {
   USD: 'en-US',
@@ -43,6 +49,7 @@ const DEFAULT_CURRENCY = CURRENCIES[0]
 const isSupportedCurrency = (code) => CURRENCIES.some((c) => c.code === code)
 
 export function KpiProvider({ children }) {
+  const formatterCacheRef = useRef(new Map())
   const { isAuthenticated, authFetch, API_BASE, initializing } = useAuth()
 
   const [kpiData, setKpiDataState] = useState(() => {
@@ -104,30 +111,40 @@ export function KpiProvider({ children }) {
     return numeric * (sourceRate / targetRate)
   }, [selectedCurrency.code, sourceCurrencyCode])
 
-  const formatCurrency = useCallback((value, options = {}) => {
-    const numeric = convertCurrencyValue(value)
-    if (!Number.isFinite(numeric)) return '--'
-    return new Intl.NumberFormat(CURRENCY_LOCALES[selectedCurrency.code] || 'en-US', {
+  const getCurrencyFormatter = useCallback((compact, options = {}) => {
+    const locale = CURRENCY_LOCALES[selectedCurrency.code] || 'en-US'
+    const key = JSON.stringify({
+      locale,
+      currency: selectedCurrency.code,
+      compact,
+      options,
+    })
+    if (formatterCacheRef.current.has(key)) {
+      return formatterCacheRef.current.get(key)
+    }
+    const formatter = new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: selectedCurrency.code,
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: compact ? 1 : 0,
+      ...(compact ? { notation: 'compact' } : {}),
       ...options,
-    }).format(numeric)
-  }, [selectedCurrency.code, convertCurrencyValue])
+    })
+    formatterCacheRef.current.set(key, formatter)
+    return formatter
+  }, [selectedCurrency.code])
+
+  const formatCurrency = useCallback((value, options = {}) => {
+    const numeric = convertCurrencyValue(value)
+    if (!Number.isFinite(numeric)) return '--'
+    return getCurrencyFormatter(false, options).format(numeric)
+  }, [convertCurrencyValue, getCurrencyFormatter])
 
   const formatCompactCurrency = useCallback((value, options = {}) => {
     const numeric = convertCurrencyValue(value)
     if (!Number.isFinite(numeric)) return '--'
-    return new Intl.NumberFormat(CURRENCY_LOCALES[selectedCurrency.code] || 'en-US', {
-      style: 'currency',
-      currency: selectedCurrency.code,
-      notation: 'compact',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 1,
-      ...options,
-    }).format(numeric)
-  }, [selectedCurrency.code, convertCurrencyValue])
+    return getCurrencyFormatter(true, options).format(numeric)
+  }, [convertCurrencyValue, getCurrencyFormatter])
 
   const setKpiData = useCallback((data) => {
     try {
@@ -171,11 +188,21 @@ export function KpiProvider({ children }) {
     const loadSavedDataset = async () => {
       setDatasetLoading(true)
       try {
-        const res = await authFetch(`${API_BASE}/api/dataset/`)
+        const initialScope = FEATURE_BOOTSTRAP_PAYLOAD ? DATA_SCOPE_BOOTSTRAP : DATA_SCOPE_FULL
+        const res = await authFetch(`${API_BASE}/api/dataset/?scope=${initialScope}`)
         if (!res.ok) return
         const data = await res.json()
         if (data.has_dataset) {
           setKpiData(data)
+          // Load full payload in the background to hydrate deferred sections.
+          if (FEATURE_BOOTSTRAP_PAYLOAD) {
+            authFetch(`${API_BASE}/api/dataset/?scope=${DATA_SCOPE_FULL}`)
+              .then((fullRes) => (fullRes.ok ? fullRes.json() : null))
+              .then((fullData) => {
+                if (fullData?.has_dataset) setKpiData(fullData)
+              })
+              .catch(() => {})
+          }
         }
       } catch (err) {
         console.error('Failed to load saved dataset:', err)
@@ -187,24 +214,49 @@ export function KpiProvider({ children }) {
     loadSavedDataset()
   }, [isAuthenticated, initializing]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const kpiDataValue = useMemo(() => ({
+    kpiData,
+    setKpiData,
+    isDemoData,
+  }), [kpiData, setKpiData, isDemoData])
+
+  const currencyValue = useMemo(() => ({
+    currencies: CURRENCIES,
+    selectedCurrency,
+    setSelectedCurrency,
+    sourceCurrencyCode,
+    convertCurrencyValue,
+    formatCurrency,
+    formatCompactCurrency,
+  }), [
+    selectedCurrency,
+    setSelectedCurrency,
+    sourceCurrencyCode,
+    convertCurrencyValue,
+    formatCurrency,
+    formatCompactCurrency,
+  ])
+
+  const datasetMetaValue = useMemo(() => ({
+    datasetMeta,
+    datasetLoading,
+  }), [datasetMeta, datasetLoading])
+
+  const legacyValue = useMemo(() => ({
+    ...kpiDataValue,
+    ...currencyValue,
+    ...datasetMetaValue,
+  }), [kpiDataValue, currencyValue, datasetMetaValue])
+
   return (
-    <KpiContext.Provider
-      value={{
-        kpiData,
-        setKpiData,
-        isDemoData,
-        datasetMeta,
-        datasetLoading,
-        currencies: CURRENCIES,
-        selectedCurrency,
-        setSelectedCurrency,
-        sourceCurrencyCode,
-        convertCurrencyValue,
-        formatCurrency,
-        formatCompactCurrency,
-      }}
-    >
-      {children}
+    <KpiContext.Provider value={legacyValue}>
+      <KpiDataContext.Provider value={kpiDataValue}>
+        <CurrencyContext.Provider value={currencyValue}>
+          <DatasetMetaContext.Provider value={datasetMetaValue}>
+            {children}
+          </DatasetMetaContext.Provider>
+        </CurrencyContext.Provider>
+      </KpiDataContext.Provider>
     </KpiContext.Provider>
   )
 }

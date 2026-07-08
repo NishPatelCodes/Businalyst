@@ -9,7 +9,7 @@ import {
   Tooltip,
   ReferenceLine,
 } from 'recharts'
-import { KpiContext } from '../../context/KpiContext'
+import { KpiDataContext } from '../../context/KpiContext'
 import './SalesVsAverageBarChart.css'
 
 const MONTH_NAMES_LONG = [
@@ -158,11 +158,28 @@ const makeLabelRenderer = ({ data, side }) => (props) => {
   )
 }
 
-const SalesVsAverageBarChart = ({ periodRatio = 1 }) => {
-  const { kpiData } = useContext(KpiContext)
+const SalesVsAverageBarChart = ({ series }) => {
+  const { kpiData } = useContext(KpiDataContext)
   const [timeframe, setTimeframe] = useState('6m')
 
+  const providedTimelineSeries = useMemo(() => {
+    if (!Array.isArray(series)) return null
+    return series
+      .map((pt) => {
+        const d = pt?.date instanceof Date ? pt.date : new Date(pt?.date)
+        if (Number.isNaN(d.getTime())) return null
+        return { date: d, orders: Number(pt?.orders) || 0 }
+      })
+      .filter(Boolean)
+  }, [series])
+
   const months = useMemo(() => {
+    if (providedTimelineSeries) {
+      const dates = providedTimelineSeries.map((pt) => pt.date.toISOString())
+      const values = providedTimelineSeries.map((pt) => pt.orders)
+      return buildMonthlyFromDaily(dates, values)
+    }
+
     const fromDaily = buildMonthlyFromDaily(kpiData?.date_data, kpiData?.orders_data)
     if (fromDaily.length > 0) return fromDaily
 
@@ -189,21 +206,16 @@ const SalesVsAverageBarChart = ({ periodRatio = 1 }) => {
       { monthIndex: 4, year: 2024, long: 'May', short: 'May', total: 91 },
       { monthIndex: 5, year: 2024, long: 'June', short: 'Jun', total: 214 },
     ]
-  }, [kpiData?.date_data, kpiData?.orders_data, kpiData?.multiline_labels, kpiData?.multiline_orders])
+  }, [
+    providedTimelineSeries,
+    kpiData?.date_data,
+    kpiData?.orders_data,
+    kpiData?.multiline_labels,
+    kpiData?.multiline_orders,
+  ])
 
-  const scaledMonths = useMemo(() => {
-    const safeRatio = Number.isFinite(periodRatio) && periodRatio !== 0 ? periodRatio : 1
-    if (safeRatio === 1) return months
-    return months.map((m) => ({ ...m, total: m.total * safeRatio }))
-  }, [months, periodRatio])
-
-  const availableMonths = scaledMonths.length
-  const currentTf = TIMEFRAME_OPTIONS.find((t) => t.id === timeframe) || TIMEFRAME_OPTIONS[1]
-  const windowSize = Math.min(currentTf.months, availableMonths)
-  const windowed = useMemo(
-    () => scaledMonths.slice(Math.max(0, scaledMonths.length - windowSize)),
-    [scaledMonths, windowSize]
-  )
+  const availableMonths = months.length
+  const windowed = useMemo(() => months, [months])
 
   const chartData = useMemo(() => {
     if (windowed.length === 0) return []
@@ -272,7 +284,7 @@ const SalesVsAverageBarChart = ({ periodRatio = 1 }) => {
                 title={
                   disabled
                     ? `Only ${availableMonths} month${availableMonths === 1 ? '' : 's'} of data available`
-                    : undefined
+                    : 'Display-only selector (timeline controlled by dashboard range)'
                 }
               >
                 {tf.label}
@@ -344,8 +356,9 @@ const SalesVsAverageBarChart = ({ periodRatio = 1 }) => {
           )}
         </div>
         <div className="svab-footer-line svab-footer-line--muted">
-          Showing sales vs average for the last {chartData.length} month
+          Showing sales vs average for the dashboard timeline (last {chartData.length} month
           {chartData.length === 1 ? '' : 's'}
+          )
         </div>
       </div>
     </div>

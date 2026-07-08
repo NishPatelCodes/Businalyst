@@ -30,5 +30,3 @@ export function filterSeriesByCalendarRange(series, dateRange) {
     return !Number.isNaN(t) && t >= startTs && t <= lastTs
   })
 }
-
-export { DAY_LIMITS }

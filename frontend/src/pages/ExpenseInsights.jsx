@@ -448,7 +448,15 @@ const ExpenseInsights = () => {
               <div className="eil-section-header">
                 <div>
                   <p className="eil-section-title">Section 02</p>
-                  <h2 className="eil-section-heading">Expense Composition</h2>
+                  <h2 className="eil-section-heading">
+                    Expense Composition
+                    <span
+                      className="estimated-badge"
+                      title="Category breakdown is estimated from typical small-business benchmark ratios, not your uploaded data."
+                    >
+                      Estimated
+                    </span>
+                  </h2>
                 </div>
                 <span className="eil-meta">By category, sorted by contribution</span>
               </div>
@@ -547,7 +555,15 @@ const ExpenseInsights = () => {
               <div className="eil-section-header">
                 <div>
                   <p className="eil-section-title">Section 03</p>
-                  <h2 className="eil-section-heading">Cost Pressure Analysis</h2>
+                  <h2 className="eil-section-heading">
+                    Cost Pressure Analysis
+                    <span
+                      className="estimated-badge"
+                      title="Fixed vs variable split is estimated using a typical 35%/65% benchmark, not your uploaded data."
+                    >
+                      Estimated
+                    </span>
+                  </h2>
                 </div>
               </div>
 

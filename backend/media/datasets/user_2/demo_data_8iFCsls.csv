@@ -1,0 +1,91 @@
+date,revenue,profit,orders,expense,customer_name,category,region,product_name,order_id,customer_id,sales_rep,payment_method,quantity,discount
+2024-01-15,12500.50,3125.12,45,9375.38,Acme Corporation,Electronics,West,Wireless Headphones,ORD-2024-0015,CUST-ACME-001,Sarah Johnson,Credit Card,25,0.10
+2024-01-16,18900.75,4725.19,62,14175.56,Tech Solutions Inc,Electronics,East,Smartphone Case,ORD-2024-0016,CUST-TECH-002,Michael Chen,PayPal,42,0.05
+2024-01-17,15200.00,3800.00,38,11400.00,Global Industries,Office Supplies,South,Desk Organizer,ORD-2024-0017,CUST-GLOB-003,Emily Rodriguez,Bank Transfer,30,0.00
+2024-01-18,22100.25,5525.06,78,16575.19,Digital Ventures,Electronics,West,USB-C Cable,ORD-2024-0018,CUST-DIGI-004,David Kim,Credit Card,55,0.15
+2024-01-19,9800.50,2450.12,29,7350.38,Prime Services,Office Supplies,North,Notebook Set,ORD-2024-0019,CUST-PRIM-005,Lisa Anderson,Debit Card,18,0.08
+2024-01-20,16750.00,4187.50,55,12562.50,Innovation Labs,Electronics,East,Wireless Mouse,ORD-2024-0020,CUST-INNO-006,James Wilson,Credit Card,38,0.12
+2024-01-21,13400.75,3350.19,42,10050.56,Corporate Solutions,Office Supplies,South,File Cabinet,ORD-2024-0021,CUST-CORP-007,Maria Garcia,PayPal,28,0.00
+2024-01-22,19800.00,4950.00,68,14850.00,Tech Partners,Electronics,West,Bluetooth Speaker,ORD-2024-0022,CUST-TECH-008,Robert Taylor,Credit Card,48,0.10
+2024-01-23,11200.25,2800.06,35,8400.19,Business Essentials,Office Supplies,North,Desk Lamp,ORD-2024-0023,CUST-BUSI-009,Jennifer Lee,Bank Transfer,22,0.05
+2024-01-24,24500.50,6125.12,85,18375.38,Advanced Systems,Electronics,East,Tablet Stand,ORD-2024-0024,CUST-ADVA-010,Christopher Brown,Credit Card,65,0.18
+2024-01-25,15600.00,3900.00,48,11700.00,Enterprise Group,Office Supplies,South,Paper Shredder,ORD-2024-0025,CUST-ENTE-011,Amanda White,Debit Card,35,0.00
+2024-01-26,17800.75,4450.19,59,13350.56,Modern Tech,Electronics,West,Phone Charger,ORD-2024-0026,CUST-MODE-012,Daniel Martinez,PayPal,42,0.08
+2024-01-27,10200.50,2550.12,32,7650.38,Office Depot,Office Supplies,North,Stapler Set,ORD-2024-0027,CUST-OFFI-013,Olivia Davis,Credit Card,20,0.10
+2024-01-28,21300.00,5325.00,72,15975.00,Digital Solutions,Electronics,East,Webcam HD,ORD-2024-0028,CUST-DIGI-014,William Thompson,PayPal,58,0.12
+2024-01-29,14100.25,3525.06,44,10575.19,Corporate Supplies,Office Supplies,South,Monitor Stand,ORD-2024-0029,CUST-CORP-015,Sophia Harris,Bank Transfer,32,0.05
+2024-01-30,18950.50,4737.62,66,14212.88,Tech Innovations,Electronics,West,Keyboard Wireless,ORD-2024-0030,CUST-TECH-016,Matthew Clark,Credit Card,50,0.15
+2024-02-01,12300.00,3075.00,39,9225.00,Business Tools,Office Supplies,North,Calculator,ORD-2024-0031,CUST-BUSI-017,Emma Lewis,Debit Card,26,0.00
+2024-02-02,20100.75,5025.19,69,15075.56,Global Tech,Electronics,East,Power Bank,ORD-2024-0032,CUST-GLOB-018,Noah Walker,PayPal,52,0.10
+2024-02-03,15900.50,3975.12,51,11925.38,Office Solutions,Office Supplies,South,Desk Mat,ORD-2024-0033,CUST-OFFI-019,Isabella Hall,Credit Card,38,0.08
+2024-02-04,22700.00,5675.00,79,17025.00,Advanced Electronics,Electronics,West,USB Hub,ORD-2024-0034,CUST-ADVA-020,Ethan Allen,PayPal,62,0.12
+2024-02-05,10800.25,2700.06,34,8100.19,Prime Office,Office Supplies,North,Binder Set,ORD-2024-0035,CUST-PRIM-021,Mia Young,Bank Transfer,24,0.05
+2024-02-06,17500.50,4375.12,58,13125.38,Tech Systems,Electronics,East,Screen Protector,ORD-2024-0036,CUST-TECH-022,Alexander King,Credit Card,45,0.10
+2024-02-07,13200.00,3300.00,41,9900.00,Corporate Essentials,Office Supplies,South,Pen Holder,ORD-2024-0037,CUST-CORP-023,Charlotte Wright,Debit Card,29,0.00
+2024-02-08,19400.75,4850.19,67,14550.56,Digital Innovations,Electronics,West,Wireless Earbuds,ORD-2024-0038,CUST-DIGI-024,Benjamin Lopez,PayPal,51,0.15
+2024-02-09,11600.50,2900.12,36,8700.38,Business Supplies,Office Supplies,North,Desk Calendar,ORD-2024-0039,CUST-BUSI-025,Harper Hill,Credit Card,25,0.08
+2024-02-10,23800.00,5950.00,82,17850.00,Modern Solutions,Electronics,East,Tablet Case,ORD-2024-0040,CUST-MODE-026,Lucas Scott,PayPal,68,0.18
+2024-02-11,14800.25,3700.06,46,11100.19,Office Depot Plus,Office Supplies,South,File Organizer,ORD-2024-0041,CUST-OFFI-027,Amelia Green,Bank Transfer,33,0.05
+2024-02-12,18200.50,4550.12,61,13650.38,Tech Partners Plus,Electronics,West,Phone Stand,ORD-2024-0042,CUST-TECH-028,Henry Adams,Debit Card,48,0.10
+2024-02-13,10500.00,2625.00,33,7875.00,Enterprise Supplies,Office Supplies,North,Clipboard Set,ORD-2024-0043,CUST-ENTE-029,Evelyn Baker,Credit Card,22,0.00
+2024-02-14,21600.75,5400.19,74,16200.56,Advanced Tech,Electronics,East,HDMI Cable,ORD-2024-0044,CUST-ADVA-030,Jackson Nelson,PayPal,59,0.12
+2024-02-15,16100.50,4025.12,52,12075.38,Corporate Office,Office Supplies,South,Desk Accessories,ORD-2024-0045,CUST-CORP-031,Abigail Carter,Credit Card,39,0.08
+2024-02-16,19100.00,4775.00,65,14325.00,Digital Systems,Electronics,West,Wireless Charger,ORD-2024-0046,CUST-DIGI-032,Logan Mitchell,PayPal,50,0.10
+2024-02-17,12400.25,3100.06,40,9300.19,Business Tools Plus,Office Supplies,North,Notebook Binder,ORD-2024-0047,CUST-BUSI-033,Elizabeth Perez,Bank Transfer,27,0.05
+2024-02-18,20300.50,5075.12,70,15225.38,Global Solutions,Electronics,East,Phone Mount,ORD-2024-0048,CUST-GLOB-034,Aiden Roberts,Debit Card,55,0.15
+2024-02-19,13700.00,3425.00,43,10275.00,Office Essentials,Office Supplies,South,Desk Tray,ORD-2024-0049,CUST-OFFI-035,Sofia Turner,Credit Card,30,0.00
+2024-02-20,18700.75,4675.19,64,14025.56,Tech Essentials,Electronics,West,USB Drive,ORD-2024-0050,CUST-TECH-036,Jacob Phillips,PayPal,49,0.12
+2024-02-21,11000.50,2750.12,35,8250.38,Prime Business,Office Supplies,North,Sticky Notes,ORD-2024-0051,CUST-PRIM-037,Madison Campbell,Credit Card,24,0.08
+2024-02-22,22900.00,5725.00,79,17175.00,Innovation Tech,Electronics,East,Bluetooth Adapter,ORD-2024-0052,CUST-INNO-038,Michael Parker,PayPal,63,0.18
+2024-02-23,15400.25,3850.06,49,11550.19,Corporate Depot,Office Supplies,South,Desk Pad,ORD-2024-0053,CUST-CORP-039,Emily Evans,Bank Transfer,36,0.05
+2024-02-24,17900.50,4475.12,60,13425.38,Modern Office,Electronics,West,Wireless Keyboard,ORD-2024-0054,CUST-MODE-040,Daniel Edwards,Credit Card,46,0.10
+2024-02-25,12800.00,3200.00,41,9600.00,Business Depot,Office Supplies,North,Pen Set,ORD-2024-0055,CUST-BUSI-041,Olivia Collins,Debit Card,28,0.00
+2024-02-26,19700.75,4925.19,68,14775.56,Digital Depot,Electronics,East,Phone Case,ORD-2024-0056,CUST-DIGI-042,William Stewart,PayPal,54,0.15
+2024-02-27,14300.50,3575.12,45,10725.38,Office Plus,Office Supplies,South,File Folder,ORD-2024-0057,CUST-OFFI-043,Sophia Sanchez,Credit Card,33,0.08
+2024-02-28,20900.00,5225.00,72,15675.00,Advanced Office,Electronics,West,USB-C Adapter,ORD-2024-0058,CUST-ADVA-044,Matthew Morris,PayPal,58,0.12
+2024-03-01,11800.25,2950.06,37,8850.19,Tech Depot,Office Supplies,North,Desk Organizer Pro,ORD-2024-0059,CUST-TECH-045,Emma Rogers,Credit Card,25,0.05
+2024-03-02,18500.50,4625.12,63,13875.38,Global Office,Electronics,East,Wireless Headset,ORD-2024-0060,CUST-GLOB-046,Noah Reed,Bank Transfer,50,0.10
+2024-03-03,13100.00,3275.00,42,9825.00,Corporate Plus,Office Supplies,South,Binder Organizer,ORD-2024-0061,CUST-CORP-047,Isabella Cook,Credit Card,30,0.00
+2024-03-04,19500.75,4875.19,67,14625.56,Digital Office,Electronics,West,Phone Grip,ORD-2024-0062,CUST-DIGI-048,Ethan Morgan,PayPal,53,0.15
+2024-03-05,12000.50,3000.12,38,9000.38,Business Plus,Office Supplies,North,Desk Mat Pro,ORD-2024-0063,CUST-BUSI-049,Mia Bell,Debit Card,26,0.08
+2024-03-06,21100.00,5275.00,73,15825.00,Innovation Office,Electronics,East,USB Extension,ORD-2024-0064,CUST-INNO-050,Alexander Murphy,PayPal,60,0.12
+2024-03-07,14700.25,3675.06,47,11025.19,Office Pro,Office Supplies,South,File System,ORD-2024-0065,CUST-OFFI-051,Charlotte Bailey,Credit Card,35,0.05
+2024-03-08,18300.50,4575.12,62,13725.38,Tech Office,Electronics,West,Wireless Receiver,ORD-2024-0066,CUST-TECH-052,Benjamin Rivera,PayPal,49,0.10
+2024-03-09,11500.00,2875.00,36,8625.00,Enterprise Office,Office Supplies,North,Desk Accessory Set,ORD-2024-0067,CUST-ENTE-053,Harper Cooper,Credit Card,24,0.00
+2024-03-10,19900.75,4975.19,69,14925.56,Modern Depot,Electronics,East,Phone Stand Pro,ORD-2024-0068,CUST-MODE-054,Lucas Richardson,PayPal,56,0.18
+2024-03-11,13900.50,3475.12,44,10425.38,Corporate Office Pro,Office Supplies,South,Notebook System,ORD-2024-0069,CUST-CORP-055,Amelia Cox,Credit Card,32,0.08
+2024-03-12,19300.00,4825.00,66,14475.00,Digital Office Pro,Electronics,West,USB-C Hub,ORD-2024-0070,CUST-DIGI-056,Henry Howard,Debit Card,52,0.10
+2024-03-13,12200.25,3050.06,39,9150.19,Business Office Pro,Office Supplies,North,Desk Set,ORD-2024-0071,CUST-BUSI-057,Evelyn Ward,Bank Transfer,27,0.05
+2024-03-14,18700.50,4675.12,64,14025.38,Global Office Pro,Electronics,East,Wireless Adapter,ORD-2024-0072,CUST-GLOB-058,Jackson Torres,Credit Card,51,0.12
+2024-03-15,13500.00,3375.00,43,10125.00,Office Depot Pro,Office Supplies,South,File Cabinet Pro,ORD-2024-0073,CUST-OFFI-059,Abigail Peterson,PayPal,31,0.00
+2024-03-16,20500.75,5125.19,71,15375.56,Advanced Office Pro,Electronics,West,Phone Mount Pro,ORD-2024-0074,CUST-ADVA-060,Logan Gray,Credit Card,58,0.15
+2024-03-17,11900.50,2975.12,37,8925.38,Tech Office Pro,Office Supplies,North,Desk Organizer Plus,ORD-2024-0075,CUST-TECH-061,Elizabeth Ramirez,Debit Card,25,0.08
+2024-03-18,18100.00,4525.00,61,13575.00,Innovation Office Pro,Electronics,East,Bluetooth Speaker Pro,ORD-2024-0076,CUST-INNO-062,Aiden James,PayPal,49,0.12
+2024-03-19,15100.25,3775.06,48,11325.19,Corporate Depot Pro,Office Supplies,South,Binder System,ORD-2024-0077,CUST-CORP-063,Sofia Watson,Credit Card,36,0.05
+2024-03-20,18900.50,4725.12,65,14175.38,Digital Depot Pro,Electronics,West,USB Drive Pro,ORD-2024-0078,CUST-DIGI-064,Jacob Brooks,Credit Card,52,0.10
+2024-03-21,12700.00,3175.00,41,9525.00,Business Depot Pro,Office Supplies,North,Desk Pad Pro,ORD-2024-0079,CUST-BUSI-065,Madison Kelly,PayPal,29,0.00
+2024-03-22,19700.75,4925.19,68,14775.56,Modern Office Pro,Electronics,East,Wireless Mouse Pro,ORD-2024-0080,CUST-MODE-066,Michael Sanders,Bank Transfer,55,0.15
+2024-03-23,14100.50,3525.12,45,10575.38,Office Plus Pro,Office Supplies,South,File System Pro,ORD-2024-0081,CUST-OFFI-067,Emily Price,Debit Card,33,0.08
+2024-03-24,20300.00,5075.00,70,15225.00,Advanced Depot Pro,Electronics,West,Phone Case Pro,ORD-2024-0082,CUST-ADVA-068,Daniel Bennett,Credit Card,57,0.12
+2024-03-25,11300.25,2825.06,36,8475.19,Tech Depot Pro,Office Supplies,North,Desk Accessories Pro,ORD-2024-0083,CUST-TECH-069,Olivia Wood,PayPal,24,0.05
+2024-03-26,18500.50,4625.12,63,13875.38,Global Depot Pro,Electronics,East,Wireless Charger Pro,ORD-2024-0084,CUST-GLOB-070,William Barnes,Credit Card,51,0.10
+2024-03-27,13300.00,3325.00,42,9975.00,Corporate Plus Pro,Office Supplies,South,Notebook Pro,ORD-2024-0085,CUST-CORP-071,Sophia Ross,Debit Card,30,0.00
+2024-03-28,19100.75,4775.19,66,14325.56,Digital Plus Pro,Electronics,West,USB Hub Pro,ORD-2024-0086,CUST-DIGI-072,Matthew Henderson,Bank Transfer,53,0.15
+2024-03-29,12100.50,3025.12,38,9075.38,Business Plus Pro,Office Supplies,North,Desk Tray Pro,ORD-2024-0087,CUST-BUSI-073,Emma Coleman,Credit Card,26,0.08
+2024-03-30,20700.00,5175.00,72,15525.00,Innovation Plus Pro,Electronics,East,HDMI Cable Pro,ORD-2024-0088,CUST-INNO-074,Noah Jenkins,PayPal,59,0.18
+2024-03-31,14500.25,3625.06,46,10875.19,Office Pro Plus,Office Supplies,South,File Organizer Pro,ORD-2024-0089,CUST-OFFI-075,Isabella Perry,Credit Card,34,0.05
+2024-04-01,17900.50,4475.12,60,13425.38,Tech Pro Plus,Electronics,West,Wireless Earbuds Pro,ORD-2024-0090,CUST-TECH-076,Ethan Powell,Debit Card,48,0.10
+2024-04-02,12900.00,3225.00,41,9675.00,Enterprise Pro Plus,Office Supplies,North,Desk Calendar Pro,ORD-2024-0091,CUST-ENTE-077,Mia Long,Credit Card,28,0.00
+2024-04-03,19300.75,4825.19,67,14475.56,Modern Pro Plus,Electronics,East,Tablet Stand Pro,ORD-2024-0092,CUST-MODE-078,Alexander Patterson,PayPal,54,0.12
+2024-04-04,13700.50,3425.12,44,10275.38,Corporate Pro Plus,Office Supplies,South,Binder Pro,ORD-2024-0093,CUST-CORP-079,Charlotte Hughes,Credit Card,32,0.08
+2024-04-05,20100.00,5025.00,69,15075.00,Digital Pro Plus,Electronics,West,Phone Stand Pro,ORD-2024-0094,CUST-DIGI-080,Benjamin Flores,PayPal,56,0.15
+2024-04-06,11700.25,2925.06,37,8775.19,Business Pro Plus,Office Supplies,North,Desk Mat Plus,ORD-2024-0095,CUST-BUSI-081,Harper Washington,Bank Transfer,25,0.05
+2024-04-07,18300.50,4575.12,62,13725.38,Global Pro Plus,Electronics,East,Wireless Headphones Pro,ORD-2024-0096,CUST-GLOB-082,Lucas Butler,Credit Card,50,0.10
+2024-04-08,13100.00,3275.00,42,9825.00,Office Depot Plus Pro,Office Supplies,South,File Cabinet Plus,ORD-2024-0097,CUST-OFFI-083,Amelia Simmons,Debit Card,30,0.00
+2024-04-09,19500.75,4875.19,68,14625.56,Advanced Pro Plus,Electronics,West,USB-C Cable Pro,ORD-2024-0098,CUST-ADVA-084,Henry Foster,Credit Card,55,0.12
+2024-04-10,12300.50,3075.12,39,9225.38,Tech Pro Plus Ultra,Office Supplies,North,Desk Organizer Ultra,ORD-2024-0099,CUST-TECH-085,Evelyn Gonzales,PayPal,26,0.08
+2024-04-11,18900.00,4725.00,65,14175.00,Innovation Pro Plus,Electronics,East,Bluetooth Adapter Pro,ORD-2024-0100,CUST-INNO-086,Jackson Bryant,Bank Transfer,52,0.10
+2024-04-12,13900.25,3475.06,45,10425.19,Corporate Pro Plus Ultra,Office Supplies,South,Notebook Ultra,ORD-2024-0101,CUST-CORP-087,Abigail Alexander,Credit Card,33,0.05
+2024-04-13,19700.50,4925.12,67,14775.38,Digital Pro Plus Ultra,Electronics,West,Wireless Mouse Ultra,ORD-2024-0102,CUST-DIGI-088,Logan Russell,PayPal,54,0.15
+2024-04-14,12500.00,3125.00,40,9375.00,Business Pro Plus Ultra,Office Supplies,North,Desk Pad Ultra,ORD-2024-0103,CUST-BUSI-089,Elizabeth Griffin,Debit Card,27,0.00
+2024-04-15,19100.75,4775.19,66,14325.56,Modern Pro Plus Ultra,Electronics,East,Phone Mount Ultra,ORD-2024-0104,CUST-MODE-090,Aiden Diaz,Credit Card,53,0.12

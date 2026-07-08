@@ -554,7 +554,15 @@ const ProfitInsights = () => {
               <div className="pil-section-header">
                 <div>
                   <p className="pil-section-title">Section 03</p>
-                  <h2 className="pil-section-heading">Cost Pressure Analysis</h2>
+                  <h2 className="pil-section-heading">
+                    Cost Pressure Analysis
+                    <span
+                      className="estimated-badge"
+                      title="Fixed vs variable split is estimated using a typical 35%/65% benchmark, not your uploaded data."
+                    >
+                      Estimated
+                    </span>
+                  </h2>
                 </div>
               </div>
 
