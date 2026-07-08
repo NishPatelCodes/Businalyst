@@ -10,10 +10,13 @@ from backend.api.dataset_views import (
     activate_dataset,
     delete_dataset,
 )
-from backend.api import views as legacy_views
+from backend.api.waitlist_views import join_waitlist
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+
+    # Public waitlist
+    path("api/waitlist/", join_waitlist, name="waitlist-join"),
 
     # Auth
     path("api/auth/register/", register, name="auth-register"),
@@ -27,7 +30,4 @@ urlpatterns = [
     path("api/datasets/", dataset_history, name="dataset-history"),
     path("api/datasets/<int:dataset_id>/activate/", activate_dataset, name="dataset-activate"),
     path("api/datasets/<int:dataset_id>/", delete_dataset, name="dataset-delete"),
-
-    # Legacy unauthenticated upload (kept for backwards compat during transition)
-    path("upload/", legacy_views.upload_dataset, name="upload-legacy"),
 ]

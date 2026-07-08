@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { BrandPanel, GoogleIcon, MicrosoftIcon, EyeIcon, EyeOffIcon } from './Login'
+import { BrandPanel, EyeIcon, EyeOffIcon } from './Login'
 import './Login.css'
 
 const Signup = () => {
@@ -51,14 +51,6 @@ const Signup = () => {
     }
   }
 
-  const handleGoogleSignUp = () => {
-    console.log('Google sign up — OAuth not yet configured')
-  }
-
-  const handleMicrosoftSignUp = () => {
-    console.log('Microsoft sign up — OAuth not yet configured')
-  }
-
   return (
     <div className="auth-container">
       <BrandPanel />
@@ -81,24 +73,6 @@ const Signup = () => {
           {error && <div className="auth-error">{error}</div>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
-            {/* social login */}
-            <div className="auth-social-group">
-              <button type="button" className="auth-social-btn" onClick={handleGoogleSignUp}>
-                <span className="auth-social-icon"><GoogleIcon /></span>
-                <span>Continue with Google</span>
-              </button>
-              <button type="button" className="auth-social-btn" onClick={handleMicrosoftSignUp}>
-                <span className="auth-social-icon"><MicrosoftIcon /></span>
-                <span>Continue with Microsoft</span>
-              </button>
-            </div>
-
-            <div className="auth-divider">
-              <span className="auth-divider-line" />
-              <span>or</span>
-              <span className="auth-divider-line" />
-            </div>
-
             {/* full name */}
             <div className="auth-field">
               <label className="auth-label" htmlFor="signup-name">Full Name</label>

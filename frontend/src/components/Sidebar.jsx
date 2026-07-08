@@ -170,18 +170,6 @@ const Sidebar = () => {
         </div>
       )}
 
-      {/* User profile */}
-      <div className="sidebar-user">
-        <div className="sidebar-user-avatar">CK</div>
-        <div className="sidebar-user-info">
-          <div className="sidebar-user-name">Caitlyn King</div>
-          <div className="sidebar-user-email">caitlyn@untitleui.com</div>
-        </div>
-        <svg className="sidebar-user-chevron" viewBox="0 0 16 16" fill="none">
-          <path d="M5 6l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </div>
-
     </aside>
   )
 }

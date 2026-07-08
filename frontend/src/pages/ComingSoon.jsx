@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import './ComingSoon.css'
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
 const ComingSoon = () => {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -20,16 +22,19 @@ const ComingSoon = () => {
     setLoading(true)
     
     try {
-      // TODO: Connect to backend API for email collection
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      console.log('Email submitted:', email)
+      const response = await fetch(`${API_BASE}/api/waitlist/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong. Please try again.')
+      }
       setSubmitted(true)
       setEmail('')
-      setTimeout(() => setSubmitted(false), 3000)
     } catch (err) {
-      setError('Something went wrong. Please try again.')
+      setError(err.message || 'Something went wrong. Please try again.')
       console.error('Submission error:', err)
     } finally {
       setLoading(false)
@@ -96,7 +101,6 @@ const ComingSoon = () => {
               </div>
             )}
           </div>
-          <button className="buy-button">Buy $5</button>
         </div>
       </header>
 
@@ -146,12 +150,7 @@ const ComingSoon = () => {
             )}
 
             <div className="social-proof">
-              <div className="avatars">
-                <div className="avatar"></div>
-                <div className="avatar"></div>
-                <div className="avatar"></div>
-              </div>
-              <span className="signup-count">4.5k people signed up</span>
+              <span className="signup-count">Join the waitlist to get early access</span>
             </div>
           </div>
 

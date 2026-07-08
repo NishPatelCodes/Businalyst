@@ -2,7 +2,6 @@ import React, { useState, useContext, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import RevenueComparisonBarChart from '../features/RevenueComparisonBarChart/RevenueComparisonBarChart'
-import RevenueByPaymentMethod from '../features/RevenueByPaymentMethod/RevenueByPaymentMethod'
 import RevenueByCategoryBubble from '../features/RevenueByCategoryBubble/RevenueByCategoryBubble'
 import RevenueLineChart from '../features/RevenueLineChart/RevenueLineChart'
 import GoalsCard from '../features/GoalsCard/GoalsCard'
@@ -199,7 +198,6 @@ const RevenueInsights = () => {
             </div>
 
             <div className="ri-mid-row">
-              <RevenueByPaymentMethod periodRatio={periodRatio} />
               <RevenueInsightsByColumn periodRatio={periodRatio} />
             </div>
           </div>
