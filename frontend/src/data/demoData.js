@@ -3,6 +3,13 @@
  * without any uploaded data. Keeps the dashboard looking polished and populated.
  */
 export const DEMO_KPI_DATA = {
+  kpi_col: ['profit', 'revenue', 'orders', 'expense', 'customers'],
+  profit: 124756.5,
+  revenue: 498924.25,
+  orders: 2187,
+  expense: 374167.75,
+  customers: 91,
+  // Legacy aliases for charts / insight pages that still read *_sum
   profit_sum: 124756.5,
   revenue_sum: 498924.25,
   orders_sum: 2187,

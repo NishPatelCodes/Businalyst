@@ -225,7 +225,9 @@ const Dashboard = () => {
     const revenueRatio = totalRevenue > 0 ? periodRevenue / totalRevenue : 1
     const profitRatio = totalProfit > 0 ? periodProfit / totalProfit : revenueRatio
 
-    const totalOrders = hasOrdersData ? sum(allSeries, 'orders') : Number(kpiData?.orders_sum ?? 0)
+    const totalOrders = hasOrdersData
+      ? sum(allSeries, 'orders')
+      : Number(kpiData?.orders_sum ?? kpiData?.orders ?? 0)
     const periodOrders = hasOrdersData ? sum(filteredSeries, 'orders') : totalOrders * revenueRatio
     const ordersRatio = totalOrders > 0 ? periodOrders / totalOrders : revenueRatio
 

@@ -1,21 +1,43 @@
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
 import GaugeChart from './GaugeChart'
 import MetricCards from './MetricCards'
 import { KpiContext } from '../../context/KpiContext'
+
+function pickValue(kpiData, periodTotals, candidates) {
+  for (const key of candidates) {
+    const alias = `${key}_sum`
+    const fromPeriod = periodTotals?.[alias] ?? periodTotals?.[key]
+    if (fromPeriod != null && Number.isFinite(Number(fromPeriod))) {
+      return Number(fromPeriod)
+    }
+    if (kpiData?.[key] != null && Number.isFinite(Number(kpiData[key]))) {
+      return Number(kpiData[key])
+    }
+    if (kpiData?.[alias] != null && Number.isFinite(Number(kpiData[alias]))) {
+      return Number(kpiData[alias])
+    }
+  }
+  return null
+}
 
 /**
  * Metrics row: gauge chart + KPI metric cards.
  */
 const DashboardMetrics = ({ periodTotals }) => {
   const { kpiData } = useContext(KpiContext)
-  // BUG 2 fix: use period-filtered totals for gauge so it responds to date filter
-  const revSum = periodTotals?.revenue_sum ?? kpiData?.revenue_sum
-  const profSum = periodTotals?.profit_sum ?? kpiData?.profit_sum
-  const profitMargin = revSum
-    ? Math.round((profSum / revSum) * 100)
-    : 68
+
+  const profitMargin = useMemo(() => {
+    const revSum = pickValue(kpiData, periodTotals, ['revenue', 'sales', 'income'])
+    const profSum = pickValue(kpiData, periodTotals, ['profit', 'net_profit', 'margin'])
+    if (revSum && profSum != null) {
+      return Math.round((profSum / revSum) * 100)
+    }
+    return 68
+  }, [kpiData, periodTotals])
+
   const target = 28
   const gaugeValue = Math.min(100, Math.max(0, profitMargin))
+
   return (
     <>
       <GaugeChart value={gaugeValue} target={target} />

@@ -31,6 +31,7 @@ SCOPE_BOOTSTRAP = "bootstrap"
 BOOTSTRAP_KEYS = {
     "message",
     "source_currency",
+    "kpi_col",
     "profit_sum",
     "revenue_sum",
     "orders_sum",
@@ -81,7 +82,12 @@ def _preprocess_for_pipeline(df):
 def trim_payload_for_scope(payload, scope):
     if scope != SCOPE_BOOTSTRAP:
         return payload
-    return {k: v for k, v in payload.items() if k in BOOTSTRAP_KEYS}
+    allowed = set(BOOTSTRAP_KEYS)
+    # Keep AI-selected KPI column values so the dashboard can render them immediately.
+    kpi_cols = payload.get("kpi_col") or []
+    if isinstance(kpi_cols, (list, tuple)):
+        allowed.update(kpi_cols)
+    return {k: v for k, v in payload.items() if k in allowed}
 
 
 def build_analytics_payload(df, start_date=None, end_date=None, scope=SCOPE_FULL):
