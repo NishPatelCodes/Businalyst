@@ -97,7 +97,7 @@ const BrandPanel = () => (
     <div className="auth-brand-inner">
       {/* logo */}
       <div className="auth-brand-logo">
-        <div className="auth-brand-logo-mark" />
+        <img src="/logo-dark.png" alt="Businalyst" className="auth-brand-logo-mark" />
         <span className="auth-brand-logo-text">businalyst.</span>
       </div>
 
@@ -155,7 +155,7 @@ const Login = () => {
         <div className="auth-form-content">
           {/* mobile-only brand */}
           <div className="auth-mobile-brand">
-            <div className="auth-brand-logo-mark" />
+            <img src="/logo.png" alt="Businalyst" className="auth-brand-logo-mark" />
             <span className="auth-brand-logo-text">businalyst.</span>
           </div>
 

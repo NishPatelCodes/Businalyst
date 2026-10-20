@@ -4,6 +4,8 @@ Supports optional date-range filtering so KPIs react to the selected timeline.
 """
 
 import pandas as pd
+from google import genai
+import ast
 
 from .utils import find_date_col, filter_df_by_date
 
@@ -24,10 +26,17 @@ def calculate_kpis(df, start_date=None, end_date=None, date_column="date"):
     Returns:
         dict with profit_sum, revenue_sum, orders_sum, expense_sum, customers_sum (row count).
     """
-    required_cols = ["profit", "revenue", "orders", "expense"]
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing columns: {missing}")
+
+    # The client automatically loads the GEMINI_API_KEY environment variable
+    client = genai.Client()
+
+    # Recommended flagship model: gemini-3.6-flash
+    interaction = client.interactions.create(
+        model="gemini-3.6-flash",
+        input=f"return a list containing 5 most important numeric columns from this list {df.columns} , make sure you return the valid python list only"
+    )
+
+    required_cols = ast.literal_eval(interaction.output_text)    
 
     # Resolve date column for filtering; apply date range when provided
     date_col = date_column if (date_column and date_column in df.columns) else find_date_col(df)
@@ -38,15 +47,10 @@ def calculate_kpis(df, start_date=None, end_date=None, date_column="date"):
     else:
         df = df.copy()
 
-    df["profit"] = pd.to_numeric(df["profit"], errors="coerce")
-    df["revenue"] = pd.to_numeric(df["revenue"], errors="coerce")
-    df["orders"] = pd.to_numeric(df["orders"], errors="coerce")
-    df["expense"] = pd.to_numeric(df["expense"], errors="coerce")
-
-    return {
-        "profit_sum": float(df["profit"].sum(skipna=True)),
-        "revenue_sum": float(df["revenue"].sum(skipna=True)),
-        "orders_sum": float(df["orders"].sum(skipna=True)),
-        "expense_sum": float(df["expense"].sum(skipna=True)),
-        "customers_sum": df.shape[0],
-    }
+    kpis = {"kpi_col":required_cols}
+    count = 1
+    for col in required_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+        kpis[col] = float(df[col].sum(skipna=True))
+    print(kpis)
+    return kpis

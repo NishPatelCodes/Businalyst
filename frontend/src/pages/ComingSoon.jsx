@@ -68,9 +68,10 @@ const ComingSoon = () => {
       <header className="page-header">
         <div className="header-left">
           <div className="logo-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
-            </svg>
+            <img
+              src={theme === 'dark' ? '/logo-dark.png' : '/logo.png'}
+              alt="Businalyst"
+            />
           </div>
         </div>
         <div className="header-right">

@@ -30,16 +30,31 @@
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
 }
 
-.sidebar-logo svg {
-  width: 14px;
-  height: 14px;
+.sidebar-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sidebar-logo-img--dark {
+  display: none;
+}
+
+html[data-theme="dark"] .sidebar-logo-img--light {
+  display: none;
+}
+
+html[data-theme="dark"] .sidebar-logo-img--dark {
+  display: block;
 }
 
 .sidebar-brand {

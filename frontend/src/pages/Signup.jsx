@@ -59,7 +59,7 @@ const Signup = () => {
         <div className="auth-form-content">
           {/* mobile-only brand */}
           <div className="auth-mobile-brand">
-            <div className="auth-brand-logo-mark" />
+            <img src="/logo.png" alt="Businalyst" className="auth-brand-logo-mark" />
             <span className="auth-brand-logo-text">businalyst.</span>
           </div>
 

@@ -23,13 +23,6 @@ const PERIOD_ALIASES = {
 
 const COUNT_KEY_RE = /(order|customer|count|qty|quantity|unit|users?|visits?)/i
 
-const defaultIcon = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 3V21H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M7 14L11 10L15 13L20 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-)
-
 const humanize = (key) =>
   String(key || 'Metric')
     .replace(/_/g, ' ')
@@ -106,7 +99,6 @@ const MetricCards = ({ periodTotals }) => {
         target: safeCurrent ? Math.ceil(safeCurrent * 1.2) : 1,
         asCount,
         comparison: isDemoData ? 'Demo data — upload to see yours' : 'From your uploaded file',
-        icon: defaultIcon,
         insightsRoute: INSIGHT_ROUTES[keyLower] || null,
       }
     })
@@ -157,7 +149,6 @@ const MetricCards = ({ periodTotals }) => {
               </button>
             )}
             <div className="kpi-header">
-              <div className="kpi-icon">{kpi.icon}</div>
               <div className="kpi-title">{kpi.title}</div>
             </div>
             <div className="kpi-value">{kpi.value}</div>
