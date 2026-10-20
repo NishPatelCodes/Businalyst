@@ -1,0 +1,30 @@
+.lp-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lp-space-3);
+  padding: var(--lp-space-6);
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-lg);
+  color: var(--lp-text);
+  transition:
+    box-shadow var(--lp-duration-slow) var(--lp-ease),
+    transform var(--lp-duration-slow) var(--lp-ease),
+    border-color var(--lp-duration-slow) var(--lp-ease);
+}
+
+.lp-card--elevated {
+  box-shadow: var(--lp-shadow-sm);
+}
+
+.lp-card--product {
+  border-radius: var(--lp-radius-none);
+  padding: 13px;
+  box-shadow: var(--lp-shadow-sm);
+}
+
+.lp-card--interactive:hover {
+  box-shadow: var(--lp-shadow-md);
+  border-color: var(--lp-border-strong);
+  transform: translateY(-2px);
+}

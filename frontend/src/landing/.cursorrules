@@ -1,0 +1,112 @@
+# Businalyst — Landing Page Rules (frontend/src/landing/)
+
+You are building the new Businalyst marketing landing page inside `frontend/src/landing/`.
+Follow every rule below. If a request conflicts with a rule, stop and say which rule it breaks before writing code.
+
+## 0. Required reading before any change
+- `brand/BRAND_GUIDELINES.md` — name, logo, colors, type, voice, allowed product claims.
+- `reference/STACK.md` — stack, configs, API contract, routes, git workflow.
+- `tokens/tokens.css` and `tokens/palette.js` — the only allowed design values.
+- `components/` — reuse these before creating anything new.
+
+## 1. Scope and boundaries
+- ALL new landing code lives in `frontend/src/landing/`. Nothing else.
+- IGNORE the legacy landing: `frontend/src/pages/LandingPage.jsx` and `frontend/src/pages/landing/**`.
+  Do not read them for patterns, import from them, copy from them, edit them, or delete them.
+- Do not modify app code (`src/components`, `src/features`, `src/pages`, `src/context`, `src/hooks`, `src/utils`), `src/index.css`, `vite.config.js`, `package.json`, `index.html`, or anything in `backend/` unless the user explicitly asks.
+- The only planned touchpoint outside this folder is one line in `src/App.jsx` swapping the `/` route element to the new landing entry. Do that only when the user asks.
+- Never create config files here (no `vite.config`, `tailwind.config`, `postcss.config`, `.eslintrc`, `package.json`, `tsconfig`).
+
+## 2. Stack (fixed — do not add or swap)
+- React 18 + JSX, JavaScript only. No TypeScript, no `.ts/.tsx`.
+- Vite 5 (dev server on port 3000). Use `import.meta.env.VITE_*` for env; never `process.env`.
+- Routing: `react-router-dom` v6. Internal navigation uses `<Link to>` (or `Button to=`); never `<a href="/login">`.
+- Animation: `framer-motion` (already installed). Use `useReducedMotion()` and disable non-essential motion when it returns true.
+- Data viz in mockups: `recharts` or hand-written inline SVG. Colors come from `tokens/palette.js`.
+- No new npm dependencies (UI kits, icon packs, CSS-in-JS, animation libs, carousel libs, form libs). If something seems required, ask first.
+- Icons: inline SVG React components with `stroke="currentColor"`, 24×24 viewBox, `strokeWidth` 1.5–2, `aria-hidden="true"` when decorative.
+
+## 3. Folder structure
+```
+landing/
+  .cursorrules
+  LandingShell.jsx        # wraps the page: .lp-root, tokens, theme context
+  LandingPage.jsx         # (to create) page entry composing sections
+  brand/                  # brand.js constants + BRAND_GUIDELINES.md
+  tokens/                 # tokens.css + palette.js
+  components/             # shared primitives (Button, Badge, Card, Logo, Section, WaitlistForm)
+  sections/               # one folder-less file pair per section: Hero.jsx + Hero.css, Features.jsx + Features.css …
+  hooks/                  # landing-only hooks
+  lib/                    # API helpers (public endpoints only)
+  reference/              # read-only docs
+```
+- Sections go in `sections/`, one component per file, PascalCase, with a sibling CSS file of the same name.
+- Shared primitives go in `components/` and are exported from `components/index.js`.
+- Import across the landing folder with relative paths. Don't import from `src/pages/**`.
+- Allowed import from the app: `src/context/AuthContext.jsx` (`useAuth`, for `isAuthenticated` only). Nothing else without asking.
+
+## 4. Styling (strict)
+- Plain CSS files co-located with each component, imported as `import './Name.css'`. This matches the rest of the app.
+- NO Tailwind utility classes, NO inline `style={{}}` for static styling (inline style is OK only for runtime-computed values like a chart width or a motion value), NO CSS modules, NO styled-components.
+- Every class name starts with `lp-` and follows `lp-<block>`, `lp-<block>-<element>`, `lp-<block>--<modifier>`; state classes are `is-*` / `has-*` (e.g. `is-open`, `has-error`).
+  Reason: global classes like `.card`, `.main-content`, `.description`, `.page-header`, `.spinner`, `.sc-*`, `.auth-*` already exist and leak across pages.
+- Never target bare element selectors globally (`h1 {}`, `a {}`, `button {}`); scope under an `lp-` class.
+- Use only `var(--lp-*)` tokens for color, spacing, radius, shadow, font, z-index and timing. Raw hex/px values are allowed only:
+  - inside `tokens/tokens.css`,
+  - for one-off geometry (icon sizes, mockup internals) that has no token,
+  - inside product mockups replicating dashboard UI, using values from `palette.js`.
+  If you need a new reusable value, add a token to `tokens.css` (and `palette.js` if JS needs it) instead of hardcoding.
+- Dark mode: style through tokens only. When a component needs a dark-specific override, write `.lp-root[data-theme="dark"] .lp-x {}`. Never read `html[data-theme]` and never set attributes on `<html>`/`<body>`.
+- Breakpoints (desktop-first, max-width, same as the app): `1024px`, `768px`, `480px`. Must look correct from 360px to 1440px+.
+- Use `clamp()` tokens for headline sizes and section padding; don't add per-breakpoint font sizes for headlines.
+
+## 5. Brand
+- Name: "Businalyst" in text; wordmark "businalyst." only next to the logo mark. Pull both from `brand/brand.js`.
+- Logos: `/logo.png` on light, `/logo-dark.png` on dark; use the `Logo` component. Never use `/images/logo.png`.
+- One blue accent (`--lp-brand`). Blue = primary CTA, links, focus, main data series. Everything else is neutral.
+- Headings use `--lp-font-display` (Plus Jakarta Sans 700); everything else `--lp-font-sans` (Inter). No other fonts.
+- Copy: reuse approved strings from `brand/brand.js`. New copy must follow the voice in BRAND_GUIDELINES §7 and only claim features that exist (§7 "Product facts"). Mark any invented number, testimonial, logo wall or price with a `TODO(copy):` comment so it is replaced before launch.
+- Product mockups must look like the real dashboard: square cards (`Card variant="product"`), Inter, palette series colors, real KPI names (Total Revenue, Net Profit, Expenses, Orders, Customers).
+
+## 6. Components and code style
+- Match existing app style: 2-space indent, single quotes, no semicolons, trailing commas in multiline literals, `import React from 'react'` first.
+- Function components as `const Name = ({ ... }) => (...)` + `export default Name`. No class components (except an error boundary, which already exists app-wide).
+- Props: explicit, with defaults in destructuring. Variants via a `variant`/`tone`/`size` string prop mapped to `lp-x--<value>` classes.
+- Reuse `Button`, `Badge`, `Card`, `Logo`, `Section`/`Container`/`SectionHeader`, `WaitlistForm` instead of re-implementing them. Extend a primitive with a new variant before creating a near-duplicate.
+- Keep components under ~200 lines; split mockups and repeated items into small sub-components in the same section file or `components/`.
+- Static content (feature lists, FAQ items, nav links) lives in arrays at the top of the file or in `brand/brand.js`, then gets mapped. Every mapped item has a stable `key` (an id, not the index).
+- No `console.log` left in code. No commented-out code. Comments only for constraints the code can't express.
+
+## 7. Data and API
+- The landing page is public. It may call only public endpoints, through `lib/api.js`.
+- Waitlist: use `WaitlistForm` / `joinWaitlist(email)` → `POST ${VITE_API_URL}/api/waitlist/` body `{ email }`; errors come back as `{ error }`.
+- Sign up / log in: link to `/signup` and `/login`. Never call auth endpoints or touch the `businalyst_*` token keys from the landing page.
+- Logged-in visitors: `const { isAuthenticated } = useAuth()`; swap the primary CTA to "Go to dashboard" → `/dashboard`.
+- Any new endpoint follows `reference/STACK.md` → "API surface" and is added to the backend only when the user asks.
+- Never hardcode `http://localhost:8000` outside `lib/api.js`.
+
+## 8. Theme
+- Wrap the page in `LandingShell`. Read theme via `useLandingThemeContext()` (`resolved`, `isDark`, `setMode`, `toggle`).
+- Theme storage key is `businalyst_theme` (`light` | `dark` | `system`), shared with the app's Settings page. Don't introduce another key (the legacy Coming Soon `theme` key is not to be reused).
+
+## 9. Accessibility (required)
+- One `<h1>` per page (the hero). Sections use `<h2>`, cards `<h3>`. Use `<header>`, `<nav>`, `<main>`, `<section>`, `<footer>` landmarks.
+- Every interactive element is a real `<button>` or `<a>`/`<Link>`; no clickable `<div>`s.
+- Visible focus (`:focus-visible` is provided by tokens.css; don't remove outlines).
+- Images: meaningful `alt`; decorative images `alt=""`. Icon-only buttons need `aria-label`.
+- Form inputs have labels (visually hidden via `lp-sr-only` is fine) and errors announced with `aria-live="polite"`.
+- Accordions/menus: `aria-expanded`, `aria-controls`; Escape closes overlays; focus stays inside the mobile menu while it is open and returns to the toggle when it closes.
+- Color contrast WCAG AA. Respect `prefers-reduced-motion`.
+
+## 10. Performance
+- The page entry is lazy-loaded by `App.jsx`; keep the hero free of heavy imports. Lazy-load below-the-fold sections that pull in `recharts` or `react-simple-maps` with `React.lazy`.
+- Images: always set `width`/`height` (or aspect-ratio) to avoid layout shift; `loading="lazy"` and `decoding="async"` below the fold. Don't ship the 5–7 MB `phone-dashboard*.png` files above the fold.
+- Animate only `transform` and `opacity`. No scroll listeners for reveal effects; use framer-motion `whileInView` with `viewport={{ once: true }}`.
+- In-page navigation uses section `id`s (`#features`, `#how-it-works`, `#pricing`, `#faq`) with `scroll-margin-top` (already set on `Section`).
+
+## 11. Workflow
+- Branch: `feature/landing-<component>` (e.g. `feature/landing-hero`). Never commit to `main` or `develop`; warn and stop if the user is on one.
+- Commit message: `<Add|Fix|Refactor|Update>: <clear description>`.
+- PR targets `develop`.
+- Before finishing a change: run `npm run build` in `frontend/` and fix any error; check the page in light and dark mode at 375px, 768px and 1280px.
+- If you change a brand value in `src/index.css`, update `tokens/tokens.css`, `tokens/palette.js` and `BRAND_GUIDELINES.md` in the same commit (and vice versa).

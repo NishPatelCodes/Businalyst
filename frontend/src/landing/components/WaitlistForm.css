@@ -1,0 +1,65 @@
+.lp-waitlist {
+  width: 100%;
+  max-width: 440px;
+}
+
+.lp-waitlist-form {
+  display: flex;
+  gap: var(--lp-space-2);
+}
+
+.lp-input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-md);
+  background: var(--lp-surface);
+  color: var(--lp-text);
+  font-family: var(--lp-font-sans);
+  font-size: var(--lp-text-sm);
+  outline: none;
+  transition:
+    border-color var(--lp-duration-base) var(--lp-ease),
+    box-shadow var(--lp-duration-base) var(--lp-ease);
+}
+
+.lp-input::placeholder {
+  color: var(--lp-text-subtle);
+}
+
+.lp-input:focus {
+  border-color: var(--lp-brand);
+  box-shadow: 0 0 0 3px var(--lp-brand-ring);
+}
+
+.lp-input.has-error {
+  border-color: var(--lp-danger);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.lp-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.lp-waitlist-feedback {
+  min-height: 20px;
+  margin-top: var(--lp-space-2);
+}
+
+.lp-waitlist-error,
+.lp-waitlist-success {
+  margin: 0;
+  font-size: var(--lp-text-xs);
+  font-weight: var(--lp-weight-medium);
+}
+
+.lp-waitlist-error { color: var(--lp-danger); }
+.lp-waitlist-success { color: var(--lp-success); }
+
+@media (max-width: 480px) {
+  .lp-waitlist-form {
+    flex-direction: column;
+  }
+}

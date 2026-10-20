@@ -1,0 +1,37 @@
+.lp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: var(--lp-radius-pill);
+  border: 1px solid var(--lp-border);
+  font-size: 11px;
+  font-weight: var(--lp-weight-semibold);
+  letter-spacing: var(--lp-tracking-eyebrow);
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.lp-badge--neutral {
+  background: var(--lp-surface);
+  color: var(--lp-text);
+}
+
+.lp-badge--brand {
+  background: var(--lp-brand-soft);
+  color: var(--lp-brand);
+  border-color: transparent;
+}
+
+.lp-badge--success {
+  background: var(--lp-success-soft);
+  color: var(--lp-success);
+  border-color: transparent;
+}
+
+.lp-badge--warning {
+  background: var(--lp-warning-soft);
+  color: var(--lp-warning-ink);
+  border-color: transparent;
+}

@@ -1,0 +1,91 @@
+.lp-orbit {
+  position: absolute;
+  inset: 0;
+}
+
+.lp-orbit-center {
+  position: absolute;
+  left: 50%;
+  top: 74%;
+  width: 0;
+  height: 0;
+}
+
+.lp-orbit-ring {
+  position: absolute;
+  left: calc(var(--lp-orbit-r) * -1);
+  top: calc(var(--lp-orbit-r) * -1);
+  width: calc(var(--lp-orbit-r) * 2);
+  height: calc(var(--lp-orbit-r) * 2);
+  border: 1px solid var(--lp-border);
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 60%, var(--lp-bg-subtle) 100%);
+  animation: lp-orbit-spin var(--lp-orbit-speed, 80s) linear infinite;
+}
+
+.lp-orbit-ring--inner { --lp-orbit-speed: 60s; }
+.lp-orbit-ring--middle { --lp-orbit-speed: 90s; animation-direction: reverse; }
+.lp-orbit-ring--outer { --lp-orbit-speed: 120s; }
+
+.lp-orbit-slot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: rotate(var(--lp-orbit-angle)) translateX(var(--lp-orbit-r)) rotate(calc(var(--lp-orbit-angle) * -1));
+}
+
+.lp-orbit-chip {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 1px solid var(--lp-border);
+  border-radius: 50%;
+  background: var(--lp-surface);
+  color: var(--lp-text);
+  box-shadow: var(--lp-shadow-sm);
+  animation: lp-orbit-spin var(--lp-orbit-speed, 80s) linear infinite reverse;
+}
+
+.lp-orbit-ring--middle .lp-orbit-chip { animation-direction: normal; }
+
+.lp-orbit-chip--text {
+  width: 52px;
+  margin-left: -26px;
+  border-radius: var(--lp-radius-pill);
+  font-size: var(--lp-text-xs);
+  font-weight: var(--lp-weight-semibold);
+  color: var(--lp-text-secondary);
+}
+
+.lp-orbit-hub {
+  position: absolute;
+  left: -30px;
+  top: -30px;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border: 1px solid var(--lp-border);
+  border-radius: 50%;
+  background: var(--lp-surface);
+  box-shadow: var(--lp-shadow-cta), var(--lp-shadow-md);
+}
+
+.lp-orbit-logo {
+  border-radius: var(--lp-radius-sm);
+  object-fit: cover;
+}
+
+.lp-orbit-logo--dark { display: none; }
+.lp-root[data-theme="dark"] .lp-orbit-logo--light { display: none; }
+.lp-root[data-theme="dark"] .lp-orbit-logo--dark { display: block; }
+
+@keyframes lp-orbit-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .lp-orbit-center { top: 80%; }
+}

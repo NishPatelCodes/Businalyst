@@ -1,0 +1,44 @@
+/* Blueprint layout: content column between hairline rails, hatched gutters outside */
+.lp-page {
+  position: relative;
+  min-height: 100vh;
+  background:
+    repeating-linear-gradient(135deg, var(--lp-hatch) 0 1px, transparent 1px 10px),
+    var(--lp-bg-subtle);
+}
+
+.lp-frame {
+  position: relative;
+  max-width: calc(var(--lp-container) + 2px);
+  margin: 0 auto;
+  border-left: 1px solid var(--lp-border);
+  border-right: 1px solid var(--lp-border);
+  background: var(--lp-bg-subtle);
+}
+
+.lp-frame-main > * + * { border-top: 1px solid var(--lp-border); }
+
+.lp-skip {
+  position: absolute;
+  top: var(--lp-space-3);
+  left: var(--lp-space-3);
+  z-index: var(--lp-z-overlay);
+  padding: var(--lp-space-2) var(--lp-space-4);
+  border-radius: var(--lp-radius-md);
+  background: var(--lp-ink);
+  color: #ffffff;
+  font-size: var(--lp-text-sm);
+  font-weight: var(--lp-weight-semibold);
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--lp-duration-base) var(--lp-ease);
+}
+
+.lp-skip:focus { transform: translateY(0); }
+
+@media (max-width: 1240px) {
+  .lp-frame {
+    border-left: 0;
+    border-right: 0;
+  }
+}

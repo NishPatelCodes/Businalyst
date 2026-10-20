@@ -1,0 +1,31 @@
+.lp-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--lp-text);
+}
+
+.lp-logo-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--lp-radius-sm);
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+}
+
+.lp-logo-mark--dark { display: none; }
+.lp-root[data-theme="dark"] .lp-logo-mark--light { display: none; }
+.lp-root[data-theme="dark"] .lp-logo-mark--dark { display: block; }
+
+.lp-logo-wordmark {
+  font-size: var(--lp-text-lg);
+  font-weight: var(--lp-weight-semibold);
+  letter-spacing: var(--lp-tracking-heading);
+  text-transform: lowercase;
+}
+
+.lp-logo--on-dark {
+  color: #ffffff;
+}

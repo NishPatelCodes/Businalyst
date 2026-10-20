@@ -1,0 +1,84 @@
+.lp-strip {
+  padding: var(--lp-space-12) 0 var(--lp-space-16);
+  background: var(--lp-bg-subtle);
+}
+
+.lp-strip-caption {
+  margin: 0 0 var(--lp-space-6);
+  text-align: center;
+  font-size: var(--lp-text-sm);
+  font-weight: var(--lp-weight-regular);
+  color: var(--lp-text-muted);
+}
+
+.lp-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--lp-border);
+  border-left: 1px solid var(--lp-border);
+}
+
+.lp-strip-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lp-space-2);
+  min-height: 104px;
+  padding: var(--lp-space-5);
+  border-right: 1px solid var(--lp-border);
+  border-bottom: 1px solid var(--lp-border);
+  background: var(--lp-bg-subtle);
+}
+
+.lp-strip-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lp-space-2);
+  font-family: var(--lp-font-display);
+  font-size: var(--lp-text-lg);
+  font-weight: var(--lp-weight-bold);
+  letter-spacing: var(--lp-tracking-heading);
+  color: var(--lp-text);
+  transition: transform var(--lp-duration-slow) var(--lp-ease);
+}
+
+.lp-strip-more {
+  position: absolute;
+  bottom: var(--lp-space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--lp-text-xs);
+  font-weight: var(--lp-weight-semibold);
+  color: var(--lp-brand);
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--lp-duration-slow) var(--lp-ease),
+    transform var(--lp-duration-slow) var(--lp-ease);
+}
+
+.lp-strip-cell:hover .lp-strip-item,
+.lp-strip-cell:focus-within .lp-strip-item { transform: translateY(-10px); }
+
+.lp-strip-cell:hover .lp-strip-more,
+.lp-strip-cell:focus-within .lp-strip-more {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .lp-strip-grid { grid-template-columns: repeat(2, 1fr); }
+  .lp-strip-item { font-size: var(--lp-text-base); }
+}
+
+@media (hover: none) {
+  .lp-strip-item { transform: translateY(-10px); }
+  .lp-strip-more { opacity: 1; transform: none; }
+}

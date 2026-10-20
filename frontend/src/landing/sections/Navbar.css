@@ -1,0 +1,178 @@
+.lp-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--lp-z-nav);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--lp-gutter);
+  pointer-events: none;
+}
+
+.lp-nav-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lp-space-4);
+  width: 100%;
+  max-width: var(--lp-container);
+  height: var(--lp-nav-height);
+  padding: 0 var(--lp-space-2);
+  border-radius: var(--lp-radius-pill);
+  pointer-events: auto;
+}
+
+/* Glass layer fades in instead of animating background/box-shadow directly */
+.lp-nav-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  border: 1px solid var(--lp-border);
+  background: var(--lp-glass-bg);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: var(--lp-shadow-md);
+  opacity: 0;
+  transition: opacity var(--lp-duration-slow) var(--lp-ease);
+}
+
+.lp-nav.is-floating .lp-nav-bar {
+  max-width: 820px;
+  height: 56px;
+  margin-top: var(--lp-space-3);
+  padding: 0 var(--lp-space-2) 0 var(--lp-space-4);
+}
+
+.lp-nav.is-floating .lp-nav-bar::before { opacity: 1; }
+
+.lp-nav-list,
+.lp-nav-menu-list {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lp-nav-list {
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-pill);
+  background: var(--lp-bg-subtle);
+}
+
+.lp-nav.is-floating .lp-nav-list {
+  border-color: transparent;
+  background: transparent;
+}
+
+.lp-nav-link {
+  position: relative;
+  display: inline-flex;
+  padding: 7px 14px;
+  border-radius: var(--lp-radius-pill);
+  font-size: var(--lp-text-sm);
+  font-weight: var(--lp-weight-medium);
+  color: var(--lp-text-secondary);
+  text-decoration: none;
+  transition: color var(--lp-duration-base) var(--lp-ease);
+}
+
+.lp-nav-link:hover,
+.lp-nav-link.is-active { color: var(--lp-text); }
+
+.lp-nav-link-pill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--lp-surface);
+  box-shadow: var(--lp-shadow-sm);
+}
+
+.lp-root[data-theme="dark"] .lp-nav-link-pill { background: var(--lp-surface-raised); }
+
+.lp-nav-link-label { position: relative; }
+
+.lp-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--lp-space-2);
+}
+
+.lp-nav-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-pill);
+  background: var(--lp-surface);
+  color: var(--lp-text-secondary);
+  cursor: pointer;
+  transition: transform var(--lp-duration-base) var(--lp-ease);
+}
+
+.lp-nav-icon-btn:hover {
+  color: var(--lp-text);
+  transform: rotate(12deg);
+}
+
+.lp-nav-menu-btn { display: none; }
+
+.lp-nav-menu {
+  width: 100%;
+  max-width: var(--lp-container);
+  margin-top: var(--lp-space-2);
+  padding: var(--lp-space-4);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-xl);
+  background: var(--lp-surface);
+  box-shadow: var(--lp-shadow-lg);
+  pointer-events: auto;
+}
+
+.lp-nav-menu-list {
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lp-nav-menu-link {
+  display: block;
+  padding: var(--lp-space-3) var(--lp-space-2);
+  border-radius: var(--lp-radius-md);
+  font-weight: var(--lp-weight-medium);
+  color: var(--lp-text);
+  text-decoration: none;
+}
+
+.lp-nav-menu-link:hover { background: var(--lp-bg-subtle); }
+
+.lp-nav-menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lp-space-2);
+  margin-top: var(--lp-space-4);
+}
+
+@media (max-width: 768px) {
+  .lp-nav-links,
+  .lp-nav-cta { display: none; }
+
+  .lp-nav-menu-btn { display: inline-flex; }
+
+  .lp-nav-bar::before { opacity: 1; }
+
+  .lp-nav-bar,
+  .lp-nav.is-floating .lp-nav-bar {
+    height: 56px;
+    max-width: var(--lp-container);
+    margin-top: var(--lp-space-3);
+    padding: 0 var(--lp-space-2) 0 var(--lp-space-4);
+  }
+}

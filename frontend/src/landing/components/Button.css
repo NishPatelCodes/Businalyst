@@ -1,0 +1,116 @@
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lp-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--lp-radius-md);
+  font-family: var(--lp-font-sans);
+  font-weight: var(--lp-weight-semibold);
+  letter-spacing: var(--lp-tracking-body);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--lp-duration-base) var(--lp-ease),
+    border-color var(--lp-duration-base) var(--lp-ease),
+    box-shadow var(--lp-duration-base) var(--lp-ease),
+    transform var(--lp-duration-base) var(--lp-ease);
+}
+
+.lp-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.lp-btn:disabled,
+.lp-btn.is-loading {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.lp-btn--sm { padding: 8px 14px; font-size: var(--lp-text-xs); }
+.lp-btn--md { padding: 11px 18px; font-size: var(--lp-text-sm); }
+.lp-btn--lg { padding: 14px 24px; font-size: var(--lp-text-base); }
+.lp-btn--full { width: 100%; }
+.lp-btn--pill { border-radius: var(--lp-radius-pill); }
+
+.lp-btn--primary {
+  background: var(--lp-cta-bg);
+  color: var(--lp-cta-text);
+}
+
+.lp-btn--primary:hover:not(:disabled) {
+  background: var(--lp-cta-bg-hover);
+  box-shadow: var(--lp-shadow-cta);
+  transform: translateY(-1px);
+}
+
+.lp-btn--secondary {
+  background: var(--lp-surface);
+  color: var(--lp-text);
+  border-color: var(--lp-border);
+}
+
+.lp-btn--secondary:hover:not(:disabled) {
+  background: var(--lp-bg-subtle);
+  border-color: var(--lp-border-strong);
+  box-shadow: var(--lp-shadow-sm);
+}
+
+.lp-btn--ghost {
+  background: transparent;
+  color: var(--lp-text-secondary);
+}
+
+.lp-btn--ghost:hover:not(:disabled) {
+  background: var(--lp-bg-subtle);
+  color: var(--lp-text);
+}
+
+.lp-btn--ink {
+  background: var(--lp-ink);
+  color: #ffffff;
+  box-shadow: var(--lp-shadow-xs);
+}
+
+.lp-btn--ink:hover:not(:disabled) {
+  background: var(--lp-ink-hover);
+  transform: translateY(-1px);
+}
+
+.lp-root[data-theme="dark"] .lp-btn--ink {
+  background: #ffffff;
+  color: #000000;
+}
+
+.lp-root[data-theme="dark"] .lp-btn--ink:hover:not(:disabled) {
+  background: var(--lp-gray-200);
+}
+
+/* White button for use on the night band */
+.lp-btn--light {
+  background: #ffffff;
+  color: var(--lp-ink);
+  box-shadow: var(--lp-shadow-xs);
+}
+
+.lp-btn--light:hover:not(:disabled) {
+  background: var(--lp-gray-100);
+  transform: translateY(-1px);
+}
+
+.lp-btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: lp-spin 0.8s linear infinite;
+}
+
+@keyframes lp-spin {
+  to { transform: rotate(360deg); }
+}

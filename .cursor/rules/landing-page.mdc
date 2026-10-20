@@ -1,0 +1,14 @@
+---
+description: Strict rules for the new Businalyst landing page in frontend/src/landing
+globs: frontend/src/landing/**
+alwaysApply: false
+---
+
+When creating or editing anything under `frontend/src/landing/`, follow every rule in
+@frontend/src/landing/.cursorrules exactly, and treat these as required context:
+
+- @frontend/src/landing/brand/BRAND_GUIDELINES.md
+- @frontend/src/landing/reference/STACK.md
+- @frontend/src/landing/tokens/tokens.css
+
+Never use `frontend/src/pages/LandingPage.jsx` or `frontend/src/pages/landing/**` as a reference.

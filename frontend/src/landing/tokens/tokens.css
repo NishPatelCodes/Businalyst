@@ -1,0 +1,219 @@
+/* ============================================
+   BUSINALYST LANDING — DESIGN TOKENS
+   Scoped to .lp-root so nothing leaks into the app shell.
+   Brand values mirror frontend/src/index.css; if a brand value
+   changes there, change it here in the same commit.
+   ============================================ */
+
+.lp-root {
+  /* ---- Brand ---- */
+  --lp-brand: #2563eb;
+  --lp-brand-hover: #1d4ed8;
+  --lp-brand-soft: #eff6ff;
+  --lp-brand-ring: rgba(37, 99, 235, 0.12);
+  --lp-brand-glow: rgba(37, 99, 235, 0.3);
+  --lp-ink: #111827;
+  --lp-ink-hover: #000000;
+  --lp-night: #000000;
+  --lp-night-raised: #0a0a0a;
+
+  /* ---- Neutral scale (Tailwind gray, same as --color-neutral-*) ---- */
+  --lp-gray-50: #f9fafb;
+  --lp-gray-100: #f3f4f6;
+  --lp-gray-200: #e5e7eb;
+  --lp-gray-300: #d1d5db;
+  --lp-gray-400: #9ca3af;
+  --lp-gray-500: #6b7280;
+  --lp-gray-600: #4b5563;
+  --lp-gray-700: #374151;
+  --lp-gray-800: #1f2937;
+  --lp-gray-900: #111827;
+
+  /* ---- Status ---- */
+  --lp-success: #059669;
+  --lp-success-soft: #dcfce7;
+  --lp-danger: #dc2626;
+  --lp-danger-soft: #fef2f2;
+  --lp-danger-border: #fecaca;
+  --lp-warning: #f59e0b;
+  --lp-warning-ink: #b45309;
+  --lp-warning-soft: #fef3c7;
+
+  /* ---- Semantic surfaces (light) ---- */
+  --lp-bg: #ffffff;
+  --lp-bg-subtle: #f9fafb;
+  --lp-bg-muted: #f1f5f9;
+  --lp-surface: #ffffff;
+  --lp-surface-raised: #ffffff;
+  --lp-border: #e5e7eb;
+  --lp-border-strong: #d1d5db;
+  --lp-text: #111827;
+  --lp-text-secondary: #4b5563;
+  --lp-text-muted: #6b7280;
+  --lp-text-subtle: #9ca3af;
+  --lp-text-inverse: #ffffff;
+  --lp-cta-bg: var(--lp-brand);
+  --lp-cta-bg-hover: var(--lp-brand-hover);
+  --lp-cta-text: #ffffff;
+  --lp-glass-bg: rgba(255, 255, 255, 0.72);
+  --lp-hatch: rgba(17, 24, 39, 0.05);
+  --lp-overlay-bg: rgba(0, 0, 0, 0.72);
+
+  /* ---- Typography ---- */
+  --lp-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --lp-font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+
+  --lp-text-xs: 12px;
+  --lp-text-sm: 14px;
+  --lp-text-base: 16px;
+  --lp-text-lg: 18px;
+  --lp-text-xl: 20px;
+  --lp-text-2xl: 24px;
+  --lp-text-3xl: clamp(26px, 3vw, 32px);
+  --lp-text-4xl: clamp(30px, 4vw, 40px);
+  --lp-text-hero: clamp(34px, 5.5vw, 56px);
+  --lp-text-cta: clamp(40px, 7vw, 76px);
+
+  --lp-weight-regular: 400;
+  --lp-weight-medium: 500;
+  --lp-weight-semibold: 600;
+  --lp-weight-bold: 700;
+
+  --lp-leading-tight: 1.15;
+  --lp-leading-snug: 1.3;
+  --lp-leading-normal: 1.5;
+  --lp-leading-relaxed: 1.6;
+
+  --lp-tracking-display: -0.03em;
+  --lp-tracking-heading: -0.02em;
+  --lp-tracking-body: -0.01em;
+  --lp-tracking-eyebrow: 0.05em;
+
+  /* ---- Spacing (4px base) ---- */
+  --lp-space-1: 4px;
+  --lp-space-2: 8px;
+  --lp-space-3: 12px;
+  --lp-space-4: 16px;
+  --lp-space-5: 20px;
+  --lp-space-6: 24px;
+  --lp-space-8: 32px;
+  --lp-space-10: 40px;
+  --lp-space-12: 48px;
+  --lp-space-16: 64px;
+  --lp-space-20: 80px;
+  --lp-space-24: 96px;
+  --lp-section-y: clamp(64px, 9vw, 120px);
+
+  /* ---- Layout ---- */
+  --lp-container: 1200px;
+  --lp-container-narrow: 760px;
+  --lp-gutter: clamp(20px, 4vw, 32px);
+  --lp-nav-height: 64px;
+
+  /* ---- Radius ---- */
+  --lp-radius-none: 0;
+  --lp-radius-sm: 6px;
+  --lp-radius-md: 10px;
+  --lp-radius-lg: 14px;
+  --lp-radius-xl: 20px;
+  --lp-radius-pill: 999px;
+
+  /* ---- Elevation ---- */
+  --lp-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --lp-shadow-sm: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --lp-shadow-md: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --lp-shadow-lg: 0 24px 80px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
+  --lp-shadow-cta: 0 4px 14px var(--lp-brand-glow);
+
+  /* ---- Motion ---- */
+  --lp-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --lp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --lp-duration-fast: 150ms;
+  --lp-duration-base: 200ms;
+  --lp-duration-slow: 300ms;
+  --lp-duration-reveal: 600ms;
+
+  /* ---- Z-index ---- */
+  --lp-z-base: 1;
+  --lp-z-sticky: 50;
+  --lp-z-nav: 100;
+  --lp-z-overlay: 200;
+
+  font-family: var(--lp-font-sans);
+  color: var(--lp-text);
+  background: var(--lp-bg);
+  letter-spacing: var(--lp-tracking-body);
+  line-height: var(--lp-leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+/* ---- Dark theme: neutral true-black (no navy tint) ---- */
+.lp-root[data-theme="dark"] {
+  --lp-bg: #000000;
+  --lp-bg-subtle: #000000;
+  --lp-bg-muted: #0a0a0a;
+  --lp-surface: #0a0a0a;
+  --lp-surface-raised: #171717;
+  --lp-border: rgba(255, 255, 255, 0.1);
+  --lp-border-strong: rgba(255, 255, 255, 0.18);
+  --lp-text: #ededed;
+  --lp-text-secondary: #a1a1a1;
+  --lp-text-muted: #8f8f8f;
+  --lp-text-subtle: #666666;
+  --lp-text-inverse: #000000;
+  --lp-gray-100: #1a1a1a;
+  --lp-gray-200: #262626;
+  --lp-gray-300: #333333;
+  --lp-gray-500: #737373;
+  --lp-gray-600: #525252;
+  --lp-gray-700: #262626;
+  --lp-glass-bg: rgba(0, 0, 0, 0.72);
+  --lp-hatch: rgba(255, 255, 255, 0.05);
+  --lp-brand-soft: rgba(37, 99, 235, 0.14);
+  --lp-brand-ring: rgba(59, 130, 246, 0.28);
+  --lp-success-soft: rgba(5, 150, 105, 0.16);
+  --lp-danger-soft: rgba(220, 38, 38, 0.14);
+  --lp-danger-border: rgba(220, 38, 38, 0.35);
+  --lp-warning-soft: rgba(245, 158, 11, 0.16);
+  --lp-shadow-sm: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 8px 20px rgba(0, 0, 0, 0.35);
+  --lp-shadow-md: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 26px rgba(0, 0, 0, 0.45);
+  --lp-shadow-lg: 0 24px 80px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+}
+
+.lp-root *,
+.lp-root *::before,
+.lp-root *::after {
+  box-sizing: border-box;
+}
+
+.lp-root :focus-visible {
+  outline: 2px solid var(--lp-brand);
+  outline-offset: 2px;
+}
+
+.lp-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-root *,
+  .lp-root *::before,
+  .lp-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

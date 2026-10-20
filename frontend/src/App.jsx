@@ -5,7 +5,7 @@ import { KpiProvider } from './context/KpiContext'
 import ProtectedRoute from './components/ProtectedRoute'
 
 const ComingSoon = lazy(() => import('./pages/ComingSoon'))
-const LandingPage = lazy(() => import('./pages/LandingPage'))
+const LandingPage = lazy(() => import('./landing/LandingPage'))
 const Login = lazy(() => import('./pages/Login'))
 const Signup = lazy(() => import('./pages/Signup'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
