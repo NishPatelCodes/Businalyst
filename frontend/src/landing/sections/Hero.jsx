@@ -14,9 +14,8 @@ const Hero = () => {
   return (
     <section id="home" className="lp-hero" aria-labelledby="lp-hero-title">
       <div className="lp-hero-backdrop" aria-hidden="true">
-        <span className="lp-hero-arc lp-hero-arc--1" />
-        <span className="lp-hero-arc lp-hero-arc--2" />
-        <span className="lp-hero-arc lp-hero-arc--3" />
+        <span className="lp-hero-chroma" />
+        <span className="lp-hero-fade" />
       </div>
 
       <Container className="lp-hero-inner">
