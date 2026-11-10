@@ -12,18 +12,17 @@
   pointer-events: none;
 }
 
-/* Chromatic photographic wash behind the headline */
+/* Brand mesh gradient behind the headline (tokens in src/index.css, Design.md 2.9).
+   Light theme uses Gradient 1 (Daybreak) so dark text holds contrast;
+   dark theme uses Gradient 4 (Midnight) so light text does. */
 .lp-hero-chroma {
   position: absolute;
   inset: -4%;
-  background: url('../assets/hero-chroma-7.jpg') center top / cover no-repeat;
+  background: var(--gradient-1);
   animation: lp-hero-drift 28s var(--lp-ease) infinite alternate;
 }
 
-.lp-root:not([data-theme="dark"]) .lp-hero-chroma { opacity: 0.85; }
-
-/* Dark theme: dim the photo so light text holds contrast over the pale sky */
-.lp-root[data-theme="dark"] .lp-hero-chroma { filter: brightness(0.55) saturate(1.15); }
+.lp-root[data-theme="dark"] .lp-hero-chroma { background: var(--gradient-4); }
 
 .lp-hero-fade {
   position: absolute;

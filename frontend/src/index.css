@@ -95,6 +95,36 @@
   --card-bg: var(--color-neutral-100);
   --card-backdrop-blur: 12px;
   
+  /* Gradients - see Design.md section 2.9 for where these may be used */
+  --gradient-1:
+    radial-gradient(at 12% 18%, #eff6ff 0%, transparent 52%),
+    radial-gradient(at 28% 88%, #93c5fd 0%, transparent 58%),
+    radial-gradient(at 88% 62%, #2563eb 0%, transparent 62%),
+    radial-gradient(at 78% 8%, #93c5fd 0%, transparent 50%),
+    #e8edf3;
+  --gradient-2:
+    radial-gradient(at 14% 16%, #93c5fd 0%, transparent 55%),
+    radial-gradient(at 86% 84%, #6366f1 0%, transparent 60%),
+    radial-gradient(at 80% 12%, #3b82f6 0%, transparent 55%),
+    radial-gradient(at 18% 92%, #1d4ed8 0%, transparent 55%),
+    #2563eb;
+  --gradient-3:
+    radial-gradient(at 20% 12%, #3b82f6 0%, transparent 55%),
+    radial-gradient(at 70% 45%, #2563eb 0%, transparent 60%),
+    radial-gradient(at 12% 96%, #070b18 0%, transparent 58%),
+    radial-gradient(at 94% 94%, #1e40af 0%, transparent 55%),
+    #1d4ed8;
+  --gradient-4:
+    radial-gradient(at 62% 22%, #93c5fd 0%, transparent 46%),
+    radial-gradient(at 34% 58%, #1d4ed8 0%, transparent 58%),
+    radial-gradient(at 92% 78%, #1e40af 0%, transparent 50%),
+    radial-gradient(at 4% 4%, #111827 0%, transparent 55%),
+    #070b18;
+  --gradient-1-linear: linear-gradient(135deg, #eff6ff 0%, #93c5fd 100%);
+  --gradient-2-linear: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  --gradient-3-linear: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  --gradient-4-linear: linear-gradient(135deg, #1d4ed8 0%, #070b18 100%);
+
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-base: 0.2s ease;
