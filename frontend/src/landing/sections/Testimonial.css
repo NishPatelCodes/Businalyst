@@ -1,5 +1,5 @@
 .lp-quote {
-  padding: var(--lp-space-20) 0;
+  padding: clamp(44px, 5vw, 64px) 0;
   background: var(--lp-bg);
 }
 

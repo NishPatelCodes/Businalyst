@@ -52,6 +52,9 @@
   .lp-bento { grid-template-columns: 1fr; }
   .lp-bento-cell:nth-child(odd) { border-right: 0; }
   .lp-bento-cell:nth-last-child(2) { border-bottom: 1px solid var(--lp-border); }
-  .lp-bento-visual { height: 260px; }
+  .lp-bento-visual { height: 220px; }
+  /* The upload and fan-out mockups are lists; let them size to their content */
+  .lp-bento-visual:has(.lp-upload),
+  .lp-bento-visual:has(.lp-fan) { height: auto; }
   .lp-bento-copy { padding: var(--lp-space-5) var(--lp-space-5) var(--lp-space-6); }
 }

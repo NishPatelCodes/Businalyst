@@ -104,7 +104,7 @@
   --lp-space-16: 64px;
   --lp-space-20: 80px;
   --lp-space-24: 96px;
-  --lp-section-y: clamp(64px, 9vw, 120px);
+  --lp-section-y: clamp(44px, 5vw, 72px);
 
   /* ---- Layout ---- */
   --lp-container: 1200px;

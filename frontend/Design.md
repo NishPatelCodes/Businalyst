@@ -585,7 +585,7 @@ The landing page (`src/landing/`) follows this document. Its tokens live in `src
 | Colour | `#2563eb` primary, the neutral scale and the semantic colours from 2.1 |
 | Radius | Buttons and inputs 10px, nav links and small controls 8px, cards 12px, large panels 16px. Nothing above 16px except badges and round icon buttons |
 | Elevation and motion | Sections 2.5 and 2.6 |
-| Charts in mockups | Series colours and order from section 6 (`src/landing/tokens/palette.js`) |
+| Charts in mockups | Series colours and order from section 6 (`src/landing/tokens/palette.js`). Mock data must look like real store data: a weekly rhythm, day-to-day noise and the odd spike or slow day, never a smooth wave or straight ramp. Show axes, a faint dashed previous-period line, a period total with its change, and a tooltip with date, value and change. Every number shown is computed from the drawn series |
 | Section eyebrow | 11px/600, uppercase, `0.08em` tracking, as in 2.2, coloured `#2563eb` |
 | Icons | Inline SVG, 1.5 stroke |
 
@@ -597,9 +597,18 @@ The landing page (`src/landing/`) follows this document. Its tokens live in `src
 | Display font | Plus Jakarta Sans 700 for the hero, section titles and CTA | Marketing headlines need more character than Inter |
 | Type scale | Body 16px, lead 18px, section title 30–40px, hero 34–56px, CTA 40–76px | Reading distance and hierarchy differ from a dense app |
 | Body text colour | `#4b5563` in light theme | Long-form copy needs more contrast than `#6b7280` |
-| Spacing | 4px-based scale (`--lp-space-*`), sections `clamp(64px, 9vw, 120px)` apart | Marketing pages need more air |
+| Spacing | 4px-based scale (`--lp-space-*`). Section padding `clamp(44px, 5vw, 72px)` top and bottom (`--lp-section-y`), section header 40px above its content, testimonial quote `clamp(44px, 5vw, 64px)` | Enough air for marketing copy without long empty bands between sections |
 | Page layout | Full-bleed sections on `#f9fafb`, separated by 1px horizontal dividers; content capped at 1200px | No app shell on the marketing page |
 | Animation | `framer-motion` reveals and looping product mockups | Honour `prefers-reduced-motion` |
+
+**Phones (≤768px)**
+
+| Part | Rule |
+|---|---|
+| Metric strip | Compact two-column list: icon and label left-aligned, 15px labels, 16px cell padding, no "Learn more" links |
+| Feature visuals | 220px tall |
+| Testimonial wall | One column (middle column hidden), 440px tall |
+| Hero buttons | Full width, stacked |
 
 **Gradients on the landing page** (section 2.9)
 
@@ -629,5 +638,16 @@ The hero's product visual is a coded mock, not a screenshot: a glass "app window
 | Entrance | Lines wipe in left to right (1.2s), bars grow from the baseline, the tooltip fades in last |
 | Reduced motion | No scroll movement and no auto-advance |
 | Phone | KPI tiles sit in a row above the chart, the date range and tooltip card are hidden |
+
+**Feature cards** (`src/landing/sections/FeatureBento.jsx`)
+
+| Card | Visual |
+|---|---|
+| Upload CSV or Excel | `FeatureUpload`: a file uploading with a live percentage, then four spreadsheet columns matched one by one to Date, Revenue, Expenses and Customer, then three KPI tiles. Loops while on screen |
+| Every metric, one place | `FeatureFanout`: one source file wired to five insight pages (Revenue, Profit, Expense, Customer, Orders), each with its figure and a mini trend; a blue pulse runs to each page in turn |
+| See trends at a glance | `FeatureRevenueChart`: 30 days of revenue with axes, a dashed previous period, the period total and change, and a dated tooltip |
+| Filter any date range | `FeatureRangeFilter` |
+
+The mockups share one set of demo figures (`src/landing/sections/demoNumbers.js`: revenue $79,900, profit $18,420, expenses $61,480, 1,284 orders, 842 customers), so every card tells the same story. On phones the upload and fan-out cards grow to fit their content.
 
 **Media placeholders.** Product screenshots and demo video are not final. Until they are, use `MediaPlaceholder` (`src/landing/components/MediaPlaceholder.jsx`), a blank block filled with `--lp-placeholder` (`#e5e7eb` light, `#232326` dark) at the final aspect ratio. It is currently used in the "How it works" steps and the product tour component (which is no longer opened from the hero).

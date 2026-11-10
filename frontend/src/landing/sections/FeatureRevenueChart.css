@@ -2,21 +2,98 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: var(--lp-space-6) 0 0;
+  padding: var(--lp-space-6) var(--lp-space-8) var(--lp-space-3);
+  --lp-rchart-grid: rgba(17, 24, 39, 0.06);
+}
+
+.lp-root[data-theme="dark"] .lp-rchart { --lp-rchart-grid: rgba(255, 255, 255, 0.07); }
+
+/* ---- Header: label, period total, change ---- */
+.lp-rchart-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--lp-space-4);
+  margin-bottom: var(--lp-space-4);
 }
 
 .lp-rchart-label {
-  margin: 0 var(--lp-space-8);
+  margin: 0 0 2px;
   font-size: var(--lp-text-xs);
   font-weight: var(--lp-weight-semibold);
   color: var(--lp-text-muted);
 }
 
+.lp-rchart-total {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--lp-weight-bold);
+  line-height: 1.1;
+  letter-spacing: var(--lp-tracking-heading);
+  color: var(--lp-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-rchart-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.lp-rchart-delta {
+  font-weight: var(--lp-weight-semibold);
+  color: var(--lp-success);
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-rchart-range { color: var(--lp-text-subtle); }
+
+/* ---- Chart body: y-axis | plot, x-axis below ---- */
+.lp-rchart-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  column-gap: var(--lp-space-2);
+  row-gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.lp-rchart-yaxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: -6px 0;
+  font-size: 10px;
+  font-weight: var(--lp-weight-medium);
+  color: var(--lp-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
 .lp-rchart-plot {
   position: relative;
-  flex: 1;
+  min-height: 0;
   cursor: crosshair;
   touch-action: pan-y;
+}
+
+.lp-rchart-grid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.lp-rchart-grid span {
+  display: block;
+  height: 1px;
+  background: var(--lp-rchart-grid);
 }
 
 .lp-rchart-svg {
@@ -24,8 +101,29 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  overflow: visible;
 }
 
+.lp-rchart-xaxis {
+  grid-column: 2;
+  position: relative;
+  height: 14px;
+  font-size: 10px;
+  font-weight: var(--lp-weight-medium);
+  color: var(--lp-text-subtle);
+}
+
+.lp-rchart-xaxis span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.lp-rchart-xaxis span:first-child { transform: none; }
+.lp-rchart-xaxis span:last-child { transform: translateX(-100%); }
+
+/* ---- Hover marker ---- */
 /* Full-size layer translated by a percentage of the plot, so only transform animates */
 .lp-rchart-track {
   position: absolute;
@@ -39,52 +137,69 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: linear-gradient(to bottom, transparent, var(--lp-border-strong) 30%, var(--lp-border-strong));
+  background: var(--lp-border-strong);
 }
 
 .lp-rchart-dot {
   position: absolute;
   left: 0;
   top: 0;
-  width: 12px;
-  height: 12px;
-  margin: -6px 0 0 -6px;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
   border: 2px solid var(--lp-surface);
   border-radius: 50%;
   background: var(--lp-brand);
-}
-
-.lp-rchart-dot::after {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  background: var(--lp-brand-glow);
-  animation: lp-rchart-pulse 2s var(--lp-ease) infinite;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
 }
 
 .lp-rchart-tip {
   position: absolute;
   left: 0;
   top: 0;
-  padding: 4px 9px;
-  border-radius: var(--lp-radius-pill);
-  background: var(--lp-ink);
-  color: #ffffff;
-  font-size: var(--lp-text-xs);
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 1px;
+  padding: 6px 10px;
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-xs);
+  background: var(--lp-surface-raised);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 12px));
+}
+
+.lp-rchart-tip--start { transform: translate(-12px, calc(-100% - 12px)); }
+.lp-rchart-tip--end { transform: translate(calc(-100% + 12px), calc(-100% - 12px)); }
+
+.lp-rchart-tip-date {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  font-weight: var(--lp-weight-semibold);
+  color: var(--lp-text-muted);
+}
+
+.lp-rchart-tip-value {
+  font-size: 13px;
+  font-weight: var(--lp-weight-semibold);
+  color: var(--lp-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.lp-rchart-tip-change {
+  font-size: 10px;
   font-weight: var(--lp-weight-semibold);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  transform: translate(-50%, calc(-100% - 14px));
-  box-shadow: var(--lp-shadow-md);
 }
 
-.lp-root[data-theme="dark"] .lp-rchart-tip {
-  background: #ffffff;
-  color: var(--lp-ink);
-}
+.lp-rchart-tip-change.is-up { color: var(--lp-success); }
+.lp-rchart-tip-change.is-down { color: var(--lp-danger); }
 
-@keyframes lp-rchart-pulse {
-  0% { transform: scale(0.4); opacity: 1; }
-  80%, 100% { transform: scale(1.4); opacity: 0; }
+@media (max-width: 768px) {
+  .lp-rchart { padding: var(--lp-space-5) var(--lp-space-5) var(--lp-space-3); }
+  .lp-rchart-total { font-size: 20px; }
+  .lp-rchart-xaxis span:nth-child(2),
+  .lp-rchart-xaxis span:nth-child(4) { display: none; }
 }

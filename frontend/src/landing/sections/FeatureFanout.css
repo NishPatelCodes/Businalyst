@@ -1,0 +1,180 @@
+/* One file feeding every insight page */
+.lp-fan {
+  --lp-fan-cycle: 2.75s;
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(40px, 0.35fr) minmax(0, 1.85fr);
+  align-items: center;
+  height: 100%;
+  padding: var(--lp-space-6) var(--lp-space-6) var(--lp-space-6) var(--lp-space-8);
+}
+
+/* ---- Source file ---- */
+.lp-fan-source {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  padding: var(--lp-space-3);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-md);
+  background: var(--lp-surface);
+  box-shadow: var(--lp-shadow-sm);
+}
+
+.lp-fan-file-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-brand-soft);
+  color: var(--lp-brand);
+}
+
+.lp-fan-file-name {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+  font-size: 12px;
+  font-weight: var(--lp-weight-semibold);
+  color: var(--lp-text);
+}
+
+.lp-fan-file-meta {
+  font-size: 11px;
+  color: var(--lp-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Connectors ---- */
+.lp-fan-wires {
+  width: 100%;
+  height: calc(100% - 16px);
+  overflow: visible;
+}
+
+.lp-fan-wire {
+  fill: none;
+  stroke: var(--lp-border-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.lp-fan-pulse {
+  fill: none;
+  stroke: var(--lp-brand);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 14 86;
+  stroke-dashoffset: 114;
+  opacity: 0;
+  animation: lp-fan-run var(--lp-fan-cycle) var(--lp-ease) infinite;
+}
+
+@keyframes lp-fan-run {
+  0% { stroke-dashoffset: 114; opacity: 0; }
+  8% { opacity: 1; }
+  30% { stroke-dashoffset: 14; opacity: 1; }
+  38%, 100% { stroke-dashoffset: 14; opacity: 0; }
+}
+
+/* ---- Insight pages ---- */
+.lp-fan-pages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lp-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lp-fan-page {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--lp-space-2);
+  height: 40px;
+  padding: 0 var(--lp-space-3) 0 var(--lp-space-2);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-md);
+  background: var(--lp-surface);
+  animation: lp-fan-arrive var(--lp-fan-cycle) var(--lp-ease) infinite;
+}
+
+@keyframes lp-fan-arrive {
+  0%, 100% { border-color: var(--lp-border); box-shadow: none; }
+  6% { border-color: rgba(37, 99, 235, 0.45); box-shadow: 0 0 0 3px var(--lp-brand-ring); }
+  22% { border-color: var(--lp-border); box-shadow: none; }
+}
+
+.lp-fan-page-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--lp-radius-sm);
+  background: var(--lp-bg-subtle);
+  color: var(--lp-text-secondary);
+}
+
+.lp-fan-page-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: var(--lp-weight-medium);
+  color: var(--lp-text);
+}
+
+.lp-fan-spark {
+  width: 40px;
+  height: 14px;
+  overflow: visible;
+}
+
+.lp-fan-spark polyline {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lp-fan-page--cost .lp-fan-spark polyline { stroke: #ef4444; }
+
+.lp-fan-page-value {
+  min-width: 48px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: var(--lp-weight-semibold);
+  color: var(--lp-text);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-fan-pulse { display: none; }
+  .lp-fan-page { animation: none; }
+}
+
+@media (max-width: 1024px) {
+  .lp-fan { padding: var(--lp-space-5); }
+  .lp-fan-spark { display: none; }
+  .lp-fan-page { grid-template-columns: auto minmax(0, 1fr) auto; }
+}
+
+@media (max-width: 480px) {
+  .lp-fan {
+    grid-template-columns: minmax(0, 0.8fr) 28px minmax(0, 1.7fr);
+    padding: var(--lp-space-4);
+  }
+  .lp-fan-source { padding: var(--lp-space-2); }
+  .lp-fan-file-icon { width: 28px; height: 28px; }
+  .lp-fan-page { height: 36px; padding: 0 var(--lp-space-2); gap: 6px; }
+  .lp-fan-page-icon { width: 20px; height: 20px; }
+  .lp-fan-page-name,
+  .lp-fan-page-value { font-size: 11px; }
+  .lp-fan-page-value { min-width: 0; }
+}

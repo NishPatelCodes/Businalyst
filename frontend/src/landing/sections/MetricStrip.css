@@ -82,3 +82,25 @@
   .lp-strip-item { transform: translateY(-10px); }
   .lp-strip-more { opacity: 1; transform: none; }
 }
+
+/* Phones: a compact two-column list. Labels sit left-aligned next to their
+   icon, cells shrink to their content and the "Learn more" links are hidden
+   (the whole page is a short scroll away). */
+@media (max-width: 768px) {
+  .lp-strip { padding: var(--lp-space-8) 0 var(--lp-space-10); }
+  .lp-strip-caption { margin-bottom: var(--lp-space-4); }
+  .lp-strip-cell {
+    min-height: 0;
+    align-items: flex-start;
+    padding: var(--lp-space-4) var(--lp-space-4);
+  }
+  .lp-strip-item {
+    gap: var(--lp-space-2);
+    font-size: 15px;
+    line-height: 1.25;
+    letter-spacing: var(--lp-tracking-body);
+    transform: none !important;
+  }
+  .lp-strip-item svg { flex-shrink: 0; width: 18px; height: 18px; }
+  .lp-strip-more { display: none; }
+}

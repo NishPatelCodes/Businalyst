@@ -1,7 +1,7 @@
 import React from 'react'
 import { Container, Reveal, Section, SectionHeader } from '../components'
 import FeatureUpload from './FeatureUpload'
-import FeatureOrbit from './FeatureOrbit'
+import FeatureFanout from './FeatureFanout'
 import FeatureRevenueChart from './FeatureRevenueChart'
 import FeatureRangeFilter from './FeatureRangeFilter'
 import './FeatureBento.css'
@@ -17,7 +17,7 @@ const CELLS = [
     id: 'areas',
     title: 'Every metric, one place',
     description: 'Revenue, profit, expense and customer insight pages, all built from the same upload.',
-    Visual: FeatureOrbit,
+    Visual: FeatureFanout,
   },
   {
     id: 'trends',

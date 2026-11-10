@@ -1,35 +1,17 @@
 .lp-upload {
   display: flex;
   flex-direction: column;
-  gap: var(--lp-space-3);
+  gap: 10px;
   height: 100%;
-  padding: var(--lp-space-6) var(--lp-space-8);
+  padding: var(--lp-space-5) var(--lp-space-8);
 }
 
-.lp-upload-drop {
-  display: flex;
-  align-items: center;
-  gap: var(--lp-space-2);
-  padding: var(--lp-space-4);
-  border: 1.5px dashed var(--lp-border-strong);
-  border-radius: var(--lp-radius-lg);
-  background: var(--lp-surface);
-  font-size: var(--lp-text-sm);
-  font-weight: var(--lp-weight-medium);
-  color: var(--lp-text-secondary);
-}
-
-.lp-upload-formats {
-  margin-left: auto;
-  font-size: var(--lp-text-xs);
-  color: var(--lp-text-muted);
-}
-
+/* ---- File being imported ---- */
 .lp-upload-file {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--lp-space-3);
-  padding: var(--lp-space-3);
+  padding: 10px var(--lp-space-3);
   border: 1px solid var(--lp-border);
   border-radius: var(--lp-radius-md);
   background: var(--lp-surface);
@@ -50,7 +32,7 @@
 .lp-upload-file-body {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   flex: 1;
   min-width: 0;
 }
@@ -63,16 +45,34 @@
 }
 
 .lp-upload-file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: var(--lp-weight-semibold);
   color: var(--lp-text);
 }
 
-.lp-upload-file-state { color: var(--lp-text-muted); }
+.lp-upload-file-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  color: var(--lp-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .lp-upload-file-state.is-done { color: var(--lp-success); font-weight: var(--lp-weight-semibold); }
+
+.lp-upload-file-meta {
+  font-size: 11px;
+  color: var(--lp-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
 
 .lp-upload-track {
   display: block;
   height: 4px;
+  margin-top: 2px;
   overflow: hidden;
   border-radius: var(--lp-radius-pill);
   background: var(--lp-gray-100);
@@ -85,27 +85,127 @@
   height: 100%;
   background: var(--lp-brand);
   transform-origin: left center;
+  transition: transform 90ms linear;
 }
 
-.lp-upload-kpis {
+/* ---- Column mapping ---- */
+.lp-upload-map {
+  padding: 8px var(--lp-space-3);
+  border: 1px solid var(--lp-border);
+  border-radius: var(--lp-radius-md);
+  background: var(--lp-surface);
+}
+
+.lp-upload-map-title {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--lp-space-2);
-  min-height: 64px;
+  grid-template-columns: 1fr 20px 1fr;
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: var(--lp-weight-semibold);
+  letter-spacing: var(--lp-tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--lp-text-subtle);
 }
 
-/* Mirrors the product's square dashboard cards */
-.lp-upload-kpi {
+.lp-upload-map-title span:last-child { grid-column: 3; }
+
+.lp-upload-map-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lp-upload-map-row {
+  display: grid;
+  grid-template-columns: 1fr 20px 1fr;
+  align-items: center;
+  height: 22px;
+  border-top: 1px solid var(--lp-border);
+  font-size: 12px;
+}
+
+.lp-upload-map-row:first-child { border-top: 0; }
+
+.lp-upload-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--lp-text-secondary);
+}
+
+.lp-upload-arrow {
+  display: grid;
+  place-items: center;
+  color: var(--lp-text-subtle);
+}
+
+.lp-upload-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: var(--lp-weight-medium);
+  color: var(--lp-text);
+}
+
+.lp-upload-tick {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--lp-success-soft);
+  color: var(--lp-success);
+  animation: lp-upload-pop 260ms var(--lp-ease-out);
+}
+
+@keyframes lp-upload-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.lp-upload-pending,
+.lp-upload-skeleton {
+  display: block;
+  height: 8px;
+  border-radius: var(--lp-radius-pill);
+  background: var(--lp-gray-100);
+}
+
+.lp-upload-pending { width: 56px; }
+
+.lp-root[data-theme="dark"] .lp-upload-pending,
+.lp-root[data-theme="dark"] .lp-upload-skeleton { background: var(--lp-border); }
+
+/* ---- KPIs ---- */
+.lp-upload-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--lp-space-2);
+}
+
+/* Square corners mirror the product's dashboard cards */
+.lp-upload-kpi {
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 10px;
   border: 1px solid var(--lp-border);
   background: var(--lp-surface);
   box-shadow: var(--lp-shadow-xs);
 }
 
+.lp-upload-kpi--ghost { box-shadow: none; }
+
 .lp-upload-kpi-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 11px;
   color: var(--lp-text-muted);
 }
@@ -113,12 +213,15 @@
 .lp-upload-kpi-value {
   font-size: var(--lp-text-base);
   font-weight: var(--lp-weight-semibold);
+  line-height: 1.2;
   color: var(--lp-text);
   font-variant-numeric: tabular-nums;
 }
 
+.lp-upload-skeleton { width: 70%; height: 10px; margin: 5px 0 3px; }
+
 @media (max-width: 480px) {
-  .lp-upload { padding: var(--lp-space-5); }
-  .lp-upload-formats { display: none; }
+  .lp-upload { padding: var(--lp-space-4); gap: var(--lp-space-2); }
+  .lp-upload-kpi { padding: 8px; }
   .lp-upload-kpi-value { font-size: var(--lp-text-sm); }
 }
