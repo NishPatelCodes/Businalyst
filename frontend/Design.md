@@ -618,14 +618,14 @@ The hero's product visual is a coded mock, not a screenshot: a glass "app window
 
 | Part | Rule |
 |---|---|
-| Background panel | Gradient 3 · Deep Blue with the same skewed shape overlays as the closing CTA, both themes, full container width, `clamp(240px, 34vw, 420px)` tall, 16px radius, 1px border |
+| Background photo | `src/landing/assets/hero-band.jpg` (from `source/ty5.png`, 1089×923: jet climbing through a blue sky above a colour arc). Drawn by `HeroBand` behind both the hero and the metric strip: full viewport width, from the top of the showcase to the divider under the metric strip (918px tall on desktop), no radius or border. Its top edge starts `clamp(90px, 10vw, 200px)` (`--lp-band-lead`) above the showcase and fades in over twice that on an eased mask, so it blends into the hero gradient with no visible line; inside the band the hero's bottom fade to the page colour is turned off. Cropped at `--lp-band-focus: 45%` so the colour arc glows behind the metric strip; the window covers most of the jet. The window starts 40px down (28px on phones); the hero copy sits 32px above the showcase. The photo eases from `scale(1.08)` to `1` while scrolling. The metric strip sits on it as one glass panel with a white caption |
 | Window | `min(100% - 48px, 980px)` wide, starts part-way down the panel and overhangs its bottom edge. 16px radius, 1px border, large shadow, translucent fill (`rgba(255,255,255,0.78)` light, `rgba(24,24,27,0.78)` dark) with `backdrop-filter: blur(22px)` |
 | Title bar | Three 10px gray dots, a centred pill-track tab group (5.2), the date range right-aligned in 12px muted text |
 | Tabs | Profit, Expenses, Orders. They auto-advance every 6s while the showcase is on screen, and pause on hover or focus |
 | Body | Left: three KPI tiles (label 12px, value 22px/700, optional delta or note). Right: one chart panel with eyebrow, 15px/600 title and a dot legend. Inner panels are solid, 12px radius, 1px border |
 | Charts | Section 6 rules: faint horizontal grid, no axis lines, 11px ticks, 2px lines, area fade on the primary series, dashed average line with a 10px label, a marker and tooltip on the peak. Profit `#2563eb`; total expense `#ef4444` with fixed expense `#2563eb`; orders as `#2563eb` bars with 2px top radius |
 | Data | Demo values generated from fixed seeds. Every KPI is computed from the series drawn, so the numbers always agree with the chart |
-| Scroll animation | Linked to scroll position: the window moves from `translateY(56px)` to `translateY(-56px)` and the background panel eases from `scale(1.12)` to `1` as the showcase crosses the viewport. This is the one scroll-linked animation on the page |
+| Scroll animation | Linked to scroll position: the window moves from `translateY(32px)` to `translateY(-32px)` and the background panel eases from `scale(1.12)` to `1` as the showcase crosses the viewport. This is the one scroll-linked animation on the page |
 | Entrance | Lines wipe in left to right (1.2s), bars grow from the baseline, the tooltip fades in last |
 | Reduced motion | No scroll movement and no auto-advance |
 | Phone | KPI tiles sit in a row above the chart, the date range and tooltip card are hidden |

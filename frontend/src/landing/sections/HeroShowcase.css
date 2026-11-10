@@ -1,8 +1,11 @@
-/* Hero product showcase: background image + glass app window */
+/* Hero product showcase: glass app window. The photo behind it is drawn by
+   HeroBand (full width, down to the divider under the metric strip). */
 .lp-show {
   position: relative;
   width: 100%;
-  padding-top: clamp(56px, 9vw, 116px);
+  /* Top of the photo is this element's top edge (see HeroBand). The window
+     starts just inside it; it may cover the jet. */
+  padding-top: 40px;
   --lp-show-glass: rgba(255, 255, 255, 0.78);
   --lp-show-panel: #ffffff;
   --lp-show-track: #f4f4f5;
@@ -14,29 +17,6 @@
   --lp-show-panel: var(--lp-surface);
   --lp-show-track: var(--lp-gray-100);
   --lp-show-grid: rgba(255, 255, 255, 0.07);
-}
-
-/* ---- Background panel: Gradient 3 · Deep Blue (same as closing CTA) ---- */
-.lp-show-art {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: clamp(240px, 34vw, 420px);
-  overflow: hidden;
-  border-radius: var(--lp-radius-xl);
-  border: 1px solid var(--lp-border);
-}
-
-.lp-show-art-img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Source is a tall portrait; show its top (sky and peak) */
-  object-position: center top;
-  transform-origin: center top;
-  will-change: transform;
 }
 
 /* ---- Window ---- */
@@ -425,6 +405,8 @@
 }
 
 @media (max-width: 768px) {
+  /* Slightly tighter on phones */
+  .lp-show { padding-top: 28px; }
   .lp-show-window { width: calc(100% - 24px); padding: var(--lp-space-2); }
   .lp-show-bar-top { grid-template-columns: auto 1fr; }
   .lp-show-range { display: none; }

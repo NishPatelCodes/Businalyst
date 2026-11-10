@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { chartSeries } from '../tokens/palette'
-import artImage from '../assets/hero-showcase-bg.jpg'
 import './HeroShowcase.css'
 
 // Hero product showcase: a glass "app window" with Profit / Expenses / Orders
@@ -224,8 +223,7 @@ const HeroShowcase = () => {
 
   // Scroll-linked drift: the window rises over the panel, the panel settles.
   const { scrollYProgress } = useScroll({ target: rootRef, offset: ['start end', 'end start'] })
-  const windowY = useTransform(scrollYProgress, [0, 1], [56, -56])
-  const artScale = useTransform(scrollYProgress, [0, 1], [1.12, 1])
+  const windowY = useTransform(scrollYProgress, [0, 1], [32, -32])
 
   useEffect(() => {
     if (reduceMotion || paused || !inView) return undefined
@@ -242,16 +240,6 @@ const HeroShowcase = () => {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      <div className="lp-show-art" aria-hidden="true">
-        <motion.img
-          src={artImage}
-          alt=""
-          className="lp-show-art-img"
-          style={reduceMotion ? undefined : { scale: artScale }}
-          decoding="async"
-        />
-      </div>
-
       <motion.div className="lp-show-window" style={reduceMotion ? undefined : { y: windowY }}>
         <div className="lp-show-bar-top">
           <span className="lp-show-dots" aria-hidden="true"><i /><i /><i /></span>

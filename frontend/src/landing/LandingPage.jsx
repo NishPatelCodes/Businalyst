@@ -3,6 +3,7 @@ import { MotionConfig } from 'framer-motion'
 import LandingShell from './LandingShell'
 import Navbar from './sections/Navbar'
 import Hero from './sections/Hero'
+import HeroBand from './sections/HeroBand'
 import MetricStrip from './sections/MetricStrip'
 import FeatureBento from './sections/FeatureBento'
 import Testimonial from './sections/Testimonial'
@@ -22,8 +23,10 @@ const LandingPage = () => (
         <Navbar />
         <div className="lp-frame">
           <main id="lp-main" className="lp-frame-main">
-            <Hero />
-            <MetricStrip />
+            <HeroBand>
+              <Hero />
+              <MetricStrip />
+            </HeroBand>
             <FeatureBento />
             <Testimonial />
             <HowItWorks />
