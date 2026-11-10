@@ -2,7 +2,7 @@
 
 This is the design reference for the whole frontend: the authenticated app, the auth pages and the marketing landing page. Read it before generating or changing any frontend UI, and match it.
 
-**Scope.** Sections 1–9 describe the app (dashboard, insight pages, orders, upload, settings, login/signup). The landing page in `src/landing/` uses the same colours, radii, elevation, motion, dark surfaces and gradients, with the marketing-specific differences listed in section 11. The older `src/pages/landing/` and `src/pages/LandingPage.jsx` are unused legacy files; do not build on them.
+**Scope.** Sections 1–9 describe the app (dashboard, insight pages, orders, upload, settings, login/signup). The landing page in `src/landing/` uses the same colours, radii, elevation, motion and gradients, with the marketing-specific differences listed in section 11. The older `src/pages/landing/` and `src/pages/LandingPage.jsx` are unused legacy files; do not build on them.
 
 **How to read it.** Sections 1–9 and 11 are the rules. Section 10 lists places where the existing code disagrees with itself; when you touch those, follow the rule here instead of the nearby legacy value.
 
@@ -583,7 +583,6 @@ The landing page (`src/landing/`) follows this document. Its tokens live in `src
 | Area | Rule |
 |---|---|
 | Colour | `#2563eb` primary, the neutral scale and the semantic colours from 2.1 |
-| Dark theme | Navy surfaces: page `#0b1220`, card `#111827`, raised `#1f2937`, text `#f9fafb` / `#d1d5db` |
 | Radius | Buttons and inputs 10px, nav links and small controls 8px, cards 12px, large panels 16px. Nothing above 16px except badges and round icon buttons |
 | Elevation and motion | Sections 2.5 and 2.6 |
 | Charts in mockups | Series colours and order from section 6 (`src/landing/tokens/palette.js`) |
@@ -594,11 +593,12 @@ The landing page (`src/landing/`) follows this document. Its tokens live in `src
 
 | Area | Landing value | Why |
 |---|---|---|
+| Dark theme | Neutral charcoal: page `#0f0f10`, card `#18181b`, raised `#232326`, border `rgba(255,255,255,0.1)`, text `#f4f4f5` / `#d4d4d8` / `#a1a1aa` | The app's navy dark surfaces (2.1) read too blue across a full marketing page |
 | Display font | Plus Jakarta Sans 700 for the hero, section titles and CTA | Marketing headlines need more character than Inter |
 | Type scale | Body 16px, lead 18px, section title 30–40px, hero 34–56px, CTA 40–76px | Reading distance and hierarchy differ from a dense app |
 | Body text colour | `#4b5563` in light theme | Long-form copy needs more contrast than `#6b7280` |
 | Spacing | 4px-based scale (`--lp-space-*`), sections `clamp(64px, 9vw, 120px)` apart | Marketing pages need more air |
-| Page background | `#f9fafb` with hairline rails and hatched gutters | Blueprint framing |
+| Page layout | Full-bleed sections on `#f9fafb`, separated by 1px horizontal dividers; content capped at 1200px | No app shell on the marketing page |
 | Animation | `framer-motion` reveals and looping product mockups | Honour `prefers-reduced-motion` |
 
 **Gradients on the landing page** (section 2.9)
@@ -607,8 +607,27 @@ The landing page (`src/landing/`) follows this document. Its tokens live in `src
 |---|---|
 | Hero, light theme | Gradient 1 · Daybreak |
 | Hero, dark theme | Gradient 4 · Midnight |
+| Hero showcase background panel, both themes | Gradient 3 · Deep Blue |
 | Closing CTA band, both themes | Gradient 3 · Deep Blue |
 
 No other section uses a gradient.
 
-**Media placeholders.** Product screenshots and demo video are not final. Until they are, use `MediaPlaceholder` (`src/landing/components/MediaPlaceholder.jsx`), a blank block filled with `--lp-placeholder` (`#e5e7eb` light, `#1f2937` dark) at the final aspect ratio. It is currently used in the hero, the "How it works" steps and the product tour modal.
+**Hero showcase** (`src/landing/sections/HeroShowcase.jsx`)
+
+The hero's product visual is a coded mock, not a screenshot: a glass "app window" over Gradient 3 (Deep Blue), matching the closing CTA band.
+
+| Part | Rule |
+|---|---|
+| Background panel | Gradient 3 · Deep Blue with the same skewed shape overlays as the closing CTA, both themes, full container width, `clamp(240px, 34vw, 420px)` tall, 16px radius, 1px border |
+| Window | `min(100% - 48px, 980px)` wide, starts part-way down the panel and overhangs its bottom edge. 16px radius, 1px border, large shadow, translucent fill (`rgba(255,255,255,0.78)` light, `rgba(24,24,27,0.78)` dark) with `backdrop-filter: blur(22px)` |
+| Title bar | Three 10px gray dots, a centred pill-track tab group (5.2), the date range right-aligned in 12px muted text |
+| Tabs | Profit, Expenses, Orders. They auto-advance every 6s while the showcase is on screen, and pause on hover or focus |
+| Body | Left: three KPI tiles (label 12px, value 22px/700, optional delta or note). Right: one chart panel with eyebrow, 15px/600 title and a dot legend. Inner panels are solid, 12px radius, 1px border |
+| Charts | Section 6 rules: faint horizontal grid, no axis lines, 11px ticks, 2px lines, area fade on the primary series, dashed average line with a 10px label, a marker and tooltip on the peak. Profit `#2563eb`; total expense `#ef4444` with fixed expense `#2563eb`; orders as `#2563eb` bars with 2px top radius |
+| Data | Demo values generated from fixed seeds. Every KPI is computed from the series drawn, so the numbers always agree with the chart |
+| Scroll animation | Linked to scroll position: the window moves from `translateY(56px)` to `translateY(-56px)` and the background panel eases from `scale(1.12)` to `1` as the showcase crosses the viewport. This is the one scroll-linked animation on the page |
+| Entrance | Lines wipe in left to right (1.2s), bars grow from the baseline, the tooltip fades in last |
+| Reduced motion | No scroll movement and no auto-advance |
+| Phone | KPI tiles sit in a row above the chart, the date range and tooltip card are hidden |
+
+**Media placeholders.** Product screenshots and demo video are not final. Until they are, use `MediaPlaceholder` (`src/landing/components/MediaPlaceholder.jsx`), a blank block filled with `--lp-placeholder` (`#e5e7eb` light, `#232326` dark) at the final aspect ratio. It is currently used in the "How it works" steps and the product tour component (which is no longer opened from the hero).

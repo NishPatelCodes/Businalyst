@@ -1,15 +1,12 @@
-import React, { useCallback, useRef, useState } from 'react'
-import { Badge, Button, Container, Icon, MediaPlaceholder, Modal, Reveal } from '../components'
+import React from 'react'
+import { Badge, Button, Container, Icon, Reveal } from '../components'
 import { useAuth } from '../../context/AuthContext'
 import { BRAND, ROUTES } from '../brand/brand'
-import ProductTour from './ProductTour'
+import HeroShowcase from './HeroShowcase'
 import './Hero.css'
 
 const Hero = () => {
   const { isAuthenticated } = useAuth()
-  const [tourOpen, setTourOpen] = useState(false)
-  const playRef = useRef(null)
-  const closeTour = useCallback(() => setTourOpen(false), [])
 
   return (
     <section id="home" className="lp-hero" aria-labelledby="lp-hero-title">
@@ -38,30 +35,12 @@ const Hero = () => {
           </div>
         </Reveal>
 
-        <Reveal className="lp-hero-preview" delay={0.15} y={24}>
-          <MediaPlaceholder
-            ratio="1656 / 928"
-            label={`${BRAND.name} dashboard preview (placeholder)`}
-            className="lp-hero-shot"
-          />
-          <button
-            ref={playRef}
-            type="button"
-            className="lp-hero-play"
-            onClick={() => setTourOpen(true)}
-            aria-label="Open the product tour"
-          >
-            <span className="lp-hero-play-halo" aria-hidden="true" />
-            <span className="lp-hero-play-core" aria-hidden="true">
-              <Icon name="play" size={22} strokeWidth={0} />
-            </span>
-          </button>
+        {/* Product showcase. The previous placeholder + product tour button is in
+            git history (Hero.jsx before this change) if it needs to come back. */}
+        <Reveal className="lp-hero-showcase" delay={0.15} y={24}>
+          <HeroShowcase />
         </Reveal>
       </Container>
-
-      <Modal open={tourOpen} onClose={closeTour} title="Product tour" returnFocusRef={playRef}>
-        <ProductTour />
-      </Modal>
     </section>
   )
 }

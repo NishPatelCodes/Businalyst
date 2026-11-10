@@ -154,30 +154,30 @@
   overflow-x: clip;
 }
 
-/* ---- Dark theme: navy surfaces, same values as html[data-theme="dark"] in src/index.css ---- */
+/* ---- Dark theme: neutral charcoal gray (landing only; the app shell keeps its navy dark theme) ---- */
 .lp-root[data-theme="dark"] {
-  --lp-bg: #0b1220;
-  --lp-bg-subtle: #0b1220;
-  --lp-bg-muted: #111827;
-  --lp-surface: #111827;
-  --lp-surface-raised: #1f2937;
+  --lp-bg: #0f0f10;
+  --lp-bg-subtle: #0f0f10;
+  --lp-bg-muted: #18181b;
+  --lp-surface: #18181b;
+  --lp-surface-raised: #232326;
   --lp-border: rgba(255, 255, 255, 0.1);
   --lp-border-strong: rgba(255, 255, 255, 0.18);
-  --lp-text: #f9fafb;
-  --lp-text-secondary: #d1d5db;
-  --lp-text-muted: #9ca3af;
-  --lp-text-subtle: #6b7280;
-  --lp-text-inverse: #0b1220;
-  --lp-ink-hover: #1f2937;
-  --lp-gray-100: #1f2937;
-  --lp-gray-200: #374151;
-  --lp-gray-300: #4b5563;
-  --lp-gray-500: #9ca3af;
-  --lp-gray-600: #6b7280;
-  --lp-gray-700: #374151;
-  --lp-glass-bg: rgba(11, 18, 32, 0.72);
+  --lp-text: #f4f4f5;
+  --lp-text-secondary: #d4d4d8;
+  --lp-text-muted: #a1a1aa;
+  --lp-text-subtle: #71717a;
+  --lp-text-inverse: #0f0f10;
+  --lp-ink-hover: #232326;
+  --lp-gray-100: #232326;
+  --lp-gray-200: #2e2e32;
+  --lp-gray-300: #3f3f46;
+  --lp-gray-500: #a1a1aa;
+  --lp-gray-600: #71717a;
+  --lp-gray-700: #3f3f46;
+  --lp-glass-bg: rgba(15, 15, 16, 0.72);
   --lp-hatch: rgba(255, 255, 255, 0.05);
-  --lp-placeholder: #1f2937;
+  --lp-placeholder: #232326;
   --lp-brand-soft: rgba(37, 99, 235, 0.14);
   --lp-brand-ring: rgba(59, 130, 246, 0.28);
   --lp-success-soft: rgba(5, 150, 105, 0.16);

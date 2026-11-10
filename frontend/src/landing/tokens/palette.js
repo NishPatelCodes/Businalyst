@@ -45,5 +45,5 @@ export const chartSeries = [
 
 export const chartChrome = {
   light: { grid: '#f0f0f0', axis: '#9ca3af', tooltipBg: '#ffffff', tooltipBorder: '#e5e7eb' },
-  dark: { grid: 'rgba(255,255,255,0.06)', axis: 'rgba(255,255,255,0.3)', tooltipBg: '#111827', tooltipBorder: 'rgba(255,255,255,0.1)' },
+  dark: { grid: 'rgba(255,255,255,0.06)', axis: 'rgba(255,255,255,0.3)', tooltipBg: '#18181b', tooltipBorder: 'rgba(255,255,255,0.1)' },
 }

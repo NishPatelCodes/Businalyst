@@ -41,15 +41,15 @@ Blue is reserved for primary actions, links, focus rings and the main data serie
 | Role | Light | Dark |
 |---|---|---|
 | Brand / primary CTA | `#2563eb` (hover `#1d4ed8`) | same |
-| Ink (headings, ink buttons) | `#111827` | `#f9fafb` |
+| Ink (headings, ink buttons) | `#111827` | `#f4f4f5` |
 | Night band (dramatic dark sections) | `#070b18`, raised `#0f1629` | same |
-| Page background | `#f9fafb` | `#0b1220` |
-| Surface | `#ffffff` | `#111827`, raised `#1f2937` |
+| Page background | `#f9fafb` | `#0f0f10` |
+| Surface | `#ffffff` | `#18181b`, raised `#232326` |
 | Border | `#e5e7eb` | `rgba(255,255,255,0.1)` |
-| Body text | `#4b5563` | `#d1d5db` |
-| Muted text | `#6b7280` / `#9ca3af` | `#9ca3af` |
+| Body text | `#4b5563` | `#d4d4d8` |
+| Muted text | `#6b7280` / `#9ca3af` | `#a1a1aa` |
 
-The landing page's dark theme uses the same navy surfaces as the app shell's dark theme in `src/index.css`.
+The landing page's dark theme is a neutral charcoal gray. The app shell's dark theme in `src/index.css` uses navy values (`#0b1220` / `#111827`).
 | Success / positive delta | `#059669` (on night: `#34d399`) | |
 | Danger | `#dc2626` | |
 | Warning / "estimated" | `#f59e0b`, ink `#b45309` on `#fef3c7` | |

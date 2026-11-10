@@ -101,6 +101,11 @@
   margin-top: var(--lp-space-2);
 }
 
+.lp-hero-showcase { width: 100%; }
+
+/* Styles below (.lp-hero-preview, .lp-hero-shot, .lp-hero-play*) belong to the
+   earlier placeholder + product tour button. They are unused while
+   HeroShowcase is in place and are kept so that layout can be restored. */
 .lp-hero-preview {
   position: relative;
   width: 100%;
