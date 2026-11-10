@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Icon } from '../components'
+import { Icon, MediaPlaceholder } from '../components'
 import { PRODUCT_AREAS } from '../brand/brand'
 import './ProductTour.css'
+
+const MotionPlaceholder = motion(MediaPlaceholder)
 
 const TOUR = PRODUCT_AREAS.filter((area) => area.screenshot)
 
@@ -31,12 +33,10 @@ const ProductTour = () => {
 
       <div className="lp-tour-stage">
         <AnimatePresence mode="wait" initial={false}>
-          <motion.img
+          <MotionPlaceholder
             key={current.id}
-            src={current.screenshot}
-            alt={`${current.label} page in Businalyst`}
-            width="1640"
-            height="920"
+            ratio="1640 / 920"
+            label={`${current.label} page in Businalyst (placeholder)`}
             className="lp-tour-shot"
             initial={reduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}

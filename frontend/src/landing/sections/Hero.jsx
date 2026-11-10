@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react'
-import { Badge, Button, Container, Icon, Modal, Reveal } from '../components'
+import { Badge, Button, Container, Icon, MediaPlaceholder, Modal, Reveal } from '../components'
 import { useAuth } from '../../context/AuthContext'
-import { BRAND, ROUTES, SCREENSHOTS } from '../brand/brand'
+import { BRAND, ROUTES } from '../brand/brand'
 import ProductTour from './ProductTour'
 import './Hero.css'
 
@@ -28,24 +28,21 @@ const Hero = () => {
           <p className="lp-hero-subtitle">{BRAND.subTagline}</p>
           <div className="lp-hero-actions">
             {isAuthenticated ? (
-              <Button to={ROUTES.dashboard} size="lg" shape="pill">Go to dashboard</Button>
+              <Button to={ROUTES.dashboard} size="lg">Go to dashboard</Button>
             ) : (
               <>
-                <Button to={ROUTES.signup} size="lg" shape="pill">Try for free</Button>
-                <Button to={ROUTES.login} size="lg" shape="pill" variant="secondary">Log in</Button>
+                <Button to={ROUTES.signup} size="lg">Try for free</Button>
+                <Button to={ROUTES.login} size="lg" variant="secondary">Log in</Button>
               </>
             )}
           </div>
         </Reveal>
 
         <Reveal className="lp-hero-preview" delay={0.15} y={24}>
-          <img
-            src={SCREENSHOTS.main}
-            alt={`${BRAND.name} dashboard showing Total Revenue, Net Profit, Expenses, Orders and Customers`}
-            width="1656"
-            height="928"
+          <MediaPlaceholder
+            ratio="1656 / 928"
+            label={`${BRAND.name} dashboard preview (placeholder)`}
             className="lp-hero-shot"
-            decoding="async"
           />
           <button
             ref={playRef}

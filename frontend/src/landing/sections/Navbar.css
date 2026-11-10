@@ -21,7 +21,7 @@
   max-width: var(--lp-container);
   height: var(--lp-nav-height);
   padding: 0 var(--lp-space-2);
-  border-radius: var(--lp-radius-pill);
+  border-radius: var(--lp-radius-xl);
   pointer-events: auto;
 }
 
@@ -62,7 +62,7 @@
   gap: 2px;
   padding: 4px;
   border: 1px solid var(--lp-border);
-  border-radius: var(--lp-radius-pill);
+  border-radius: var(--lp-radius-lg);
   background: var(--lp-bg-subtle);
 }
 
@@ -75,7 +75,7 @@
   position: relative;
   display: inline-flex;
   padding: 7px 14px;
-  border-radius: var(--lp-radius-pill);
+  border-radius: 8px;
   font-size: var(--lp-text-sm);
   font-weight: var(--lp-weight-medium);
   color: var(--lp-text-secondary);
@@ -111,7 +111,7 @@
   width: 36px;
   height: 36px;
   border: 1px solid var(--lp-border);
-  border-radius: var(--lp-radius-pill);
+  border-radius: var(--lp-radius-md);
   background: var(--lp-surface);
   color: var(--lp-text-secondary);
   cursor: pointer;

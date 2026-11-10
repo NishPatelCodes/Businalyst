@@ -57,6 +57,7 @@ const Security = () => (
     <Container>
       <Reveal>
         <SectionHeader
+          eyebrow="Privacy"
           title="Your numbers, kept private"
           description="Sign-in protected insight pages and a private dataset history for every account."
         />

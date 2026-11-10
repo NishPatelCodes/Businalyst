@@ -37,6 +37,13 @@
   --lp-hero-veil: color-mix(in srgb, var(--lp-bg-subtle) 45%, transparent);
 }
 
+/* On narrow screens the Midnight highlight sits behind the headline; veil it more */
+@media (max-width: 768px) {
+  .lp-root[data-theme="dark"] .lp-hero-fade {
+    --lp-hero-veil: color-mix(in srgb, var(--lp-bg-subtle) 70%, transparent);
+  }
+}
+
 @keyframes lp-hero-drift {
   from { transform: scale(1) translate3d(0, 0, 0); }
   to { transform: scale(1.08) translate3d(-2%, 1.5%, 0); }

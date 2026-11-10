@@ -1,0 +1,5 @@
+.lp-media-placeholder {
+  display: block;
+  width: 100%;
+  background: var(--lp-placeholder);
+}

@@ -38,6 +38,7 @@ const FeatureBento = () => (
     <Container>
       <Reveal>
         <SectionHeader
+          eyebrow="Features"
           title="Your business, explained in one dashboard"
           description="We help founders and teams track key business metrics and spot trends without complex dashboards or manual reports."
         />

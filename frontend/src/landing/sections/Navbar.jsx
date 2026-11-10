@@ -83,7 +83,7 @@ const Navbar = () => {
         </nav>
 
         <div className="lp-nav-actions">
-          <Button to={cta.to} size="sm" shape="pill" className="lp-nav-cta">{cta.label}</Button>
+          <Button to={cta.to} size="sm" className="lp-nav-cta">{cta.label}</Button>
           <ThemeToggle />
           <button
             ref={toggleRef}
@@ -114,9 +114,9 @@ const Navbar = () => {
         </ul>
         <div className="lp-nav-menu-actions">
           {!isAuthenticated && (
-            <Button to={ROUTES.login} variant="secondary" shape="pill" fullWidth>Log in</Button>
+            <Button to={ROUTES.login} variant="secondary" fullWidth>Log in</Button>
           )}
-          <Button to={cta.to} shape="pill" fullWidth>{cta.label}</Button>
+          <Button to={cta.to} fullWidth>{cta.label}</Button>
         </div>
       </div>
     </header>

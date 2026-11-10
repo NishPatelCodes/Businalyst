@@ -55,6 +55,7 @@ const WallOfLove = () => (
     <Container>
       <Reveal>
         <SectionHeader
+          eyebrow="Customers"
           title="Loved by small business teams"
           description="Founders and operators use Businalyst to read their numbers without the spreadsheet work."
         />

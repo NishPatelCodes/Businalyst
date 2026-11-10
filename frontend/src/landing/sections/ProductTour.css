@@ -14,7 +14,7 @@
 .lp-tour-tab {
   padding: 7px 14px;
   border: 1px solid var(--lp-border);
-  border-radius: var(--lp-radius-pill);
+  border-radius: 8px;
   background: var(--lp-surface);
   color: var(--lp-text-secondary);
   font-family: var(--lp-font-sans);
@@ -68,7 +68,7 @@
   width: 36px;
   height: 36px;
   border: 1px solid var(--lp-border);
-  border-radius: var(--lp-radius-pill);
+  border-radius: 8px;
   background: var(--lp-surface);
   color: var(--lp-text);
   cursor: pointer;

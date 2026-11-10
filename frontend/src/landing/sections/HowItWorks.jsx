@@ -1,36 +1,33 @@
 import React, { useRef, useState } from 'react'
 import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion'
-import { Container, Reveal, Section, SectionHeader } from '../components'
-import { SCREENSHOTS } from '../brand/brand'
+import { Container, MediaPlaceholder, Reveal, Section, SectionHeader } from '../components'
 import './HowItWorks.css'
+
+const MotionPlaceholder = motion(MediaPlaceholder)
 
 const STEPS = [
   {
     id: 'account',
     title: 'Create your free account',
     description: 'Sign up with your email and you are ready to bring in your first dataset.',
-    image: SCREENSHOTS.main,
     alt: 'Businalyst dashboard overview',
   },
   {
     id: 'upload',
     title: 'Upload a CSV or Excel file',
     description: 'Export from your store, POS or spreadsheet and upload it as .csv, .xlsx or .xls.',
-    image: SCREENSHOTS.revenue,
     alt: 'Revenue Insights page built from an uploaded file',
   },
   {
     id: 'kpis',
     title: 'Get your KPIs automatically',
     description: 'Total Revenue, Net Profit, Expenses, Orders and Customers are calculated for you.',
-    image: SCREENSHOTS.profit,
     alt: 'Profit Insights page with automatic KPIs',
   },
   {
     id: 'explore',
     title: 'Explore your insight pages',
     description: 'Dig into revenue, profit, expense and customer trends for any date range you choose.',
-    image: SCREENSHOTS.customers,
     alt: 'Customer Intelligence page',
   },
 ]
@@ -49,6 +46,7 @@ const HowItWorks = () => {
       <Container>
         <Reveal>
           <SectionHeader
+            eyebrow="How it works"
             title="Simple. Seamless. Smart."
             description="From spreadsheet export to clear answers in four steps."
           />
@@ -96,14 +94,10 @@ const HowItWorks = () => {
 
           <div className="lp-steps-media">
             <AnimatePresence mode="wait" initial={false}>
-              <motion.img
+              <MotionPlaceholder
                 key={step.id}
-                src={step.image}
-                alt={step.alt}
-                width="1640"
-                height="920"
-                loading="lazy"
-                decoding="async"
+                ratio="1640 / 920"
+                label={`${step.alt} (placeholder)`}
                 className="lp-steps-image"
                 initial={reduceMotion ? false : { opacity: 0, scale: 1.02 }}
                 animate={{ opacity: 1, scale: 1 }}

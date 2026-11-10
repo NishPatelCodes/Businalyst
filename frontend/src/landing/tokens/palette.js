@@ -7,8 +7,8 @@ export const brand = {
   primaryHover: '#1d4ed8',
   primarySoft: '#eff6ff',
   ink: '#111827',
-  night: '#000000',
-  nightRaised: '#0a0a0a',
+  night: '#070b18',
+  nightRaised: '#0f1629',
 }
 
 export const gray = {
@@ -31,20 +31,19 @@ export const status = {
   warning: '#f59e0b',
 }
 
-// Series colors used by the product's own charts, in priority order.
+// Series colors, in the order set by Design.md section 6.
 // Product mockups on the landing page must draw from this list so they
 // look like real Businalyst screens.
 export const chartSeries = [
-  '#3b82f6', // revenue / primary series
-  '#8b5cf6', // expenses / comparison series
-  '#14b8a6', // profit
-  '#f59e0b', // orders / warning
-  '#22c55e', // positive category
-  '#f97316', // tertiary category
-  '#38bdf8', // light accent
+  '#2563eb', // primary metric (revenue, profit, orders, customers)
+  '#059669', // positive / completed
+  '#6366f1', // secondary category
+  '#f59e0b', // warning / returned
+  '#dc2626', // negative / cancelled
+  '#9ca3af', // neutral / other / previous
 ]
 
 export const chartChrome = {
   light: { grid: '#f0f0f0', axis: '#9ca3af', tooltipBg: '#ffffff', tooltipBorder: '#e5e7eb' },
-  dark: { grid: 'rgba(255,255,255,0.06)', axis: 'rgba(255,255,255,0.3)', tooltipBg: '#0a0a0a', tooltipBorder: 'rgba(255,255,255,0.1)' },
+  dark: { grid: 'rgba(255,255,255,0.06)', axis: 'rgba(255,255,255,0.3)', tooltipBg: '#111827', tooltipBorder: 'rgba(255,255,255,0.1)' },
 }

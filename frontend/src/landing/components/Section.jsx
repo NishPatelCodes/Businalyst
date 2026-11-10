@@ -1,5 +1,4 @@
 import React from 'react'
-import Badge from './Badge'
 import './Section.css'
 
 export const Container = ({ narrow = false, className = '', children }) => (
@@ -18,7 +17,7 @@ export const Section = ({ id, tone = 'default', className = '', children }) => (
 
 export const SectionHeader = ({ eyebrow, title, description, align = 'center', as: Heading = 'h2' }) => (
   <header className={`lp-section-header lp-section-header--${align}`}>
-    {eyebrow && <Badge tone="brand">{eyebrow}</Badge>}
+    {eyebrow && <p className="lp-section-eyebrow">{eyebrow}</p>}
     <Heading className="lp-section-title">{title}</Heading>
     {description && <p className="lp-section-description">{description}</p>}
   </header>

@@ -1,10 +1,10 @@
 # Businalyst Frontend Design Specification
 
-This is the design reference for the authenticated app and the auth pages. Read it before generating or changing any frontend UI, and match it.
+This is the design reference for the whole frontend: the authenticated app, the auth pages and the marketing landing page. Read it before generating or changing any frontend UI, and match it.
 
-**Scope.** Covers the dashboard, insight pages, orders, upload, settings and login/signup. The marketing landing page (`src/landing/`, `src/pages/landing/`, `src/pages/LandingPage.jsx`) is excluded: it is due for a rebuild, so do not copy its styles into the app or the app's styles into it.
+**Scope.** Sections 1–9 describe the app (dashboard, insight pages, orders, upload, settings, login/signup). The landing page in `src/landing/` uses the same colours, radii, elevation, motion, dark surfaces and gradients, with the marketing-specific differences listed in section 11. The older `src/pages/landing/` and `src/pages/LandingPage.jsx` are unused legacy files; do not build on them.
 
-**How to read it.** Sections 1–9 are the rules. Section 10 lists places where the existing code disagrees with itself; when you touch those, follow the rule here instead of the nearby legacy value.
+**How to read it.** Sections 1–9 and 11 are the rules. Section 10 lists places where the existing code disagrees with itself; when you touch those, follow the rule here instead of the nearby legacy value.
 
 ---
 
@@ -15,7 +15,7 @@ This is the design reference for the authenticated app and the auth pages. Read 
 | Framework | React 18, Vite, React Router 6 |
 | Styling | Plain CSS, one `.css` file next to each component or page (`Foo.jsx` + `Foo.css`) |
 | Tokens | CSS custom properties in `src/index.css` (`:root`) |
-| Tailwind | Installed (v4) but used only by the landing page. Do not use Tailwind utility classes in app pages |
+| Tailwind | Installed (v4) but not used for styling. Do not use Tailwind utility classes |
 | Charts | Recharts for new charts. A few older dashboard charts are hand-written SVG |
 | Icons | Inline `<svg>` in JSX. No icon library is installed; do not add one |
 | Animation | CSS transitions and keyframes. `framer-motion` is not used in app pages |
@@ -548,7 +548,7 @@ Colour must not be the only signal: pair it with a label, legend entry, sign or 
 - Don't use radii above 16px (pills excepted) or mix the 4px flat style with the 16px card style on one page.
 - Don't use font weights above 700, sizes above 32px, or uppercase outside eyebrow labels.
 - Don't use any variable that is not defined in `index.css` (see section 10).
-- Don't copy anything from the landing page.
+- Don't copy landing-only values (section 11) into app pages.
 
 ---
 
@@ -571,4 +571,44 @@ These exist today. Do not replicate them in new work; align to the rule when you
 | Duplicated page CSS | Customers Insights imports `ProfitInsights.css` and uses `pi-`/`pil-` classes | New pages get their own prefix and file |
 | KPI accents | KPI cards use pure black (`#000`) values and progress fills, and a grey `#5a5a5a` details button | Keep on existing KPI cards; elsewhere use `#111827` and the standard button variants |
 | Off-palette gradients | Sidebar avatar and promo image use yellow-to-pink (`#fde68a` → `#f9a8d4`); the insights badge uses `--color-primary` → `#7B9FFF`; the top-nav avatar uses `#1f2937` → `#374151` | Use the linear gradients in section 2.9 |
-| Page title | `index.html` title is still "Businalyst - Coming Soon" | Not a styling rule; noted for cleanup |
+
+---
+
+## 11. Landing page
+
+The landing page (`src/landing/`) follows this document. Its tokens live in `src/landing/tokens/tokens.css` as `--lp-*` variables scoped to `.lp-root`, and must stay in step with `src/index.css`. Classes use the `lp-` prefix.
+
+**Same as the app**
+
+| Area | Rule |
+|---|---|
+| Colour | `#2563eb` primary, the neutral scale and the semantic colours from 2.1 |
+| Dark theme | Navy surfaces: page `#0b1220`, card `#111827`, raised `#1f2937`, text `#f9fafb` / `#d1d5db` |
+| Radius | Buttons and inputs 10px, nav links and small controls 8px, cards 12px, large panels 16px. Nothing above 16px except badges and round icon buttons |
+| Elevation and motion | Sections 2.5 and 2.6 |
+| Charts in mockups | Series colours and order from section 6 (`src/landing/tokens/palette.js`) |
+| Section eyebrow | 11px/600, uppercase, `0.08em` tracking, as in 2.2, coloured `#2563eb` |
+| Icons | Inline SVG, 1.5 stroke |
+
+**Differences allowed on the landing page only**
+
+| Area | Landing value | Why |
+|---|---|---|
+| Display font | Plus Jakarta Sans 700 for the hero, section titles and CTA | Marketing headlines need more character than Inter |
+| Type scale | Body 16px, lead 18px, section title 30–40px, hero 34–56px, CTA 40–76px | Reading distance and hierarchy differ from a dense app |
+| Body text colour | `#4b5563` in light theme | Long-form copy needs more contrast than `#6b7280` |
+| Spacing | 4px-based scale (`--lp-space-*`), sections `clamp(64px, 9vw, 120px)` apart | Marketing pages need more air |
+| Page background | `#f9fafb` with hairline rails and hatched gutters | Blueprint framing |
+| Animation | `framer-motion` reveals and looping product mockups | Honour `prefers-reduced-motion` |
+
+**Gradients on the landing page** (section 2.9)
+
+| Place | Gradient |
+|---|---|
+| Hero, light theme | Gradient 1 · Daybreak |
+| Hero, dark theme | Gradient 4 · Midnight |
+| Closing CTA band, both themes | Gradient 3 · Deep Blue |
+
+No other section uses a gradient.
+
+**Media placeholders.** Product screenshots and demo video are not final. Until they are, use `MediaPlaceholder` (`src/landing/components/MediaPlaceholder.jsx`), a blank block filled with `--lp-placeholder` (`#e5e7eb` light, `#1f2937` dark) at the final aspect ratio. It is currently used in the hero, the "How it works" steps and the product tour modal.

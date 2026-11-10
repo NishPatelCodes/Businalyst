@@ -45,7 +45,8 @@ const FAQ = () => {
       <Container narrow>
         <Reveal>
           <SectionHeader
-            title="Frequently Asked Questions"
+            eyebrow="FAQ"
+            title="Frequently asked questions"
             description="Answers to common questions about Businalyst. Have something else in mind? Create an account and take a look around."
           />
         </Reveal>

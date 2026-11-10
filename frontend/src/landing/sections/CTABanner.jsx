@@ -23,7 +23,7 @@ const CTABanner = () => {
             to={isAuthenticated ? ROUTES.dashboard : ROUTES.signup}
             variant="light"
             size="lg"
-            shape="pill"
+           
           >
             {isAuthenticated ? 'Go to dashboard' : 'Create your free account'}
           </Button>

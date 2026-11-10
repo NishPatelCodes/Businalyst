@@ -1,8 +1,9 @@
 /* ============================================
    BUSINALYST LANDING — DESIGN TOKENS
    Scoped to .lp-root so nothing leaks into the app shell.
-   Brand values mirror frontend/src/index.css; if a brand value
-   changes there, change it here in the same commit.
+   Values follow frontend/Design.md (colour, radius, elevation, motion,
+   dark surfaces). If a value changes in src/index.css or Design.md,
+   change it here in the same commit.
    ============================================ */
 
 .lp-root {
@@ -14,8 +15,8 @@
   --lp-brand-glow: rgba(37, 99, 235, 0.3);
   --lp-ink: #111827;
   --lp-ink-hover: #000000;
-  --lp-night: #000000;
-  --lp-night-raised: #0a0a0a;
+  --lp-night: #070b18;
+  --lp-night-raised: #0f1629;
 
   /* ---- Neutral scale (Tailwind gray, same as --color-neutral-*) ---- */
   --lp-gray-50: #f9fafb;
@@ -58,6 +59,7 @@
   --lp-glass-bg: rgba(255, 255, 255, 0.72);
   --lp-hatch: rgba(17, 24, 39, 0.05);
   --lp-overlay-bg: rgba(0, 0, 0, 0.72);
+  --lp-placeholder: #e5e7eb;
 
   /* ---- Typography ---- */
   --lp-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
@@ -87,7 +89,7 @@
   --lp-tracking-display: -0.03em;
   --lp-tracking-heading: -0.02em;
   --lp-tracking-body: -0.01em;
-  --lp-tracking-eyebrow: 0.05em;
+  --lp-tracking-eyebrow: 0.08em;
 
   /* ---- Spacing (4px base) ---- */
   --lp-space-1: 4px;
@@ -111,11 +113,13 @@
   --lp-nav-height: 64px;
 
   /* ---- Radius ---- */
+  /* Design.md 2.4: nothing above 16px except pills */
   --lp-radius-none: 0;
+  --lp-radius-xs: 4px;
   --lp-radius-sm: 6px;
   --lp-radius-md: 10px;
-  --lp-radius-lg: 14px;
-  --lp-radius-xl: 20px;
+  --lp-radius-lg: 12px;
+  --lp-radius-xl: 16px;
   --lp-radius-pill: 999px;
 
   /* ---- Elevation ---- */
@@ -150,28 +154,30 @@
   overflow-x: clip;
 }
 
-/* ---- Dark theme: neutral true-black (no navy tint) ---- */
+/* ---- Dark theme: navy surfaces, same values as html[data-theme="dark"] in src/index.css ---- */
 .lp-root[data-theme="dark"] {
-  --lp-bg: #000000;
-  --lp-bg-subtle: #000000;
-  --lp-bg-muted: #0a0a0a;
-  --lp-surface: #0a0a0a;
-  --lp-surface-raised: #171717;
+  --lp-bg: #0b1220;
+  --lp-bg-subtle: #0b1220;
+  --lp-bg-muted: #111827;
+  --lp-surface: #111827;
+  --lp-surface-raised: #1f2937;
   --lp-border: rgba(255, 255, 255, 0.1);
   --lp-border-strong: rgba(255, 255, 255, 0.18);
-  --lp-text: #ededed;
-  --lp-text-secondary: #a1a1a1;
-  --lp-text-muted: #8f8f8f;
-  --lp-text-subtle: #666666;
-  --lp-text-inverse: #000000;
-  --lp-gray-100: #1a1a1a;
-  --lp-gray-200: #262626;
-  --lp-gray-300: #333333;
-  --lp-gray-500: #737373;
-  --lp-gray-600: #525252;
-  --lp-gray-700: #262626;
-  --lp-glass-bg: rgba(0, 0, 0, 0.72);
+  --lp-text: #f9fafb;
+  --lp-text-secondary: #d1d5db;
+  --lp-text-muted: #9ca3af;
+  --lp-text-subtle: #6b7280;
+  --lp-text-inverse: #0b1220;
+  --lp-ink-hover: #1f2937;
+  --lp-gray-100: #1f2937;
+  --lp-gray-200: #374151;
+  --lp-gray-300: #4b5563;
+  --lp-gray-500: #9ca3af;
+  --lp-gray-600: #6b7280;
+  --lp-gray-700: #374151;
+  --lp-glass-bg: rgba(11, 18, 32, 0.72);
   --lp-hatch: rgba(255, 255, 255, 0.05);
+  --lp-placeholder: #1f2937;
   --lp-brand-soft: rgba(37, 99, 235, 0.14);
   --lp-brand-ring: rgba(59, 130, 246, 0.28);
   --lp-success-soft: rgba(5, 150, 105, 0.16);

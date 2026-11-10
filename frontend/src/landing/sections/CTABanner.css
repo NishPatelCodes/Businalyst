@@ -3,7 +3,7 @@
   background: var(--lp-bg-subtle);
 }
 
-/* Night band: dark in both themes */
+/* Brand band: Gradient 3 "Deep Blue" (Design.md 2.9) in both themes */
 .lp-cta-panel {
   position: relative;
   display: flex;
@@ -13,19 +13,12 @@
   overflow: hidden;
   padding: clamp(56px, 9vw, 112px) var(--lp-gutter);
   border-radius: var(--lp-radius-xl);
-  background:
-    radial-gradient(60% 80% at 50% 0%, rgba(37, 99, 235, 0.12), transparent 70%),
-    var(--lp-night);
+  background: var(--gradient-3);
   text-align: center;
   box-shadow: var(--lp-shadow-lg);
 }
 
-.lp-root[data-theme="dark"] .lp-cta-panel {
-  border: 1px solid var(--lp-border);
-  background:
-    radial-gradient(60% 80% at 50% 0%, rgba(37, 99, 235, 0.12), transparent 70%),
-    var(--lp-night-raised);
-}
+.lp-root[data-theme="dark"] .lp-cta-panel { border: 1px solid var(--lp-border); }
 
 .lp-cta-shapes {
   position: absolute;
@@ -35,8 +28,8 @@
 
 .lp-cta-shape {
   position: absolute;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
   transform: skewX(-24deg);
 }
 
@@ -67,8 +60,8 @@
 .lp-cta-caption {
   position: relative;
   margin: 0;
-  font-size: var(--lp-text-xs);
-  color: rgba(255, 255, 255, 0.6);
+  font-size: var(--lp-text-sm);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .lp-cta-panel .lp-btn { position: relative; }

@@ -1,5 +1,7 @@
 # Businalyst Brand Guidelines (Landing Page)
 
+> Visual rules (colour, radius, dark theme, gradients, chart colours) are defined in `frontend/Design.md`, section 11. Where this file and Design.md differ, Design.md wins.
+
 Extracted from the live product (`index.css`, auth pages, Coming Soon page, sidebar, dashboard cards).
 Code constants live in `brand.js`, `../tokens/tokens.css` and `../tokens/palette.js`.
 
@@ -39,25 +41,25 @@ Blue is reserved for primary actions, links, focus rings and the main data serie
 | Role | Light | Dark |
 |---|---|---|
 | Brand / primary CTA | `#2563eb` (hover `#1d4ed8`) | same |
-| Ink (headings, ink buttons) | `#111827` | `#ededed` |
-| Night band (dramatic dark sections) | `#000000`, raised `#0a0a0a` | same |
-| Page background | `#ffffff` | `#000000` |
-| Subtle background / surface | `#f9fafb` | `#0a0a0a`, raised `#171717` |
+| Ink (headings, ink buttons) | `#111827` | `#f9fafb` |
+| Night band (dramatic dark sections) | `#070b18`, raised `#0f1629` | same |
+| Page background | `#f9fafb` | `#0b1220` |
+| Surface | `#ffffff` | `#111827`, raised `#1f2937` |
 | Border | `#e5e7eb` | `rgba(255,255,255,0.1)` |
-| Body text | `#4b5563` | `#a1a1a1` |
-| Muted text | `#6b7280` / `#9ca3af` | `#8f8f8f` |
+| Body text | `#4b5563` | `#d1d5db` |
+| Muted text | `#6b7280` / `#9ca3af` | `#9ca3af` |
 
-The landing page's dark theme is neutral true-black (Vercel-style, no navy tint). The app shell's dark theme in `src/index.css` still uses the navy values (`#0b1220` / `#111827`).
+The landing page's dark theme uses the same navy surfaces as the app shell's dark theme in `src/index.css`.
 | Success / positive delta | `#059669` (on night: `#34d399`) | |
 | Danger | `#dc2626` | |
 | Warning / "estimated" | `#f59e0b`, ink `#b45309` on `#fef3c7` | |
 
-Chart and data-viz series, in order: `#3b82f6` blue, `#8b5cf6` violet, `#14b8a6` teal,
-`#f59e0b` amber, `#22c55e` green, `#f97316` orange, `#38bdf8` sky.
+Chart and data-viz series, in order: `#2563eb` blue, `#059669` green, `#6366f1` indigo,
+`#f59e0b` amber, `#dc2626` red, `#9ca3af` neutral.
 
 Rules:
 - One accent per view. Don't introduce purple/teal gradients as brand colors; they are data colors only.
-- Allowed glow: radial blue `rgba(37,99,235,0.12)` at large blur on the night band only.
+- Gradients: only the four brand gradients from Design.md 2.9, in the hero and the closing CTA band.
 - Text contrast must meet WCAG AA (4.5:1 body, 3:1 large text).
 
 ## 5. Typography
@@ -74,7 +76,7 @@ Headline sizes: hero `clamp(34px, 5.5vw, 56px)`, section title `clamp(30px, 4vw,
 
 ## 6. Shape, depth and motion
 
-- Radius: inputs/buttons 10px, marketing cards 14px, pills 999px.
+- Radius: inputs/buttons 10px, marketing cards 12px, large panels 16px, badges 999px.
   **Product mockups use 0 radius**, because dashboard cards in the app are square.
 - Shadows are soft, layered and low-opacity (see `--lp-shadow-*`). No hard drop shadows.
 - Motion is quiet: fade + 8–24px rise, 150–600ms, `cubic-bezier(0.4,0,0.2,1)`.

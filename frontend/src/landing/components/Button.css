@@ -83,7 +83,7 @@
 
 .lp-root[data-theme="dark"] .lp-btn--ink {
   background: #ffffff;
-  color: #000000;
+  color: var(--lp-ink);
 }
 
 .lp-root[data-theme="dark"] .lp-btn--ink:hover:not(:disabled) {
